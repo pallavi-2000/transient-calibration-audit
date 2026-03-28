@@ -1,0 +1,101 @@
+\subsection{Astronomical Alert Brokers}
+\label{sec:related:brokers}
+
+The ZTF alert stream has prompted the development of several 
+automated classification brokers. ALeRCE \citep{Forster2021} 
+operates a two-stage pipeline: a stamp classifier for early 
+real/bogus filtering and a light curve classifier 
+\citep{Sanchez-Saez2021} for multi-class transient 
+classification using Random Forest on extracted photometric 
+features. Fink \citep{Moller2021} provides a modular 
+science portal with multiple classifiers operating 
+independently, including the SuperNNova-based binary 
+classifier \citep{Moller2019} and a Random Forest 
+SN Ia discriminator. ANTARES \citep{Narayan2018} focuses 
+on real-time annotation and filtering. Lasair 
+\citep{Smith2019} provides alert stream access with 
+community-contributed classifiers.
+
+All major brokers provide classification probabilities 
+as outputs. None, to our knowledge, publish calibration 
+metrics such as ECE or reliability diagrams for their 
+production classifiers. This gap motivates the present work.
+
+\subsection{Calibration in Machine Learning}
+\label{sec:related:calibration}
+
+The calibration of neural network classifiers has received 
+substantial attention since \citet{Guo2017} demonstrated 
+that modern deep networks are systematically overconfident 
+and that temperature scaling provides an effective post-hoc 
+remedy. Subsequent work has examined calibration under 
+distribution shift \citep{Ovadia2019}, for binary 
+classifiers \citep{Kull2017}, and in the context of 
+selective prediction \citep{Geifman2017}.
+
+Calibration of Random Forest classifiers is less studied 
+but well understood at a mechanistic level. 
+\citet{Niculescu-Mizil2005} demonstrated that RF produces 
+systematically distorted probability estimates — 
+underconfident for well-discriminated classes and poorly 
+calibrated near class boundaries — and that Platt scaling 
+and isotonic regression provide effective corrections. 
+\citet{Zadrozny2002} introduced isotonic regression as 
+a nonparametric post-hoc calibration method applicable 
+to any classifier.
+
+In astronomy, calibration has been studied in the context 
+of photometric redshift estimation \citep{Bordoloi2010, 
+Schmidt2020}, where reliable uncertainty quantification 
+directly affects cosmological inference. Calibration of 
+transient classifiers has not, to our knowledge, been 
+systematically evaluated on real spectroscopic samples 
+prior to this work.
+
+\subsection{Uncertainty Quantification for Transient Classification}
+\label{sec:related:uq}
+
+Uncertainty quantification for astronomical transient 
+classification has been explored primarily through 
+Bayesian and ensemble approaches. \citet{Möller2020} 
+applied Bayesian neural networks to supernova 
+photometric classification, obtaining uncertainty 
+estimates alongside class predictions. \citet{Villar2019} 
+used deep ensembles for the PLAsTiCC challenge, 
+demonstrating that ensemble disagreement correlates 
+with classification difficulty.
+
+These works focus on model uncertainty (epistemic 
+uncertainty from limited training data) rather than 
+calibration (the alignment between predicted confidence 
+and empirical accuracy). The two concepts are related 
+but distinct: a well-calibrated classifier need not 
+have low uncertainty, and a classifier with well-quantified 
+uncertainty need not be calibrated. Our focus on ECE 
+and reliability diagrams addresses the calibration 
+question directly, complementing prior uncertainty 
+quantification work.
+
+\subsection{Learning to Defer}
+\label{sec:related:l2d}
+
+Learning-to-defer \citep[L2D;][]{Madras2018} is a 
+framework for training joint classifier-deferral systems 
+that learn when to route decisions to a human expert. 
+\citet{Mozannar2020} extended L2D to handle consistent 
+surrogate losses, and \citet{Verma2022} developed 
+calibrated L2D systems that provide reliable confidence 
+estimates alongside deferral decisions.
+
+L2D has been applied in medical imaging 
+\citep{Tschandl2019}, content moderation, and 
+autonomous driving, where human-AI collaboration 
+under resource constraints is operationally critical. 
+To our knowledge, L2D has not been applied to 
+astronomical transient classification. The present 
+calibration study establishes the empirical foundation 
+for this application: demonstrating that production 
+classifiers are miscalibrated motivates the need for 
+explicit deferral mechanisms, and providing post-hoc 
+calibration methods identifies the broker most 
+suitable for downstream L2D integration.

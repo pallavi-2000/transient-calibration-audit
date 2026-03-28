@@ -1,0 +1,38 @@
+{
+  "SNIa": {
+    "n": 757,
+    "accuracy": 0.8309114927344782,
+    "ece": 0.3768,
+    "ece_ci_lo": 0.3523,
+    "ece_ci_hi": 0.4011
+  },
+  "SNII": {
+    "n": 560,
+    "accuracy": 0.49464285714285716,
+    "ece": 0.1027,
+    "ece_ci_lo": 0.0664,
+    "ece_ci_hi": 0.141
+  },
+  "SNIbc": {
+    "n": 204,
+    "accuracy": 0.8284313725490197,
+    "ece": 0.3615,
+    "ece_ci_lo": 0.3154,
+    "ece_ci_hi": 0.405
+  },
+  "SLSN": {
+    "n": 55,
+    "accuracy": 0.7818181818181819,
+    "ece": 0.2452,
+    "ece_ci_lo": 0.1806,
+    "ece_ci_hi": 0.3189
+  },
+  "TDE": {
+    "n": 30,
+    "accuracy": 0.0,
+    "ece": null,
+    "ece_ci_lo": null,
+    "ece_ci_hi": null,
+    "note": "TDE not in ALeRCE class taxonomy"
+  }
+}

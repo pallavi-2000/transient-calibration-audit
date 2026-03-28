@@ -1,0 +1,24 @@
+NEEDLE Vector (Per-Class) Temperature Scaling Results
+=======================================================
+
+Per-class temperatures (mean ± std across 5 folds):
+  T_SN = 1.5812 ± 0.0569
+  T_SLSN-I = 1.8771 ± 0.0965
+  T_TDE = 0.4289 ± 0.0251
+
+All fold T values:
+  Fold 1: [1.6163, 2.0323, 0.4449]
+  Fold 2: [1.6636, 1.8107, 0.4161]
+  Fold 3: [1.5253, 1.7852, 0.4]
+  Fold 4: [1.5898, 1.948, 0.4698]
+  Fold 5: [1.5108, 1.809, 0.4138]
+
+Aggregate metrics:
+  ECE  raw     : 0.0504
+  ECE  global T: 0.1300
+  ECE  vector T: 0.1183
+  ECE reduction: -134.7%
+  Brier raw    : 0.2411
+  Brier vec T  : 0.2528
+  NLL raw      : 0.6209
+  NLL vec T    : 0.5039

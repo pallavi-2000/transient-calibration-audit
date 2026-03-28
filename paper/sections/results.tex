@@ -1,0 +1,248 @@
+\subsection{ALeRCE Aggregate Calibration}
+\label{sec:results:alerce_agg}
+
+Figure~\ref{fig:alerce_reliability} shows the reliability diagram for 
+ALeRCE's light curve classifier evaluated on 1,576 spectroscopically 
+confirmed objects (30 TDE excluded; see Section~\ref{sec:results:tde}). 
+The classifier exhibits systematic underconfidence across all confidence 
+bins: every point lies above the perfect calibration diagonal, indicating 
+that predicted probabilities are consistently lower than empirical 
+accuracies.
+
+\begin{figure}
+\centering
+\includegraphics[width=\columnwidth]{../figures/fig1_reliability_diagram}
+\caption{Reliability diagram for ALeRCE's light curve classifier 
+evaluated on 1,576 spectroscopically confirmed ZTF transients 
+(30 TDE excluded). Every point lies above the perfect calibration 
+diagonal, indicating systematic underconfidence across all confidence 
+bins. The histogram shows sample counts per bin. 
+$\mathrm{ECE} = 0.259$ (95\% CI: $[0.237, 0.280]$).}
+\label{fig:alerce_reliability}
+\end{figure}
+
+The aggregate ECE is $0.259$ (95\% CI: $[0.237, 0.280]$), well above 
+the 0.05 threshold for practically significant miscalibration. The 
+overall accuracy is $0.709$ while the mean top-1 confidence is $0.451$, 
+a gap of $+0.258$ that is consistent with the ECE estimate. This gap 
+is directional and consistent — not a consequence of random binning 
+artefacts — indicating a systematic mechanistic suppression of 
+classifier confidence.
+
+To assess whether this miscalibration arises from probability dilution 
+across ALeRCE's 15-class output space, we renormalise the probability 
+vectors onto the 4 evaluated classes and recompute ECE. The renormalised 
+ECE is $0.251$ (95\% CI: $[0.230, 0.272]$), a difference of $0.008$ 
+from the 15-class estimate. Probability dilution accounts for only 
+3\% of the observed miscalibration; the remainder is intrinsic to the 
+classifier.
+
+\subsection{ALeRCE Per-Class Calibration}
+\label{sec:results:alerce_perclass}
+
+Figure~\ref{fig:alerce_perclass} shows per-class reliability diagrams 
+for the four ALeRCE-classified transient types. The results reveal a 
+striking inverse relationship between classification accuracy and 
+calibration error.
+
+SNIa, the most accurately classified class (accuracy $= 0.831$), 
+exhibits the worst calibration ($\mathrm{ECE} = 0.377$, 
+95\% CI: $[0.352, 0.401]$). SNIbc shows the same pattern 
+(accuracy $= 0.828$, $\mathrm{ECE} = 0.362$, 
+95\% CI: $[0.315, 0.405]$). Both classes are classified correctly 
+more than 80\% of the time, yet the classifier assigns them 
+confidences far below this accuracy level.
+
+SNII presents the inverse case: accuracy is only $0.495$, yet ECE 
+is $0.103$ (95\% CI: $[0.066, 0.141]$) — the best-calibrated class. 
+The classifier is appropriately uncertain about objects it 
+classifies poorly. SLSN shows intermediate behaviour 
+($\mathrm{ECE} = 0.245$, 95\% CI: $[0.181, 0.319]$), with wider 
+confidence intervals reflecting the smaller sample size ($n = 55$).
+
+This pattern is mechanistically coherent. ALeRCE's light curve 
+classifier is based on Random Forest \citep{Sanchez-Saez2021}, 
+whose probability outputs are averages of hard leaf-node votes. 
+In class-imbalanced datasets, this averaging systematically 
+suppresses predicted probabilities for well-represented classes 
+\citep{Niculescu-Mizil2005, Zadrozny2002}. SNIa comprises 47\% 
+of our sample; its dominance mechanically drives down predicted 
+probabilities across the board, with the strongest suppression 
+for the class the classifier discriminates most reliably.
+
+\begin{figure}
+\centering
+\includegraphics[width=\columnwidth]{../figures/fig2_perclass_reliability}
+\caption{Per-class reliability diagrams for ALeRCE's light curve 
+classifier. SNIa and SNIbc (accuracy $> 0.83$) show severe 
+underconfidence (ECE $> 0.36$). SNII (accuracy $0.495$) is the 
+best-calibrated class (ECE $= 0.103$). SLSN shows wider confidence 
+intervals reflecting the smaller sample size ($n = 55$).}
+\label{fig:alerce_perclass}
+\end{figure}
+
+\subsection{TDE Classification Failure}
+\label{sec:results:tde}
+
+TDE achieves a classification accuracy of $0.000$ on our 30-object 
+sample. This is not a calibration problem but a taxonomy gap: TDE 
+is absent from ALeRCE's 15-class output taxonomy. The classifier 
+cannot predict TDE by design, assigning all probability mass to 
+other classes for every TDE in our sample.
+
+This finding has direct operational significance. TDEs are a 
+high-priority science case for LSST-era time-domain astronomy, 
+representing unique probes of supermassive black hole demographics 
+and accretion physics \citep{Gezari2021}. A production broker 
+used by the community cannot identify them. We exclude TDE from 
+all calibration analyses but flag this gap as requiring attention 
+before LSST first light.
+
+\subsection{Temperature Scaling}
+\label{sec:results:tempscaling}
+
+We apply temperature scaling (Section~\ref{sec:methods:tempscaling}) 
+to ALeRCE's classifier outputs. The optimal temperature is 
+$T = 0.359$, substantially below unity, confirming that the 
+classifier requires confidence \textit{sharpening} — the opposite 
+of the overconfidence correction for which temperature scaling 
+is most commonly applied \citep{Guo2017}.
+
+Figure~\ref{fig:tempscaling} shows the reliability diagram before 
+and after scaling. Post-calibration ECE is $0.031$ 
+(95\% CI: $[0.017, 0.047]$), an 88\% reduction from the 
+pre-calibration value of $0.259$. The confidence intervals 
+do not overlap, confirming a statistically significant improvement. 
+Mean confidence increases from $0.451$ to $0.712$, now closely 
+matching the empirical accuracy of $0.709$.
+
+\begin{figure}
+\centering
+\includegraphics[width=\columnwidth]{../figures/fig4_temperature_scaling}
+\caption{ALeRCE reliability diagrams before (left) and after (right) 
+temperature scaling with $T = 0.359$. ECE reduces from $0.259$ to 
+$0.031$ — an 88\% improvement. The residual dip near confidence 
+$0.3$ in the right panel reflects SNII overcorrection 
+(see Section~\ref{sec:discussion:tempscaling}).}
+\label{fig:tempscaling}
+\end{figure}
+
+Table~\ref{tab:tempscaling} shows per-class ECE before and after 
+scaling. Temperature scaling substantially improves SNIa 
+($0.377 \to 0.114$) and SNIbc ($0.360 \to 0.108$), with moderate 
+improvement for SLSN ($0.225 \to 0.140$). However, SNII 
+\textit{worsens} from $0.099$ to $0.189$. 
+
+This result is mechanistically interpretable. SNII was the only 
+well-calibrated class before scaling: the classifier's uncertainty 
+was already proportionate to its error rate. A global $T < 1$ 
+uniformly increases confidence across all classes; for SNII 
+this produces overconfidence where none previously existed. 
+A single global temperature parameter cannot simultaneously 
+optimise calibration for classes with heterogeneous miscalibration 
+characteristics. Class-specific temperature parameters would be 
+required for a complete fix.
+
+\begin{deluxetable}{lcccc}
+\tablecaption{ALeRCE per-class ECE before and after temperature 
+scaling ($T = 0.359$). \label{tab:tempscaling}}
+\tablehead{
+  \colhead{Class} & \colhead{$N$} & 
+  \colhead{ECE (before)} & \colhead{ECE (after)} & 
+  \colhead{$\Delta$ECE}
+}
+\startdata
+SNIa  & 757 & 0.377 & 0.114 & $-0.263$ \\
+SNII  & 560 & 0.099 & 0.189 & $+0.090$ \\
+SNIbc & 204 & 0.360 & 0.108 & $-0.252$ \\
+SLSN  &  55 & 0.225 & 0.140 & $-0.085$ \\
+\enddata
+\tablecomments{Positive $\Delta$ECE indicates worsening after 
+temperature scaling. SNII is the only class for which global 
+temperature scaling is counterproductive.}
+\end{deluxetable}
+
+\subsection{Fink Binary Classifiers}
+\label{sec:results:fink}
+
+Figure~\ref{fig:fink_reliability} shows reliability diagrams for 
+Fink's two binary classifiers evaluated on 1,368 objects. Both 
+exhibit severe miscalibration, but with qualitatively different 
+failure modes.
+
+The Random Forest classifier (\texttt{rf\_snia\_vs\_nonia}) assigns 
+near-zero SNIa probability to virtually all objects: mean score 
+$0.011$ against a true SNIa fraction of $0.471$. The reliability 
+curve is essentially flat at the base rate regardless of predicted 
+confidence, indicating the classifier has no discriminative power 
+for SNIa identification in this sample 
+($\mathrm{ECE} = 0.464$, 95\% CI: $[0.437, 0.490]$).
+
+\begin{figure}
+\centering
+\includegraphics[width=\columnwidth]{../figures/fig3_fink_reliability}
+\caption{Reliability diagrams for Fink's two binary classifiers 
+evaluated on 1,368 ZTF transients. Left: Random Forest 
+(\texttt{rf\_snia\_vs\_nonia}), ECE $= 0.464$. The flat curve 
+indicates no discriminative power for SNIa identification. Right: 
+SuperNNova (\texttt{snn\_snia\_vs\_nonia}), ECE $= 0.304$. Weak 
+discriminative signal persists but is severely suppressed.}
+\label{fig:fink_reliability}
+\end{figure}
+
+SuperNNova (\texttt{snn\_snia\_vs\_nonia}) shows qualitatively 
+better behaviour: mean score $0.222$ against true fraction $0.471$, 
+with a reliability curve that rises weakly with confidence 
+($\mathrm{ECE} = 0.304$, 95\% CI: $[0.278, 0.332]$). The 
+classifier retains some discriminative signal but suppresses it 
+substantially.
+
+Temperature scaling applied to both Fink classifiers hits the 
+upper optimisation bound ($T \approx 10$) in both cases, 
+achieving only modest ECE reductions: 24\% for RF 
+($0.464 \to 0.353$) and 25\% for SuperNNova 
+($0.304 \to 0.229$). When the optimal $T$ hits the bound, it 
+indicates the score distribution lacks the monotonic structure 
+temperature scaling requires. For Fink's RF classifier, no 
+post-hoc transformation of the output scores can recover 
+well-calibrated probabilities; the discriminative failure is 
+structural.
+
+\subsection{Cross-Broker Comparison}
+\label{sec:results:comparison}
+
+Table~\ref{tab:comparison} summarises calibration results across 
+all three classifiers. ALeRCE's light curve classifier, despite 
+exhibiting the systematic underconfidence described above, is 
+substantially better calibrated than either Fink classifier. 
+Critically, ALeRCE's miscalibration is correctable: temperature 
+scaling reduces ECE to $0.031$, below the 0.05 significance 
+threshold. Fink's classifiers, particularly the RF classifier, 
+exhibit structural miscalibration that post-hoc methods cannot 
+adequately address.
+
+\begin{deluxetable}{lcccc}
+\tablecaption{Calibration comparison across brokers and classifiers.
+\label{tab:comparison}}
+\tablehead{
+  \colhead{Classifier} & \colhead{ECE} & 
+  \colhead{95\% CI} & \colhead{ECE (post-TS)} &
+  \colhead{$T$}
+}
+\startdata
+ALeRCE LC    & 0.259 & [0.237, 0.280] & 0.031 & 0.359 \\
+Fink RF      & 0.464 & [0.437, 0.490] & 0.353 & $\sim$10 \\
+Fink SNN     & 0.304 & [0.278, 0.332] & 0.229 & $\sim$10 \\
+\enddata
+\tablecomments{Post-TS: ECE after temperature scaling. 
+$T \sim 10$ indicates the optimiser hit the upper bound, 
+signifying structural miscalibration not addressable by 
+temperature scaling.}
+\end{deluxetable}
+
+These findings establish that miscalibration is not uniform 
+across production astronomical brokers. The differences are 
+scientifically consequential: a broker with ECE $= 0.464$ 
+cannot support reliable deferral decisions, while a broker 
+with ECE $= 0.031$ post-calibration approaches the reliability 
+required for automated follow-up prioritisation.

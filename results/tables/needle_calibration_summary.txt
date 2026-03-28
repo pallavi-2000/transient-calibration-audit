@@ -1,0 +1,17 @@
+NEEDLE Calibration Study Results
+==================================================
+
+Total predictions: 429
+Models used: 5
+Overall accuracy: 0.8415
+Mean confidence: 0.8510
+ECE: 0.0504
+
+Per-class ECE:
+  SN: 0.1532
+  SLSN-I: 0.0858
+  TDE: 0.0726
+
+Comparison:
+  NEEDLE ECE: 0.0504
+  ALeRCE ECE: 0.2590

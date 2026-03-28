@@ -1,0 +1,17 @@
+{
+  "T_calibration_set": 0.3678,
+  "T_full_dataset": 0.3592,
+  "n_calibration": 945,
+  "n_test": 631,
+  "ece_before": 0.2715,
+  "ci_lo_before": 0.2388,
+  "ci_hi_before": 0.3047,
+  "ece_after": 0.0236,
+  "ci_lo_after": 0.0207,
+  "ci_hi_after": 0.0666,
+  "improvement": 0.2479,
+  "brier_before": 0.1667,
+  "brier_after": 0.1836,
+  "brier_change": 0.017,
+  "note": "T fitted by ECE minimisation on 60% calibration split, evaluated on 40% held-out test set"
+}

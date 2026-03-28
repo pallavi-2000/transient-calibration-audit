@@ -1,0 +1,28 @@
+# Core scientific stack
+numpy>=1.23
+scipy>=1.9
+pandas>=1.5
+matplotlib>=3.7
+scikit-learn>=1.2
+
+# Probabilistic calibration
+# (all calibration metrics implemented in src/calibration.py using numpy/scipy)
+
+# Astronomy / broker APIs
+astropy>=5.1
+requests>=2.31
+
+# Deep learning (NEEDLE inference only)
+tensorflow-macos==2.12.0   # Apple Silicon
+tensorflow-metal==0.8.0    # Apple Silicon GPU
+# tensorflow==2.12.0       # Linux / x86
+
+# Jupyter
+notebook>=6.5
+ipykernel>=6.0
+
+# Serialisation
+h5py>=3.8
+
+# Optional: broker-specific clients
+# lasair>=0.0.5            # Lasair/Fink query client

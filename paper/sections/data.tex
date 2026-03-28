@@ -1,0 +1,104 @@
+\subsection{The ZTF Bright Transient Survey}
+\label{sec:data:bts}
+
+Our dataset is drawn from the Zwicky Transient Facility Bright Transient 
+Survey \citep[BTS;][]{Fremling2020, Perley2020}, a magnitude-limited 
+($m < 18.5$) spectroscopic completeness survey operating since 2018. 
+The BTS provides spectroscopic classifications for ZTF transients, 
+making it the largest homogeneous sample of spectroscopically confirmed 
+extragalactic transients currently available. We use spectroscopic 
+classifications as ground truth labels throughout this work.
+
+\subsection{Sample Construction}
+\label{sec:data:sample}
+
+We queried the ALeRCE broker API \citep{Forster2021} for classification 
+probabilities corresponding to all BTS objects with confirmed 
+spectroscopic types on 22 February 2026. ALeRCE's light curve classifier 
+\citep{Sanchez-Saez2021} outputs probabilities across 15 classes derived 
+from features of the ZTF alert photometric time series. For each object 
+we retrieved the most recent classification available at query time, 
+corresponding to classifier versions \texttt{24.4.1}--\texttt{27.5.7a32.dev1} 
+active in the production pipeline. We provide the full list of ZTF object 
+identifiers and retrieved probability vectors as a machine-readable 
+supplement to this paper.
+
+We map the 11 BTS spectroscopic types to the 5 ALeRCE transient classes 
+most relevant to extragalactic time-domain science: Type Ia supernovae 
+(SNIa), Type II supernovae (SNII), stripped-envelope supernovae (SNIbc), 
+superluminous supernovae (SLSN), and tidal disruption events (TDE). 
+The full mapping is given in Table~\ref{tab:mapping}.
+
+Of 1,987 BTS objects queried, 1,606 returned valid ALeRCE classifications 
+(80.1\% success rate). Failed queries reflect objects observed before 
+ALeRCE's alert ingestion began or with insufficient photometric history 
+for classification. The final sample comprises 757 SNIa, 560 SNII, 
+204 SNIbc, 55 SLSN, and 30 TDE.
+
+To avoid class imbalance biasing our rarest-class estimates, we collected 
+all available BTS objects in the SLSN and TDE categories rather than 
+applying a fixed per-class cap. This yields a sample in which common 
+classes (SNIa, SNII) are well-represented while preserving the full 
+available statistics for scientifically rare but high-priority classes.
+
+\begin{deluxetable}{ll}
+\tablecaption{BTS spectroscopic type to ALeRCE class mapping.
+\label{tab:mapping}}
+\tablehead{\colhead{BTS Types} & \colhead{ALeRCE Class}}
+\startdata
+SN~Ia, SN~Ia-91T, SN~Ia-91bg, SN~Ia-pec & SNIa \\
+SN~II, SN~IIn, SN~IIb, SN~IIP           & SNII \\
+SN~Ib, SN~Ic, SN~Ib/c, SN~Ic-BL         & SNIbc \\
+SLSN-I                                   & SLSN \\
+TDE                                      & TDE \\
+\enddata
+\end{deluxetable}
+
+\subsection{Fink Broker Data}
+\label{sec:data:fink}
+
+We additionally queried the Fink broker \citep{Moller2021} for the same 
+set of ZTF objects via the Fink Portal API on 24 February 2026, using 
+HTTP POST requests to \texttt{api.fink-portal.org/api/v1/objects}. 
+Fink provides two binary classifiers relevant to our analysis. 
+\texttt{snn\_snia\_vs\_nonia} is based on the SuperNNova deep learning 
+classifier \citep{Moller2019} and outputs a general $P(\mathrm{SNIa})$ 
+score. \texttt{rf\_snia\_vs\_nonia} is a Random Forest classifier 
+documented as targeting \textit{rising} SN Ia candidates; its scores 
+are designed for early-phase, pre-maximum alerts rather than 
+general-purpose SN Ia posteriors. We include both scores in our 
+analysis but explicitly flag this distinction when interpreting the 
+RF results in Sections~\ref{sec:results:fink} and~\ref{sec:discussion:fink}.
+
+For each object we retrieved the most recent alert-level score available 
+in the Fink database. We distinguish three outcomes: object found with 
+scores (collected), object absent from Fink (not in ingestion window, 
+treated as missing data), and API error (excluded). Absent objects are 
+not coerced to zero — they are excluded from the Fink analysis entirely.
+
+Of 1,606 objects queried, 1,368 (85.2\%) were present in the Fink 
+database, with 237 objects absent due to falling outside Fink's alert 
+ingestion window. Both classifiers returned scores for all 1,368 matched 
+objects, yielding a comparative subsample of 644 SNIa, 480 SNII, 
+166 SNIbc, 50 SLSN, and 28 TDE.
+
+\subsection{Ground Truth and Selection Effects}
+\label{sec:data:groundtruth}
+
+We emphasise that our ground truth labels derive from independent 
+spectroscopic observations, not from the broker classifications being 
+evaluated. This avoids the circular validation present in studies that 
+use broker-assigned labels to assess broker performance.
+
+The BTS magnitude limit ($m < 18.5$) introduces a selection bias toward 
+brighter, lower-redshift transients. Our sample therefore represents 
+the regime in which spectroscopic follow-up is most feasible, which is 
+precisely the regime most relevant to the deferral decisions this work 
+motivates. We do not claim our calibration results generalise to 
+fainter or higher-redshift populations. As the BTS selects transients 
+for spectroscopic follow-up partly on the basis of brightness and 
+observability, our sample likely over-represents well-behaved, 
+unambiguous examples of each class. Calibration performance on the 
+fainter, more ambiguous objects that will dominate LSST alert streams 
+may differ; our results should be interpreted as an upper bound on 
+broker performance in the bright regime.

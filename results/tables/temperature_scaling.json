@@ -1,0 +1,34 @@
+{
+  "T_optimal": 0.3592,
+  "aggregate": {
+    "ece_before": 0.2587,
+    "ci_lo_before": 0.2374,
+    "ci_hi_before": 0.2801,
+    "ece_after": 0.031,
+    "ci_lo_after": 0.0174,
+    "ci_hi_after": 0.047,
+    "improvement": 0.2277
+  },
+  "per_class": {
+    "SNIa": {
+      "ece_before": 0.3757,
+      "ece_after": 0.1139,
+      "improvement": 0.2618
+    },
+    "SNII": {
+      "ece_before": 0.099,
+      "ece_after": 0.1886,
+      "improvement": -0.0896
+    },
+    "SNIbc": {
+      "ece_before": 0.3604,
+      "ece_after": 0.108,
+      "improvement": 0.2524
+    },
+    "SLSN": {
+      "ece_before": 0.225,
+      "ece_after": 0.1398,
+      "improvement": 0.0852
+    }
+  }
+}

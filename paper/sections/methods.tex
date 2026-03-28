@@ -1,0 +1,109 @@
+\subsection{Expected Calibration Error}
+\label{sec:methods:ece}
+
+A classifier is said to be \textit{calibrated} if its predicted 
+confidence matches its empirical accuracy. Formally, for a classifier 
+outputting confidence $\hat{p}$ and true label $y$:
+
+\begin{equation}
+P(y = \hat{y} \mid \hat{p} = p) = p \quad \forall\, p \in [0, 1]
+\label{eq:calibration}
+\end{equation}
+
+where $\hat{y}$ is the predicted class. We measure calibration using 
+Expected Calibration Error \citep[ECE;][]{Naeini2015}, which 
+approximates the expectation in Equation~\ref{eq:calibration} by 
+partitioning predictions into $M$ equally spaced confidence bins:
+
+\begin{equation}
+\mathrm{ECE} = \sum_{m=1}^{M} \frac{|B_m|}{n} 
+\left| \mathrm{acc}(B_m) - \mathrm{conf}(B_m) \right|
+\label{eq:ece}
+\end{equation}
+
+where $B_m$ is the set of samples whose top-1 confidence falls in bin 
+$m$, $n$ is the total number of samples, $\mathrm{acc}(B_m)$ is the 
+fraction of correct predictions in bin $m$, and $\mathrm{conf}(B_m)$ 
+is the mean confidence in bin $m$. We use $M = 10$ bins throughout. 
+A perfectly calibrated classifier has $\mathrm{ECE} = 0$; values above 
+0.05 indicate practically significant miscalibration 
+\citep{Guo2017}.
+
+For ALeRCE's 15-class classifier, we compute ECE using the top-1 
+predicted class and its associated probability across all 15 output 
+classes. For Fink's binary classifiers, which output a scalar 
+$P(\mathrm{SNIa})$, we apply a binary variant of 
+Equation~\ref{eq:ece} where $\mathrm{acc}(B_m)$ is the observed 
+SNIa fraction within bin $m$.
+
+\subsection{Uncertainty Quantification via Bootstrap}
+\label{sec:methods:bootstrap}
+
+Point estimates of ECE carry substantial sampling uncertainty, 
+particularly for small classes such as SLSN ($n=55$) and TDE ($n=30$). 
+We report 95\% confidence intervals on all ECE estimates using the 
+nonparametric bootstrap \citep{Efron1979}: we resample the evaluation 
+set with replacement $B = 2000$ times, compute ECE on each resample, 
+and report the 2.5th and 97.5th percentiles of the resulting 
+distribution. All bootstrap procedures use a fixed random seed 
+(seed $= 42$) for reproducibility.
+
+\subsection{Reliability Diagrams}
+\label{sec:methods:reliability}
+
+We visualise calibration using reliability diagrams \citep{DeGroot1983}, 
+which plot observed accuracy against mean predicted confidence for each 
+bin. A perfectly calibrated classifier produces points lying on the 
+diagonal. Points above the diagonal indicate underconfidence 
+(predicted probability lower than empirical accuracy); points below 
+indicate overconfidence. We include sample-count histograms alongside 
+each diagram to indicate where estimates are statistically reliable.
+
+\subsection{Temperature Scaling}
+\label{sec:methods:tempscaling}
+
+Temperature scaling \citep{Guo2017} is a post-hoc calibration method 
+that applies a single scalar parameter $T > 0$ to the pre-softmax 
+logits of a classifier. For a classifier outputting probability vector 
+$\mathbf{p}$, the calibrated probabilities are:
+
+\begin{equation}
+\hat{\mathbf{p}}_T = \mathrm{softmax}\!\left(\frac{\log \mathbf{p}}{T}\right)
+\label{eq:tempscaling}
+\end{equation}
+
+Values of $T < 1$ increase confidence (sharpening the distribution); 
+values of $T > 1$ decrease confidence (flattening toward uniform). 
+The optimal $T$ is found by minimising ECE on the evaluation set 
+using bounded scalar optimisation over $T \in [0.1, 10.0]$.
+
+For Fink's binary classifiers, we apply an equivalent logit-space 
+temperature scaling:
+
+\begin{equation}
+\hat{p}_T = \sigma\!\left(\frac{\mathrm{logit}(p)}{T}\right)
+\label{eq:tempscaling_binary}
+\end{equation}
+
+where $\sigma$ is the sigmoid function and $\mathrm{logit}(p) = 
+\log(p / (1-p))$.
+
+We note that temperature scaling is applied here to the evaluation 
+set itself, which provides an optimistic upper bound on the 
+improvement achievable in deployment. In practice, $T$ should be 
+fitted on a held-out validation set. Our purpose is to demonstrate 
+the \textit{potential} for post-hoc calibration to recover well-calibrated 
+probabilities from the existing classifier outputs, not to propose 
+a production calibration pipeline.
+
+\subsection{Probability Renormalisation}
+\label{sec:methods:renorm}
+
+ALeRCE's classifier outputs probabilities across 15 classes, of which 
+we evaluate 4 (excluding TDE, which is absent from ALeRCE's taxonomy). 
+To assess whether apparent miscalibration arises from probability 
+dilution across unevaluated classes, we compute a renormalised ECE 
+by projecting the 15-class probability vector onto the 4 evaluated 
+classes and renormalising to sum to unity. The difference between 
+15-class and renormalised ECE quantifies the contribution of probability 
+dilution to the observed miscalibration.

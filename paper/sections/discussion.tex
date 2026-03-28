@@ -1,0 +1,161 @@
+\subsection{Systematic Underconfidence as a Structural Property}
+\label{sec:discussion:underconfidence}
+
+The dominant finding of this study is that ALeRCE's light curve 
+classifier exhibits systematic underconfidence rather than the 
+overconfidence commonly reported for deep learning classifiers 
+\citep{Guo2017, Minderer2021}. This distinction matters for 
+operational astronomy. Overconfident classifiers produce dangerous 
+silent failures — high-confidence wrong predictions that are acted 
+upon without human review. Underconfident classifiers produce 
+unnecessary deferrals — objects the classifier effectively 
+discriminates but assigns low confidence, causing them to be 
+flagged for spectroscopic follow-up that is not scientifically 
+required.
+
+In the resource-constrained regime of LSST-era astronomy, where 
+spectroscopic follow-up capacity is approximately $10^5$ 
+observations per year against $10^7$ nightly alerts, unnecessary 
+deferrals carry a direct opportunity cost. Every spectrum allocated 
+to an object the classifier could have confidently classified 
+correctly is a spectrum not allocated to a genuinely ambiguous 
+object or a rare high-priority target. Quantifying and correcting 
+underconfidence is therefore not merely a technical calibration 
+exercise but a resource allocation problem.
+
+\subsection{Why Random Forest Suppresses Confidence}
+\label{sec:discussion:rf}
+
+The underconfidence we observe is mechanistically expected for 
+Random Forest classifiers in class-imbalanced settings. RF 
+probability estimates are computed as the fraction of trees 
+voting for each class. In a forest trained on an imbalanced 
+dataset — SNIa comprises 47\% of our sample — the decision 
+boundaries are dominated by the majority class, and minority 
+class probabilities are systematically suppressed \citep{Niculescu-Mizil2005}. 
+This suppression is strongest for classes the classifier 
+discriminates most reliably, because reliable discrimination 
+concentrates vote fractions near the boundary between correct 
+and incorrect, rather than near 1.0.
+
+This explains the inverse relationship we observe between accuracy 
+and ECE across classes. SNIa and SNIbc are classified with 
+accuracies above 0.83, yet their ECEs exceed 0.36. SNII, 
+classified at only 0.495 accuracy, has ECE of 0.103. The 
+classifier is most miscalibrated precisely where it has 
+the most genuine discriminative signal.
+
+The practical implication is that RF-based astronomical classifiers 
+should not be used for confidence-based deferral decisions without 
+post-hoc calibration. The raw probability outputs do not represent 
+reliable confidence estimates, even when classification accuracy 
+is high.
+
+\subsection{Temperature Scaling: Efficacy and Limits}
+\label{sec:discussion:tempscaling}
+
+Temperature scaling with $T = 0.359$ reduces ALeRCE's ECE from 
+$0.259$ to $0.031$ — an 88\% improvement with a single scalar 
+parameter requiring no model retraining. This result is 
+encouraging for operational deployment: existing broker 
+infrastructure could be augmented with a post-hoc calibration 
+layer at negligible computational cost.
+
+However, the per-class analysis reveals an important limitation. 
+Global temperature scaling worsens SNII calibration from $0.099$ 
+to $0.189$, because SNII was already well-calibrated before 
+scaling. A single $T$ cannot simultaneously optimise calibration 
+for classes with heterogeneous miscalibration structure. 
+
+Two approaches could address this. First, class-specific 
+temperature parameters — fitting a separate $T_k$ for each 
+class $k$ — would allow independent correction of each 
+class's calibration curve. Second, more expressive post-hoc 
+methods such as isotonic regression \citep{Zadrozny2002} or 
+matrix scaling \citep{Kull2019} could model class interactions 
+that scalar temperature cannot capture. We leave systematic 
+comparison of these methods to future work, noting that the 
+simple temperature scaling result already achieves practically 
+useful calibration for the majority of classes.
+
+\subsection{Fink's Structural Miscalibration}
+\label{sec:discussion:fink}
+
+The failure of temperature scaling for Fink's RF classifier — 
+evidenced by the optimiser hitting the upper bound at $T \approx 10$ 
+— indicates a qualitatively different problem from ALeRCE's 
+underconfidence. When no finite temperature produces a well-calibrated 
+output, the score distribution lacks the monotonic relationship 
+between predicted probability and empirical accuracy that 
+temperature scaling requires.
+
+Inspection of the score distribution confirms this: 
+\texttt{rf\_snia\_vs\_nonia} assigns scores below $0.05$ to 
+over 90\% of objects, including the majority of true SNIa. 
+The classifier is not underconfident in the same sense as 
+ALeRCE — it is effectively non-discriminative for SNIa 
+identification on this dataset. This may reflect a domain 
+shift between Fink's training data and the BTS sample, or 
+a fundamental limitation of the binary RF formulation for 
+this classification problem.
+
+SuperNNova retains weak discriminative structure — its 
+reliability curve rises slightly with confidence — but 
+insufficient for effective calibration. The deep learning 
+architecture of SuperNNova provides some advantage over 
+the RF approach, consistent with broader trends in the 
+literature \citep{Moller2019, Villar2019}.
+
+\subsection{Implications for Deferral-Aware Classification}
+\label{sec:discussion:deferral}
+
+This calibration study motivates the deferral-aware 
+classification framework that constitutes the broader 
+research programme of which this paper is the first component. 
+Learning-to-defer frameworks \citep{Madras2018, Mozannar2020} 
+require reliable confidence estimates as input to the deferral 
+policy: an object should be deferred when classifier uncertainty 
+genuinely reflects the difficulty of the classification, not 
+when a well-discriminating classifier mechanically suppresses 
+its own signal.
+
+Our results suggest that ALeRCE, post-calibration, provides 
+confidence estimates of sufficient quality to support deferral 
+decisions ($\mathrm{ECE} = 0.031$). Fink's classifiers, in 
+their current form, do not. This finding directly informs 
+broker selection for downstream deferral framework development.
+
+The TDE taxonomy gap identified in Section~\ref{sec:results:tde} 
+represents a separate but related challenge. Deferral frameworks 
+require that all scientifically relevant classes appear in the 
+classifier's output space. A broker that cannot classify TDE 
+by design will never defer TDE candidates for spectroscopic 
+follow-up — it will instead misclassify them as the nearest 
+available class with high confidence, producing exactly the 
+silent failure mode that deferral is designed to prevent.
+
+\subsection{Limitations}
+\label{sec:discussion:limitations}
+
+Several limitations of this study should be acknowledged. 
+First, we evaluate calibration on a single broker snapshot; 
+ALeRCE and Fink update their classifiers periodically, and 
+our results reflect classifier versions active during our 
+data collection period. Second, the BTS magnitude limit 
+restricts our sample to bright, low-redshift transients; 
+calibration properties may differ for fainter populations 
+that will dominate LSST alert streams. Third, our temperature 
+scaling analysis is conducted on the evaluation set itself, 
+providing an optimistic estimate of post-hoc calibration 
+performance; deployment would require fitting $T$ on a 
+held-out validation set.
+
+Finally, we note that ECE as defined in 
+Equation~\ref{eq:ece} is sensitive to bin width and the 
+distribution of samples across bins \citep{Nixon2019}. 
+Our bootstrap confidence intervals partially address this 
+by quantifying sampling uncertainty, but do not capture 
+binning sensitivity. Adaptive binning methods \citep{Roelofs2022} 
+may provide more robust ECE estimates for highly imbalanced 
+confidence distributions such as those observed for Fink's 
+RF classifier.

@@ -1,0 +1,46 @@
+{
+  "baseline": {
+    "ece": 0.2587,
+    "brier": 0.12677445558375633,
+    "logloss": 0.9376634557499012
+  },
+  "global_T": {
+    "ece": 0.0151,
+    "brier": 0.10299072392562422,
+    "logloss": 0.7869957771828588,
+    "T_mean": 0.3606,
+    "T_std": 0.0111,
+    "T_range": [
+      0.3481,
+      0.3759
+    ],
+    "ece_ci": [
+      0.0173,
+      0.045
+    ],
+    "perclass_ece": {
+      "SNIa": 0.1135,
+      "SNII": 0.188,
+      "SNIbc": 0.1087,
+      "SLSN": 0.1401
+    }
+  },
+  "isotonic": {
+    "ece": 0.048,
+    "brier": 0.08020298041587823,
+    "logloss": 0.6858503134705646,
+    "ece_ci": [
+      0.0435,
+      0.0705
+    ],
+    "perclass_ece": {
+      "SNIa": 0.1293,
+      "SNII": 0.0959,
+      "SNIbc": 0.1158,
+      "SLSN": 0.2577
+    }
+  },
+  "n_folds": 5,
+  "n_objects": 1576,
+  "method": "5-fold stratified CV, T fitted by ECE minimisation on calibration fold"
+}
