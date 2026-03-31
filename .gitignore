@@ -1,0 +1,15 @@
+# Data files (too large for git)
+data/raw/
+data/processed/
+*.csv
+*.parquet
+
+# Python
+__pycache__/
+*.pyc
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS junk
+.DS_Store
