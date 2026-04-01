@@ -29,6 +29,44 @@ BTS_URL = (
     "&endhostabs=&endhostcol=&endb=&endav=&format=csv"
 )
 
+# Map BTS spectroscopic types -> ALeRCE's 5 classes
+SPEC_TO_ALERCE = {
+    # SN Ia (thermonuclear)
+    "SN Ia": "SNIa",
+    "SN Ia-91T": "SNIa",
+    "SN Ia-91bg": "SNIa",
+    "SN Ia-pec": "SNIa",
+    "SN Ia-CSM": "SNIa",
+    "SN Ia-SC": "SNIa",
+    "SN Iax": "SNIa",
+
+    # SN II (hydrogen-rich core collapse)
+    "SN II": "SNII",
+    "SN IIn": "SNII",
+    "SN IIP": "SNII",
+    "SN II-pec": "SNII",
+
+    # SN Ibc (stripped-envelope)
+    "SN Ib": "SNIbc",
+    "SN Ic": "SNIbc",
+    "SN Ic-BL": "SNIbc",
+    "SN IIb": "SNIbc",
+    "SN Ib/c": "SNIbc",
+    "SN Ibn": "SNIbc",
+    "SN Icn": "SNIbc",
+    "SN Ib-pec": "SNIbc",
+    "SN Ic-pec": "SNIbc",
+
+    # Superluminous
+    "SLSN-I": "SLSN",
+    "SLSN-II": "SLSN",
+
+    # Tidal disruption events
+    "TDE": "TDE",
+    "TDE-He": "TDE",
+    "TDE-H-He": "TDE",
+    "TDE-featureless": "TDE",
+}
 
 def download_bts_catalog():
     """Download the BTS catalog and keep only objects with spectroscopic types."""
