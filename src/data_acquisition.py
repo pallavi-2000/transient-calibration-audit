@@ -10,7 +10,8 @@ import pandas as pd
 import requests
 from io import StringIO
 from pathlib import Path
-
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Where to save the downloaded data
 GROUND_TRUTH_DIR = Path("data/ground_truth")
@@ -236,11 +237,107 @@ def collect_alerce_predictions(ztf_ids, save_every=50):
         checkpoint_path.unlink()
 
     return results_df
+def query_fink_single(oid):
+    """
+    Query Fink for one object's RF and SuperNNova scores.
+    
+    Fink returns one row per alert. We take the LATEST alert
+    (most complete light curve = most informed classification).
+    
+    Returns binary scores (SN Ia vs not-SN Ia), not multi-class.
+    """
+    url = "https://api.fink-portal.org/api/v1/objects"
+
+    try:
+        response = requests.post(
+            url,
+            json={
+                "objectId": oid,
+                "columns": "i:objectId,d:rf_snia_vs_nonia,d:snn_snia_vs_nonia,i:jd",
+                "output-format": "json",
+            },
+            timeout=30,
+            verify=False,
+        )
+
+        if response.status_code != 200:
+            return None
+
+        data = response.json()
+        if not data:
+            return None
+
+        # Sort by Julian Date, take the latest alert
+        df = pd.DataFrame(data)
+        df = df.sort_values("i:jd", ascending=False)
+        latest = df.iloc[0]
+
+        return {
+            "oid": oid,
+            "rf_snia_vs_nonia": float(latest["d:rf_snia_vs_nonia"]),
+            "snn_snia_vs_nonia": float(latest["d:snn_snia_vs_nonia"]),
+        }
+
+    except Exception:
+        return None
+
+
+def collect_fink_predictions(ztf_ids, save_every=50):
+    """
+    Query Fink for all objects. Same checkpointing logic as ALeRCE.
+    """
+    import time
+
+    save_path = Path("data/raw/fink_classifications.csv")
+    checkpoint_path = Path("data/raw/fink_checkpoint.csv")
+    save_path.parent.mkdir(parents=True, exist_ok=True)
+
+    results = []
+    done_oids = set()
+
+    if checkpoint_path.exists():
+        existing = pd.read_csv(checkpoint_path)
+        results = existing.to_dict("records")
+        done_oids = set(existing["oid"])
+        print(f"Resuming: {len(done_oids)} already done")
+
+    remaining = [oid for oid in ztf_ids if oid not in done_oids]
+
+    print(f"Querying Fink for {len(remaining)} objects...")
+    print(f"Estimated time: ~{len(remaining) * 0.15 / 60:.0f} minutes")
+
+    failed = []
+
+    for i, oid in enumerate(remaining):
+        score_dict = query_fink_single(oid)
+
+        if score_dict is not None:
+            results.append(score_dict)
+        else:
+            failed.append(oid)
+
+        if (i + 1) % 50 == 0:
+            print(f"  {i + 1}/{len(remaining)} done ({len(failed)} failed)")
+            pd.DataFrame(results).to_csv(checkpoint_path, index=False)
+
+        time.sleep(0.15)
+
+    results_df = pd.DataFrame(results)
+    results_df.to_csv(save_path, index=False)
+    print(f"\nDone! {len(results_df)} successful, {len(failed)} failed")
+    print(f"Saved to: {save_path}")
+
+    if checkpoint_path.exists():
+        checkpoint_path.unlink()
+
+    return results_df
 
 if __name__ == "__main__":
     bts = download_bts_catalog()
     sample = map_and_sample(bts)
 
-    # Query ALeRCE for all sampled objects
     ztf_ids = sample["ZTFID"].tolist()
+
+    # Query both brokers
     alerce_df = collect_alerce_predictions(ztf_ids)
+    fink_df = collect_fink_predictions(ztf_ids)
