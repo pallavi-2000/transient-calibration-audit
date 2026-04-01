@@ -144,6 +144,103 @@ def map_and_sample(bts_df, random_state=42):
 
     return result
 
+def query_alerce_single(oid):
+    """
+    Query ALeRCE for one object's lc_classifier probabilities.
+    
+    Returns dict with probabilities for the 5 transient classes,
+    or None if the query fails.
+    """
+    url = f"https://api.alerce.online/ztf/v1/objects/{oid}/probabilities"
+
+    try:
+        response = requests.get(url, timeout=30)
+
+        if response.status_code != 200:
+            return None
+
+        data = response.json()
+
+        # Keep only lc_classifier
+        lc_probs = [
+            entry for entry in data
+            if entry["classifier_name"] == "lc_classifier"
+        ]
+
+        if not lc_probs:
+            return None
+
+        # Build probability dict
+        prob_dict = {"oid": oid}
+        for entry in lc_probs:
+            prob_dict[entry["class_name"]] = entry["probability"]
+
+        return prob_dict
+
+    except Exception:
+        return None
+
+
+def collect_alerce_predictions(ztf_ids, save_every=50):
+    """
+    Query ALeRCE for all objects. Saves progress every 50 objects
+    so you can resume if interrupted.
+    """
+    import time
+
+    save_path = Path("data/raw/alerce_classifications.csv")
+    checkpoint_path = Path("data/raw/alerce_checkpoint.csv")
+    save_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Resume from checkpoint if it exists
+    results = []
+    done_oids = set()
+
+    if checkpoint_path.exists():
+        existing = pd.read_csv(checkpoint_path)
+        results = existing.to_dict("records")
+        done_oids = set(existing["oid"])
+        print(f"Resuming: {len(done_oids)} already done")
+
+    remaining = [oid for oid in ztf_ids if oid not in done_oids]
+
+    print(f"Querying ALeRCE for {len(remaining)} objects...")
+    print(f"Estimated time: ~{len(remaining) * 0.15 / 60:.0f} minutes")
+
+    failed = []
+
+    for i, oid in enumerate(remaining):
+        prob_dict = query_alerce_single(oid)
+
+        if prob_dict is not None:
+            results.append(prob_dict)
+        else:
+            failed.append(oid)
+
+        # Progress update
+        if (i + 1) % 50 == 0:
+            print(f"  {i + 1}/{len(remaining)} done ({len(failed)} failed)")
+            # Save checkpoint
+            pd.DataFrame(results).to_csv(checkpoint_path, index=False)
+
+        time.sleep(0.15)  # Rate limit: ~7 requests/sec
+
+    # Save final results
+    results_df = pd.DataFrame(results)
+    results_df.to_csv(save_path, index=False)
+    print(f"\nDone! {len(results_df)} successful, {len(failed)} failed")
+    print(f"Saved to: {save_path}")
+
+    # Clean up checkpoint
+    if checkpoint_path.exists():
+        checkpoint_path.unlink()
+
+    return results_df
+
 if __name__ == "__main__":
     bts = download_bts_catalog()
     sample = map_and_sample(bts)
+
+    # Query ALeRCE for all sampled objects
+    ztf_ids = sample["ZTFID"].tolist()
+    alerce_df = collect_alerce_predictions(ztf_ids)
