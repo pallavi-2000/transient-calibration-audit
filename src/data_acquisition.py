@@ -98,6 +98,52 @@ def download_bts_catalog():
 
     return bts_typed
 
+def map_and_sample(bts_df, random_state=42):
+    """
+    Map BTS types to ALeRCE classes and create a stratified sample.
+    
+    Why stratified: SN Ia is 75% of BTS. Random sampling would give
+    us ~5 TDEs — useless for per-class calibration. Instead we cap
+    large classes and take all available rare objects.
+    """
+    # Map types
+    bts_df = bts_df.copy()
+    bts_df["alerce_class"] = bts_df["type"].map(SPEC_TO_ALERCE)
+    bts_df = bts_df.dropna(subset=["alerce_class"]).reset_index(drop=True)
+
+    print(f"Mapped {len(bts_df):,} objects to ALeRCE classes")
+
+    # Target counts per class
+    target_counts = {
+        "SNIa": 600,    # 5328 available, 600 is plenty
+        "SNII": 400,    # 1148 available
+        "SNIbc": 300,   # 504 available
+        "SLSN": 97,     # take all
+        "TDE": 39,      # take all
+    }
+
+    samples = []
+    print("\nStratified sampling:")
+    for cls, n_target in target_counts.items():
+        cls_df = bts_df[bts_df["alerce_class"] == cls]
+        n_available = len(cls_df)
+        n_sample = min(n_target, n_available)
+
+        sample = cls_df.sample(n=n_sample, random_state=random_state)
+        samples.append(sample)
+
+        print(f"  {cls:6s}: {n_available:4d} available, sampled {n_sample:4d}")
+
+    result = pd.concat(samples, ignore_index=True)
+    print(f"\nTotal sample: {len(result):,} objects")
+
+    # Save
+    save_path = GROUND_TRUTH_DIR / "bts_sample.csv"
+    result.to_csv(save_path, index=False)
+    print(f"Saved to: {save_path}")
+
+    return result
 
 if __name__ == "__main__":
-    download_bts_catalog()
+    bts = download_bts_catalog()
+    sample = map_and_sample(bts)
