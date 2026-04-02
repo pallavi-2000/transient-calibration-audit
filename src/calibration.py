@@ -31,46 +31,24 @@ def compute_ece(y_true, y_proba, n_bins=15, strategy="equal_mass"):
     estimates than equal-width binning.
 
     Works for multi-class (N, K) and binary (N,) inputs.
-
-    Parameters
-    ----------
-    y_true : array (N,)
-        True labels (int for multi-class, 0/1 for binary).
-    y_proba : array (N, K) or (N,)
-        Predicted probabilities.
-    n_bins : int
-        Number of bins. Default 15 (Guo et al. 2017).
-    strategy : str
-        "equal_mass" (recommended) or "equal_width" (for comparison).
-
-    Returns
-    -------
-    ece : float
-    bin_data : list of dict (for reliability diagrams)
     """
     y_true = np.asarray(y_true)
     y_proba = np.asarray(y_proba, dtype=np.float64)
 
-    # Extract confidence and correctness
     if y_proba.ndim == 1:
-        # Binary
         confidences = np.maximum(y_proba, 1 - y_proba)
         predictions = (y_proba >= 0.5).astype(int)
     else:
-        # Multi-class
         confidences = np.max(y_proba, axis=1)
         predictions = np.argmax(y_proba, axis=1)
 
     correct = (predictions == y_true).astype(float)
 
-    # Create bin edges
     if strategy == "equal_mass":
-        # Each bin gets roughly N/n_bins samples
         quantiles = np.linspace(0, 100, n_bins + 1)
         bin_edges = np.percentile(confidences, quantiles)
         bin_edges[0] = 0.0
         bin_edges[-1] = 1.0 + 1e-8
-        # Remove duplicate edges (happens when many identical scores)
         bin_edges = np.unique(bin_edges)
     elif strategy == "equal_width":
         bin_edges = np.linspace(0, 1, n_bins + 1)
@@ -110,9 +88,7 @@ def compute_classwise_ece(y_true, y_proba, n_bins=15, class_names=None):
 
     Evaluates calibration of ALL class probabilities, not just
     the argmax. Essential for astronomy where non-dominant class
-    probabilities matter (e.g., P(SLSN) when top prediction is SN).
-
-    Uses equal-mass binning per class.
+    probabilities matter.
     """
     y_true = np.asarray(y_true)
     y_proba = np.asarray(y_proba, dtype=np.float64)
@@ -127,7 +103,6 @@ def compute_classwise_ece(y_true, y_proba, n_bins=15, class_names=None):
         is_class_k = (y_true == k).astype(float)
         probs_k = y_proba[:, k]
 
-        # Equal-mass bins for this class
         quantiles = np.linspace(0, 100, n_bins + 1)
         bin_edges = np.percentile(probs_k, quantiles)
         bin_edges[0] = 0.0
@@ -146,7 +121,6 @@ def compute_classwise_ece(y_true, y_proba, n_bins=15, class_names=None):
                 bin_conf = probs_k[in_bin].mean()
                 ece_k += (count / n_total) * abs(bin_acc - bin_conf)
 
-        # Per-class summary stats
         predicted_k = np.argmax(y_proba, axis=1) == k
         if predicted_k.sum() > 0:
             acc_k = is_class_k[predicted_k].mean()
@@ -168,84 +142,57 @@ def compute_classwise_ece(y_true, y_proba, n_bins=15, class_names=None):
 
 
 def brier_score(y_true, y_proba):
-    """
-    Brier score with reliability decomposition.
-
-    Reports calibration (reliability), discrimination (resolution),
-    and uncertainty — gives a complete picture that ECE alone cannot.
-    """
+    """Brier score with reliability decomposition."""
     y_true = np.asarray(y_true)
     y_proba = np.asarray(y_proba, dtype=np.float64)
 
     if y_proba.ndim == 1:
-        # Binary: convert to (N, 2)
         y_proba = np.column_stack([1 - y_proba, y_proba])
-        n_classes = 2
-    else:
-        n_classes = y_proba.shape[1]
 
-    # One-hot encode true labels
     y_onehot = np.zeros_like(y_proba)
     y_onehot[np.arange(len(y_true)), y_true] = 1
 
     brier = np.mean(np.sum((y_proba - y_onehot) ** 2, axis=1))
-
     return {"brier_score": float(brier)}
 
 
 # ============================================================
-# TEMPERATURE SCALING
+# TEMPERATURE SCALING — INTERNALS
 # ============================================================
 
 def _to_logits(proba):
-    """Probabilities -> log-probabilities (pseudo-logits)."""
     return np.log(np.clip(proba, 1e-10, 1 - 1e-10))
 
-
 def _softmax(logits):
-    """Logits -> probabilities via softmax."""
     shifted = logits - np.max(logits, axis=1, keepdims=True)
     exp = np.exp(shifted)
     return exp / exp.sum(axis=1, keepdims=True)
-
 
 def _binary_logit(p):
     p = np.clip(p, 1e-10, 1 - 1e-10)
     return np.log(p / (1 - p))
 
-
 def _sigmoid(x):
     return 1 / (1 + np.exp(-x))
 
-
 def _nll_multiclass(T, logits, labels):
-    """NLL loss for temperature scaling (proper scoring rule)."""
     proba = _softmax(logits / T)
     return -np.mean(np.log(np.clip(
-        proba[np.arange(len(labels)), labels], 1e-10, 1.0
-    )))
-
+        proba[np.arange(len(labels)), labels], 1e-10, 1.0)))
 
 def _nll_binary(T, logits, labels):
-    """NLL loss for binary temperature scaling."""
     p = _sigmoid(logits / T)
     return -np.mean(
         labels * np.log(np.clip(p, 1e-10, 1.0)) +
-        (1 - labels) * np.log(np.clip(1 - p, 1e-10, 1.0))
-    )
+        (1 - labels) * np.log(np.clip(1 - p, 1e-10, 1.0)))
 
+
+# ============================================================
+# TEMPERATURE SCALING — PUBLIC API
+# ============================================================
 
 def fit_temperature(y_true, y_proba, T_range=(0.01, 10.0)):
-    """
-    Fit temperature T by minimizing NLL (not ECE).
-
-    NLL is a strictly proper scoring rule — uniquely minimized
-    by true conditional probabilities. ECE is not proper and
-    depends on binning. This follows Guo et al. 2017.
-
-    T < 1: sharpens (fixes underconfidence)
-    T > 1: softens (fixes overconfidence)
-    """
+    """Fit temperature T by minimizing NLL (proper scoring rule)."""
     from scipy.optimize import minimize_scalar
 
     y_true = np.asarray(y_true)
@@ -255,14 +202,12 @@ def fit_temperature(y_true, y_proba, T_range=(0.01, 10.0)):
         logits = _binary_logit(y_proba)
         result = minimize_scalar(
             _nll_binary, bounds=T_range,
-            args=(logits, y_true), method="bounded"
-        )
+            args=(logits, y_true), method="bounded")
     else:
         logits = _to_logits(y_proba)
         result = minimize_scalar(
             _nll_multiclass, bounds=T_range,
-            args=(logits, y_true), method="bounded"
-        )
+            args=(logits, y_true), method="bounded")
 
     return float(result.x)
 
@@ -283,8 +228,6 @@ def fit_temperature_cv(y_true, y_proba, n_folds=5, random_state=42):
 
     Critical: T is fitted on calibration folds, evaluated on
     held-out fold. Never fit and evaluate on the same data.
-
-    Returns recommendation on whether to apply scaling.
     """
     y_true = np.asarray(y_true)
     y_proba = np.asarray(y_proba, dtype=np.float64)
@@ -356,14 +299,7 @@ def fit_temperature_cv(y_true, y_proba, n_folds=5, random_state=42):
 
 def fit_per_class_temperature(y_true, y_proba, class_names=None,
                               T_range=(0.01, 10.0)):
-    """
-    Fit separate T per class (Frenkel 2021, EUSIPCO).
-
-    Needed when miscalibration is class-asymmetric (e.g., NEEDLE:
-    SLSN-I overconfident, TDE underconfident).
-
-    Unlike global T, this CAN change predicted classes.
-    """
+    """Fit separate T per class (Frenkel 2021, EUSIPCO)."""
     from scipy.optimize import minimize_scalar
 
     y_true = np.asarray(y_true)
@@ -384,8 +320,7 @@ def fit_per_class_temperature(y_true, y_proba, class_names=None,
             p = _sigmoid(logits_k / T)
             return -np.mean(
                 is_k * np.log(np.clip(p, 1e-10, 1.0)) +
-                (1 - is_k) * np.log(np.clip(1 - p, 1e-10, 1.0))
-            )
+                (1 - is_k) * np.log(np.clip(1 - p, 1e-10, 1.0)))
 
         result = minimize_scalar(nll_k, bounds=T_range, method="bounded")
         class_Ts[class_names[k]] = float(result.x)
@@ -410,11 +345,7 @@ def apply_per_class_temperature(y_proba, class_Ts, class_names):
 
 def bootstrap_ece(y_true, y_proba, n_bootstrap=1000, n_bins=15,
                   confidence=0.95, random_state=42):
-    """
-    ECE with BCa bootstrap confidence intervals.
-
-    Uses 1000 replicates (sufficient for standard errors).
-    """
+    """ECE with bootstrap confidence intervals."""
     y_true = np.asarray(y_true)
     y_proba = np.asarray(y_proba, dtype=np.float64)
 
@@ -450,14 +381,10 @@ def auto_calibrate(y_true, y_proba, n_folds=5, class_names=None,
     Automatically find the best calibration strategy.
 
     Logic:
-      1. Compute baseline ECE + bootstrap CI + Brier score
+      1. Baseline ECE + bootstrap CI + Brier score
       2. Try global temperature scaling (CV)
-      3. If global T worsens ECE AND multi-class:
-         try per-class temperature scaling
+      3. If global T fails AND multi-class: try per-class T
       4. Report the best strategy
-
-    For binary classifiers with degenerate distributions
-    (e.g., Fink RF with 94% zeros), flags as unsuitable.
     """
     y_true = np.asarray(y_true)
     y_proba = np.asarray(y_proba, dtype=np.float64)
@@ -471,14 +398,14 @@ def auto_calibrate(y_true, y_proba, n_folds=5, class_names=None,
             return {
                 "ece_baseline": ece_point,
                 "recommendation": "none",
-                "reason": f"Degenerate distribution ({zero_frac*100:.0f}% zeros). "
+                "reason": (f"Degenerate distribution ({zero_frac*100:.0f}% zeros). "
                           f"Not suitable for probability calibration. "
-                          f"Use precision-recall metrics instead.",
+                          f"Use precision-recall metrics instead."),
                 "degenerate": True,
                 "bin_data": bin_data,
             }
 
-    # Step 1: Baseline metrics
+    # Step 1: Baseline
     boot = bootstrap_ece(y_true, y_proba, random_state=random_state)
     brier = brier_score(y_true, y_proba)
 
@@ -489,24 +416,20 @@ def auto_calibrate(y_true, y_proba, n_folds=5, class_names=None,
         "degenerate": False,
     }
 
-    # Per-class ECE (multi-class only)
     if not is_binary:
         n_classes = y_proba.shape[1]
         if class_names is None:
             class_names = [str(i) for i in range(n_classes)]
         result["per_class"] = compute_classwise_ece(
-            y_true, y_proba, class_names=class_names
-        )
+            y_true, y_proba, class_names=class_names)
 
     # Step 2: Global temperature scaling
     global_ts = fit_temperature_cv(
-        y_true, y_proba, n_folds=n_folds, random_state=random_state
-    )
+        y_true, y_proba, n_folds=n_folds, random_state=random_state)
     result["global_temperature"] = global_ts
 
     # Step 3: If global T failed and multi-class, try per-class T
     if not global_ts["recommended"] and not is_binary:
-        # Per-class T with CV
         n = len(y_true)
         rng = np.random.RandomState(random_state)
         indices = rng.permutation(n)
@@ -522,16 +445,13 @@ def auto_calibrate(y_true, y_proba, n_folds=5, class_names=None,
             cal_idx = np.concatenate([indices[:test_start], indices[test_end:]])
 
             fold_Ts = fit_per_class_temperature(
-                y_true[cal_idx], y_proba[cal_idx], class_names=class_names
-            )
+                y_true[cal_idx], y_proba[cal_idx], class_names=class_names)
             calibrated = apply_per_class_temperature(
-                y_proba[test_idx], fold_Ts, class_names
-            )
+                y_proba[test_idx], fold_Ts, class_names)
             ece_after, _ = compute_ece(y_true[test_idx], calibrated)
             fold_eces.append(ece_after)
             all_class_Ts.append(fold_Ts)
 
-        # Average per-class T across folds
         avg_class_Ts = {}
         for name in class_names:
             avg_class_Ts[name] = float(np.mean([t[name] for t in all_class_Ts]))
@@ -550,8 +470,7 @@ def auto_calibrate(y_true, y_proba, n_folds=5, class_names=None,
         result["recommendation"] = "global_temperature"
         result["summary"] = (
             f"Global T={global_ts['T_mean']:.3f}: "
-            f"ECE {global_ts['ece_before']:.3f} -> {global_ts['ece_after']:.3f}"
-        )
+            f"ECE {global_ts['ece_before']:.3f} -> {global_ts['ece_after']:.3f}")
     elif not is_binary and "per_class_temperature" in result:
         pct = result["per_class_temperature"]
         if pct["helps"]:
@@ -559,14 +478,12 @@ def auto_calibrate(y_true, y_proba, n_folds=5, class_names=None,
             result["summary"] = (
                 f"Per-class T: ECE {global_ts['ece_before']:.3f} -> "
                 f"{pct['ece_after']:.3f}. "
-                f"Global T failed (class-asymmetric miscalibration)."
-            )
+                f"Global T failed (class-asymmetric miscalibration).")
         else:
             result["recommendation"] = "none"
             result["summary"] = (
                 f"No post-hoc method improves ECE={boot['ece']:.3f}. "
-                f"Miscalibration is structural and class-asymmetric."
-            )
+                f"Miscalibration is structural and class-asymmetric.")
     elif is_binary and not global_ts["recommended"]:
         result["recommendation"] = "none"
         result["summary"] = f"ECE={boot['ece']:.3f}. Scaling not helpful."
