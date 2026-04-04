@@ -1,0 +1,48 @@
+{
+  "n_total_predictions": 429,
+  "n_unique_objects": 278,
+  "n_duplicates": 151,
+  "n_models": 5,
+  "per_model_ece": {
+    "model_0": {
+      "n": 85,
+      "ece": 0.13632336118642022,
+      "accuracy": 0.8470588235294118,
+      "mean_confidence": 0.8551724553108215
+    },
+    "model_1": {
+      "n": 86,
+      "ece": 0.12412528589714403,
+      "accuracy": 0.8023255813953488,
+      "mean_confidence": 0.8524436354637146
+    },
+    "model_2": {
+      "n": 86,
+      "ece": 0.09190367716689443,
+      "accuracy": 0.8488372093023255,
+      "mean_confidence": 0.8324227333068848
+    },
+    "model_3": {
+      "n": 86,
+      "ece": 0.13017390841661497,
+      "accuracy": 0.8488372093023255,
+      "mean_confidence": 0.8571807742118835
+    },
+    "model_4": {
+      "n": 86,
+      "ece": 0.11491679452186408,
+      "accuracy": 0.8604651162790697,
+      "mean_confidence": 0.8577775955200195
+    }
+  },
+  "ece_std_across_models": 0.015497827133562384,
+  "inter_model_agreement": {
+    "n_multi_model_objects": 43,
+    "n_disagree": 0,
+    "agreement_pct": 100.0
+  },
+  "ece_all_predictions": 0.07348914121414396,
+  "ece_deduplicated": 0.04753802663130726,
+  "n_high_variance_objects": 0,
+  "disagreement_details": []
+}
