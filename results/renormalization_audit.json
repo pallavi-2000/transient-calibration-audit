@@ -1,0 +1,19 @@
+{
+  "n_objects": 1114,
+  "p_transient_mean": 0.9566229802513464,
+  "p_nontransient_mean": 0.0433770197486535,
+  "inflation_factor_mean": 1.0945598783145214,
+  "inflation_factor_max": 10.0,
+  "n_gt_10pct_nontransient": 122,
+  "n_gt_50pct_nontransient": 16,
+  "ece_4class_renormalized": 0.2714362657091562,
+  "ece_15class_raw": 0.28323045601436264,
+  "ts_4class": {
+    "T": 0.35698405280309664,
+    "ece_after": 0.09711876450786425
+  },
+  "ts_15class": {
+    "T": 0.36929281406902137,
+    "ece_after": 0.09227742969526094
+  }
+}
