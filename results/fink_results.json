@@ -1,0 +1,44 @@
+{
+  "classifier_type": "binary (SN Ia vs not SN Ia)",
+  "random_forest": {
+    "name": "Random Forest",
+    "n_objects": 1237,
+    "n_positive": 527,
+    "prevalence": 0.4260307194826192,
+    "n_zeros": 1161,
+    "zero_fraction": 0.9385610347615198,
+    "mean_score": 0.011135004042037187,
+    "ece": 0.41077768795472913,
+    "ece_ci": [
+      0.3822632376717866,
+      0.4370373282134196
+    ],
+    "ece_equal_width": 0.414192400970089,
+    "brier_score": 0.8305146257073565,
+    "recommendation": "none",
+    "degenerate": true
+  },
+  "supernnova": {
+    "name": "SuperNNova",
+    "n_objects": 1237,
+    "n_positive": 527,
+    "prevalence": 0.4260307194826192,
+    "n_zeros": 444,
+    "zero_fraction": 0.3589329021827001,
+    "mean_score": 0.36137080082021017,
+    "ece": 0.19755601752611157,
+    "ece_ci": [
+      0.17347673361064472,
+      0.22639662156679263
+    ],
+    "ece_equal_width": 0.19927304409490704,
+    "brier_score": 0.5128030371987624,
+    "recommendation": "none",
+    "degenerate": false
+  },
+  "notes": {
+    "rf_degenerate": "94% of RF scores are exactly 0.0. Not suitable for probability calibration.",
+    "snn_bound_hit": "Temperature scaling optimizer hits upper bound (T=10), suggesting structural issues.",
+    "fink_api_change": "API URL changed Jan 2025: fink-portal.org -> api.fink-portal.org"
+  }
+}

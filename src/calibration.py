@@ -1,3 +1,4 @@
+
 """
 Calibration Metrics and Methods
 ================================
@@ -16,6 +17,55 @@ Methodology follows:
 """
 
 import numpy as np
+
+
+# ============================================================
+# STRATIFIED K-FOLD (for cross-validated temperature scaling)
+# ============================================================
+
+def _stratified_kfold(y, n_folds=5, random_state=42):
+    """
+    Stratified k-fold split preserving class ratios in each fold.
+
+    Critical for imbalanced datasets (e.g., SLSN 7%, TDE 3%).
+    Without stratification, a fold could have zero rare-class
+    examples, making NLL optimization unstable.
+
+    Yields (cal_indices, test_indices) tuples.
+    """
+    rng = np.random.RandomState(random_state)
+    y = np.asarray(y)
+
+    if y.ndim > 1:
+        # Multi-class probabilities: use argmax as proxy for stratification
+        labels = np.argmax(y, axis=1)
+    else:
+        # Binary: threshold at 0.5
+        labels = (y >= 0.5).astype(int)
+
+    # For actual labels (integers), use them directly
+    if np.issubdtype(y.dtype, np.integer):
+        labels = y
+
+    classes = np.unique(labels)
+
+    # Assign each sample to a fold, stratified by class
+    fold_ids = np.zeros(len(y), dtype=int)
+    for cls in classes:
+        cls_indices = np.where(labels == cls)[0]
+        rng.shuffle(cls_indices)
+        # Distribute class members across folds as evenly as possible
+        for i, idx in enumerate(cls_indices):
+            fold_ids[idx] = i % n_folds
+
+    # Yield (cal, test) index pairs
+    folds = []
+    for fold in range(n_folds):
+        test_idx = np.where(fold_ids == fold)[0]
+        cal_idx = np.where(fold_ids != fold)[0]
+        folds.append((cal_idx, test_idx))
+
+    return folds
 
 
 # ============================================================
@@ -224,29 +274,26 @@ def apply_temperature(y_proba, T):
 
 def fit_temperature_cv(y_true, y_proba, n_folds=5, random_state=42):
     """
-    Temperature scaling with cross-validation.
+    Temperature scaling with stratified cross-validation.
 
     Critical: T is fitted on calibration folds, evaluated on
     held-out fold. Never fit and evaluate on the same data.
+
+    Uses stratified folds to preserve class ratios — essential
+    when rare classes (SLSN ~7%, TDE ~3%) could be absent from
+    a fold under random splitting.
     """
     y_true = np.asarray(y_true)
     y_proba = np.asarray(y_proba, dtype=np.float64)
 
-    n = len(y_true)
-    rng = np.random.RandomState(random_state)
-    indices = rng.permutation(n)
-    fold_size = n // n_folds
+    folds = _stratified_kfold(y_true, n_folds=n_folds,
+                              random_state=random_state)
 
     fold_Ts = []
     fold_eces_before = []
     fold_eces_after = []
 
-    for fold in range(n_folds):
-        test_start = fold * fold_size
-        test_end = test_start + fold_size if fold < n_folds - 1 else n
-        test_idx = indices[test_start:test_end]
-        cal_idx = np.concatenate([indices[:test_start], indices[test_end:]])
-
+    for cal_idx, test_idx in folds:
         T = fit_temperature(y_true[cal_idx], y_proba[cal_idx])
 
         ece_before, _ = compute_ece(y_true[test_idx], y_proba[test_idx])
@@ -430,20 +477,13 @@ def auto_calibrate(y_true, y_proba, n_folds=5, class_names=None,
 
     # Step 3: If global T failed and multi-class, try per-class T
     if not global_ts["recommended"] and not is_binary:
-        n = len(y_true)
-        rng = np.random.RandomState(random_state)
-        indices = rng.permutation(n)
-        fold_size = n // n_folds
+        folds_pc = _stratified_kfold(y_true, n_folds=n_folds,
+                                     random_state=random_state)
 
         fold_eces = []
         all_class_Ts = []
 
-        for fold in range(n_folds):
-            test_start = fold * fold_size
-            test_end = test_start + fold_size if fold < n_folds - 1 else n
-            test_idx = indices[test_start:test_end]
-            cal_idx = np.concatenate([indices[:test_start], indices[test_end:]])
-
+        for cal_idx, test_idx in folds_pc:
             fold_Ts = fit_per_class_temperature(
                 y_true[cal_idx], y_proba[cal_idx], class_names=class_names)
             calibrated = apply_per_class_temperature(

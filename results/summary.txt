@@ -1,0 +1,55 @@
+======================================================================
+CALIBRATION AUDIT SUMMARY
+======================================================================
+
+ALeRCE (Balanced Random Forest, lc_classifier v1.1.13)
+  Architecture: Balanced Random Forest
+  Classes: 4 (SNIa, SNIbc, SNII, SLSN)
+  Sample: 1114 objects
+  Accuracy: 0.742
+  Mean confidence: 0.471
+  Direction: underconfident
+  ECE: 0.271 [0.249, 0.296]
+  Temperature: T=0.357
+  Post-calibration ECE: 0.097 (65% improvement)
+  Finding: Systematic underconfidence inverts Guo et al. (2017) norm
+
+Fink Random Forest (rf_snia_vs_nonia)
+  Type: Binary (SN Ia vs not)
+  Sample: 1237 objects
+  Zero scores: 94%
+  ECE: 0.411
+  Finding: Structurally broken — 94% zeros
+
+Fink SuperNNova (snn_snia_vs_nonia)
+  Type: Binary (SN Ia vs not)
+  Sample: 1237 objects
+  Zero scores: 36%
+  ECE: 0.198
+  Finding: Temperature scaling hits optimizer bound
+
+NEEDLE (Sheng et al. 2024)
+  Architecture: Hybrid CNN + DNN
+  Classes: SN, SLSN-I, TDE
+  Sample: 429 predictions, 278 objects
+  Accuracy: 0.841
+  Mean confidence: 0.851
+  Aggregate ECE: 0.073
+    SN: ECE=0.171, acc=0.929, conf=0.870
+    SLSN-I: ECE=0.118, acc=0.690, conf=0.846
+    TDE: ECE=0.070, acc=0.801, conf=0.823
+  Global T=1.552: ECE 0.126 -> 0.169 (WORSENS)
+  Per-class T: {'SN': 1.852, 'SLSN-I': 2.034, 'TDE': 0.539}
+  Per-class ECE: 0.167
+  Finding: Aggregate ECE (0.050) masks class-asymmetric miscalibration. SLSN-I is overconfident (driven by ~123x inverse-frequency weight), TDE is underconfident. Global temperature scaling worsens ECE because it cannot simultaneously soften and sharpen different classes.
+
+======================================================================
+KEY TAKEAWAYS
+======================================================================
+1. No production classifier publishes calibration metrics
+2. ALeRCE: fixable underconfidence (T=0.36 reduces ECE by ~71%)
+3. Fink RF: structurally broken (94% zeros)
+4. Fink SNN: miscalibrated, T scaling inappropriate
+5. NEEDLE: aggregate ECE masks class-asymmetric miscalibration
+6. Inverse-frequency class weighting distorts probabilities
+7. The failure of temperature scaling for NEEDLE is itself publishable

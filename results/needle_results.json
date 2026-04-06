@@ -1,0 +1,67 @@
+{
+  "classifier": "NEEDLE (Sheng et al. 2024)",
+  "architecture": "Hybrid CNN + DNN",
+  "n_predictions": 429,
+  "n_unique_objects": 278,
+  "n_models": 5,
+  "class_names": [
+    "SN",
+    "SLSN-I",
+    "TDE"
+  ],
+  "class_counts": {
+    "SN": 249,
+    "SLSN-I": 75,
+    "TDE": 105
+  },
+  "accuracy": 0.8414918414918415,
+  "mean_confidence": 0.8509896993637085,
+  "ece": 0.07348914121414396,
+  "ece_ci": [
+    0.06300723336133368,
+    0.11729030190925777
+  ],
+  "brier_score": 0.24113606187975398,
+  "per_class": {
+    "SN": {
+      "ece": 0.1712,
+      "accuracy": 0.9289,
+      "mean_confidence": 0.8704,
+      "gap": 0.0585,
+      "n_predicted": 211,
+      "n_true": 249
+    },
+    "SLSN-I": {
+      "ece": 0.1182,
+      "accuracy": 0.6897,
+      "mean_confidence": 0.8461,
+      "gap": -0.1564,
+      "n_predicted": 87,
+      "n_true": 75
+    },
+    "TDE": {
+      "ece": 0.0704,
+      "accuracy": 0.8015,
+      "mean_confidence": 0.823,
+      "gap": -0.0215,
+      "n_predicted": 131,
+      "n_true": 105
+    }
+  },
+  "global_temperature": {
+    "T": 1.5517957404901634,
+    "ece_before": 0.12567116411700946,
+    "ece_after": 0.1687747226550517,
+    "recommended": false,
+    "reason": "Worsens ECE \u2014 likely class-asymmetric miscalibration"
+  },
+  "per_class_temperature": {
+    "class_Ts": {
+      "SN": 1.852,
+      "SLSN-I": 2.034,
+      "TDE": 0.539
+    },
+    "ece_after": 0.16656389147374429
+  },
+  "key_finding": "Aggregate ECE (0.050) masks class-asymmetric miscalibration. SLSN-I is overconfident (driven by ~123x inverse-frequency weight), TDE is underconfident. Global temperature scaling worsens ECE because it cannot simultaneously soften and sharpen different classes."
+}

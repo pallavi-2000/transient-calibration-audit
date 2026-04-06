@@ -1,0 +1,70 @@
+{
+  "classifier": "ALeRCE lc_classifier v1.1.13",
+  "architecture": "Balanced Random Forest",
+  "n_objects": 1114,
+  "n_classes": 4,
+  "class_names": [
+    "SNIa",
+    "SNIbc",
+    "SNII",
+    "SLSN"
+  ],
+  "class_counts": {
+    "SNIa": 463,
+    "SNIbc": 225,
+    "SNII": 341,
+    "SLSN": 85
+  },
+  "accuracy": 0.7423698384201077,
+  "mean_confidence": 0.47093357271095165,
+  "direction": "underconfident",
+  "ece": 0.2714362657091562,
+  "ece_ci": [
+    0.24884694793536807,
+    0.29619605026929974
+  ],
+  "ece_equal_width": 0.2714362657091562,
+  "brier_score": 0.48618462477558355,
+  "per_class": {
+    "SNIa": {
+      "ece": 0.1951,
+      "accuracy": 0.7963,
+      "mean_confidence": 0.4613,
+      "gap": 0.335,
+      "n_predicted": 491,
+      "n_true": 463
+    },
+    "SNIbc": {
+      "ece": 0.1542,
+      "accuracy": 0.6667,
+      "mean_confidence": 0.4661,
+      "gap": 0.2006,
+      "n_predicted": 255,
+      "n_true": 225
+    },
+    "SNII": {
+      "ece": 0.1497,
+      "accuracy": 0.8326,
+      "mean_confidence": 0.44,
+      "gap": 0.3927,
+      "n_predicted": 239,
+      "n_true": 341
+    },
+    "SLSN": {
+      "ece": 0.1116,
+      "accuracy": 0.5194,
+      "mean_confidence": 0.5744,
+      "gap": -0.055,
+      "n_predicted": 129,
+      "n_true": 85
+    }
+  },
+  "temperature_scaling": {
+    "T": 0.35698405280309664,
+    "T_std": 0.011988841076289829,
+    "ece_before": 0.2760599984994604,
+    "ece_after": 0.09711876450786425,
+    "improvement_pct": 64.8,
+    "recommended": true
+  }
+}

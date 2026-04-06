@@ -1,0 +1,15 @@
+\begin{table}
+\centering
+\caption{Calibration audit summary for four production transient classifiers. ECE is computed with equal-mass binning (15 bins) following \citet{roelofs2022}. 95\% confidence intervals via bootstrap (1000 replicates).}
+\label{tab:summary}
+\begin{tabular}{lcccccc}
+\hline\hline
+Classifier & Architecture & Classes & $N$ & ECE & Post-hoc & ECE$_\mathrm{post}$ \\
+\hline
+ALeRCE & BRF & 15 & 1114 & $0.271$ $[0.249, 0.296]$ & Temp. ($T=0.357$) & $0.097$ \\
+Fink RF & RF & 2 & 1237 & $0.411$ $[0.382, 0.437]$ & N/A (degenerate) & --- \\
+Fink SNN & RNN & 2 & 1237 & $0.198$ $[0.173, 0.226]$ & N/A (bound hit) & --- \\
+NEEDLE & CNN+DNN & 3 & 429 & $0.073$ $[0.063, 0.117]$ & Global T worsens & $0.169$ \\
+\hline
+\end{tabular}
+\end{table}

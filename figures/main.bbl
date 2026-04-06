@@ -1,0 +1,155 @@
+\begin{thebibliography}{}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+\providecommand{\url}[1]{\href{#1}{#1}}
+\providecommand{\dodoi}[1]{doi:~\href{http://doi.org/#1}{\nolinkurl{#1}}}
+\providecommand{\doeprint}[1]{\href{http://ascl.net/#1}{\nolinkurl{http://ascl.net/#1}}}
+\providecommand{\doarXiv}[1]{\href{https://arxiv.org/abs/#1}{\nolinkurl{https://arxiv.org/abs/#1}}}
+
+\bibitem[{Abadi {et~al.}(2016)}]{abadi2016}
+Abadi, M., {et~al.} 2016, in Proceedings of the 12th USENIX Symposium on
+  Operating Systems Design and Implementation, 265--283
+
+\bibitem[{Bellm {et~al.}(2019)}]{bellm2019}
+Bellm, E.~C., {et~al.} 2019, \pasp, 131, 018002,
+  \dodoi{10.1088/1538-3873/aaecbe}
+
+\bibitem[{{Bostr{\"o}m}(2008)}]{bostrom2008}
+{Bostr{\"o}m}, H. 2008, in 2008 Seventh International Conference on Machine
+  Learning and Applications (IEEE), 121--126, \dodoi{10.1109/ICMLA.2008.107}
+
+\bibitem[{Brier(1950)}]{brier1950}
+Brier, G.~W. 1950, Monthly Weather Review, 78, 1
+
+\bibitem[{Chen {et~al.}(2004)Chen, Liaw, \& Breiman}]{chen2004}
+Chen, C., Liaw, A., \& Breiman, L. 2004, in University of California, Berkeley
+  Technical Report, 666
+
+\bibitem[{Dawid(1982)}]{dawid1982}
+Dawid, A.~P. 1982, Journal of the American Statistical Association, 77, 605
+
+\bibitem[{{de Soto} {et~al.}(2024)}]{desoto2024}
+{de Soto}, K.~D., {et~al.} 2024, \apj, 974, 169,
+  \dodoi{10.3847/1538-4357/ad6869}
+
+\bibitem[{Fang \& Orabona(2020)}]{fang2020}
+Fang, L., \& Orabona, F. 2020, in IEEE International Conference on Pattern
+  Recognition
+
+\bibitem[{Fernando \& Tsokos(2021)}]{fernando2021}
+Fernando, T., \& Tsokos, C.~P. 2021, IEEE Transactions on Neural Networks and
+  Learning Systems, 33, 2940, \dodoi{10.1109/TNNLS.2020.3047335}
+
+\bibitem[{{F{\"o}rster} {et~al.}(2021)}]{forster2021}
+{F{\"o}rster}, F., {et~al.} 2021, \aj, 161, 242,
+  \dodoi{10.3847/1538-3881/abe9bc}
+
+\bibitem[{Fremling {et~al.}(2020)}]{fremling2020}
+Fremling, C., {et~al.} 2020, \apj, 895, 32, \dodoi{10.3847/1538-4357/ab8943}
+
+\bibitem[{Gneiting \& Raftery(2007)}]{gneiting2007}
+Gneiting, T., \& Raftery, A.~E. 2007, Journal of the American Statistical
+  Association, 102, 359, \dodoi{10.1198/016214506000001437}
+
+\bibitem[{Guo {et~al.}(2017)Guo, Pleiss, Sun, \& Weinberger}]{guo2017}
+Guo, C., Pleiss, G., Sun, Y., \& Weinberger, K.~Q. 2017, in Proceedings of the
+  34th International Conference on Machine Learning (PMLR), 1321--1330
+
+\bibitem[{Harris {et~al.}(2020)}]{harris2020}
+Harris, C.~R., {et~al.} 2020, Nature, 585, 357,
+  \dodoi{10.1038/s41586-020-2649-2}
+
+\bibitem[{Hunter(2007)}]{hunter2007}
+Hunter, J.~D. 2007, Computing in Science \& Engineering, 9, 90,
+  \dodoi{10.1109/MCSE.2007.55}
+
+\bibitem[{{Ivezi{\'c}} {et~al.}(2019)}]{ivezic2019}
+{Ivezi{\'c}}, {\v{Z}}., {et~al.} 2019, \apj, 873, 111,
+  \dodoi{10.3847/1538-4357/ab042c}
+
+\bibitem[{Kull {et~al.}(2019)Kull, Perello-Nieto, K{\"a}ngsepp, Silva~Filho,
+  Song, \& Flach}]{kull2019}
+Kull, M., Perello-Nieto, M., K{\"a}ngsepp, M., {et~al.} 2019, in Advances in
+  Neural Information Processing Systems, Vol.~32
+
+\bibitem[{Leoni {et~al.}(2022)}]{leoni2022}
+Leoni, B., {et~al.} 2022, A\&A, 663, A13, \dodoi{10.1051/0004-6361/202142715}
+
+\bibitem[{Loecher \& Walters(2024)}]{loecher2024}
+Loecher, M., \& Walters, S. 2024, Diagnostic and Prognostic Research, 8, 7,
+  \dodoi{10.1186/s41512-024-00177-1}
+
+\bibitem[{McKinney(2010)}]{mckinney2010}
+McKinney, W. 2010, in Proceedings of the 9th Python in Science Conference,
+  56--61
+
+\bibitem[{{M{\"o}ller} \& {de Boissi{\`e}re}(2020)}]{moller2020}
+{M{\"o}ller}, A., \& {de Boissi{\`e}re}, T. 2020, MNRAS, 491, 4277,
+  \dodoi{10.1093/mnras/stz3312}
+
+\bibitem[{{M{\"o}ller} {et~al.}(2021)}]{moller2021}
+{M{\"o}ller}, A., {et~al.} 2021, MNRAS, 501, 3272,
+  \dodoi{10.1093/mnras/staa3602}
+
+\bibitem[{Mukhoti {et~al.}(2020)Mukhoti, Kulharia, Sanber, Torr, \&
+  Dokania}]{mukhoti2020}
+Mukhoti, J., Kulharia, V., Sanber, A., Torr, P.~H.~S., \& Dokania, P.~K. 2020,
+  in Advances in Neural Information Processing Systems, Vol.~33
+
+\bibitem[{Naeini {et~al.}(2015)Naeini, Cooper, \& Hauskrecht}]{naeini2015}
+Naeini, M.~P., Cooper, G.~F., \& Hauskrecht, M. 2015, in Proceedings of the
+  AAAI Conference on Artificial Intelligence, Vol.~29, 2901--2907
+
+\bibitem[{Narayan {et~al.}(2018)}]{narayan2018}
+Narayan, G., {et~al.} 2018, \apjs, 236, 9, \dodoi{10.3847/1538-4365/aab781}
+
+\bibitem[{Niculescu-Mizil \& Caruana(2005)}]{niculescumizil2005}
+Niculescu-Mizil, A., \& Caruana, R. 2005, in Proceedings of the 22nd
+  International Conference on Machine Learning (ACM), 625--632
+
+\bibitem[{Nixon {et~al.}(2019)Nixon, Dusenberry, Zhang, Jerfel, \&
+  Tran}]{nixon2019}
+Nixon, J., Dusenberry, M.~W., Zhang, L., Jerfel, G., \& Tran, D. 2019, in CVPR
+  Workshops, 38--41
+
+\bibitem[{Perley {et~al.}(2020)}]{perley2020}
+Perley, D.~A., {et~al.} 2020, \apj, 904, 35, \dodoi{10.3847/1538-4357/abbd98}
+
+\bibitem[{Platt(1999)}]{platt1999}
+Platt, J.~C. 1999, in Advances in Large Margin Classifiers (MIT Press), 61--74
+
+\bibitem[{Roelofs {et~al.}(2022)Roelofs, Cain, Shlens, \& Mozer}]{roelofs2022}
+Roelofs, R., Cain, N., Shlens, J., \& Mozer, M.~C. 2022, in Proceedings of the
+  25th International Conference on Artificial Intelligence and Statistics
+  (PMLR)
+
+\bibitem[{{S{\'a}nchez-S{\'a}ez} {et~al.}(2021)}]{sanchezsaez2021}
+{S{\'a}nchez-S{\'a}ez}, P., {et~al.} 2021, \aj, 161, 141,
+  \dodoi{10.3847/1538-3881/abd5c1}
+
+\bibitem[{Sheng {et~al.}(2024)}]{sheng2024}
+Sheng, X., {et~al.} 2024, MNRAS, 531, 2474, \dodoi{10.1093/mnras/stae1253}
+
+\bibitem[{Smith {et~al.}(2019)}]{smith2019}
+Smith, K.~W., {et~al.} 2019, Research Notes of the AAS, 3, 26,
+  \dodoi{10.3847/2515-5172/ab020f}
+
+\bibitem[{Tung(2025)}]{tung2025}
+Tung, A. 2025, arXiv e-prints.
+\newblock \doarXiv{2511.00614}
+
+\bibitem[{Vaicenavicius {et~al.}(2019)Vaicenavicius, Widmann, Andersson,
+  Lindsten, Roll, \& Sch{\"o}n}]{vaicenavicius2019}
+Vaicenavicius, J., Widmann, D., Andersson, C., {et~al.} 2019, arXiv e-prints.
+\newblock \doarXiv{1902.06977}
+
+\bibitem[{{van den Goorbergh} {et~al.}(2022){van den Goorbergh}, {van Smeden},
+  Timmerman, \& {Zwinderman}}]{vandengoorbergh2022}
+{van den Goorbergh}, R., {van Smeden}, M., Timmerman, D., \& {Zwinderman},
+  A.~H. 2022, Journal of the American Medical Informatics Association, 29,
+  1525, \dodoi{10.1093/jamia/ocac093}
+
+\bibitem[{Virtanen {et~al.}(2020)}]{virtanen2020}
+Virtanen, P., {et~al.} 2020, Nature Methods, 17, 261,
+  \dodoi{10.1038/s41592-019-0686-2}
+
+\end{thebibliography}
