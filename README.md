@@ -2,8 +2,6 @@
 
 **Calibration study of ML classifiers deployed on ZTF transient alert streams.**
 
-> When a broker says "80% probability of SN Ia," is it actually correct 80% of the time?
-
 This repository contains the complete analysis pipeline for auditing the calibration of four production classifiers across three brokers: **ALeRCE**, **Fink**, and **NEEDLE**. All three are deployed in production on the Zwicky Transient Facility (ZTF) alert stream and routinely used to prioritize spectroscopic follow-up.
 
 ---
