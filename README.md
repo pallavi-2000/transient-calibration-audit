@@ -1,12 +1,10 @@
 # Calibration Audit of Production Astronomical Transient Classifiers
 
-**The first systematic calibration study of ML classifiers deployed on ZTF transient alert streams.**
+**Calibration study of ML classifiers deployed on ZTF transient alert streams.**
 
 > When a broker says "80% probability of SN Ia," is it actually correct 80% of the time?
 
 This repository contains the complete analysis pipeline for auditing the calibration of four production classifiers across three brokers: **ALeRCE**, **Fink**, and **NEEDLE**. All three are deployed in production on the Zwicky Transient Facility (ZTF) alert stream and routinely used to prioritize spectroscopic follow-up.
-
-Paper in preparation for *The Astronomical Journal*.
 
 ---
 
@@ -24,8 +22,6 @@ Paper in preparation for *The Astronomical Journal*.
 1. **ALeRCE's underconfidence inverts the Guo et al. (2017) overconfidence norm.** The Balanced Random Forest architecture pushes predictions away from 0 and 1, consistent with Niculescu-Mizil and Caruana (2005).
 
 2. **NEEDLE's aggregate ECE masks class-asymmetric miscalibration.** SLSN-I is overconfident (conf ~95%, acc ~80%) while TDE is underconfident (conf ~86%, acc ~100%). Global temperature scaling cannot fix opposing miscalibration directions — this is driven by inverse-frequency class weighting (~80:1 ratio).
-
-3. **Fink RF is not a probability estimator.** With 94% of scores at exactly 0.0, it functions as a detection filter, not a calibrated classifier.
 
 ---
 
@@ -108,7 +104,7 @@ python3 scripts/04_summary.py
 
 ## Author
 
-Pallavi Kailas — Independent researcher
+Pallavi Sati
 
 ## License
 
