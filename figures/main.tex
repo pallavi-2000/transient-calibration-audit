@@ -3,6 +3,7 @@
 \usepackage{amsmath}
 \usepackage{natbib}
 \usepackage{graphicx}
+\usepackage{multirow}
 
 \shorttitle{Calibration Audit of Transient Classifiers}
 \shortauthors{Kailas}
@@ -16,26 +17,26 @@
 \email{pallavi.kailas@example.com}
 
 \begin{abstract}
-Production transient classifiers deployed on the Zwicky Transient Facility (ZTF) alert stream are routinely used to prioritize spectroscopic follow-up, yet their probability outputs have never been systematically validated as calibrated. We present the first calibration audit of four classifiers across three systems---ALeRCE's Balanced Random Forest, Fink's Random Forest and SuperNNova, and the NEEDLE framework---using spectroscopically confirmed transients from the ZTF Bright Transient Survey as ground truth. We compute Expected Calibration Error (ECE) with equal-mass binning, classwise reliability diagrams, and Brier scores, then apply temperature scaling with five-fold cross-validation. We find that all four classifiers exhibit significant miscalibration, each with a distinct failure mode. ALeRCE is systematically underconfident (ECE $= 0.271$), consistent with known Random Forest calibration behavior; temperature scaling with $T = 0.357$ reduces ECE to $0.030$ (89\% improvement). Fink's Random Forest produces degenerate outputs (94\% of scores are exactly zero), while SuperNNova's miscalibration (ECE $= 0.198$) is not addressable by temperature scaling. NEEDLE appears well-calibrated in aggregate (ECE $= 0.073$) but per-class analysis reveals class-asymmetric miscalibration: SLSN-I predictions are overconfident while SN predictions are underconfident, driven by inverse-frequency class weighting. Global temperature scaling worsens NEEDLE's calibration, demonstrating that a single scalar parameter cannot correct opposing miscalibration directions. These findings have direct implications for LSST-era spectroscopic follow-up prioritization, where calibrated probabilities will be essential for optimal resource allocation under a 100:1 alert-to-spectrum mismatch.
+Production transient classifiers deployed on the Zwicky Transient Facility (ZTF) alert stream are routinely used to prioritize spectroscopic follow-up, yet their probability outputs have never been systematically validated as calibrated. We present the first calibration audit of four classifiers across three systems---ALeRCE's Balanced Random Forest, Fink's Random Forest and SuperNNova, and the NEEDLE framework---using spectroscopically confirmed transients from the ZTF Bright Transient Survey as ground truth. We compute Expected Calibration Error (ECE) with equal-mass binning, classwise reliability diagrams, and Brier scores, then apply temperature scaling with five-fold cross-validation. We find that ALeRCE exhibits moderate miscalibration (ECE $= 0.271$), which temperature scaling with $T = 0.357$ reduces to 0.097 (65\% improvement); applying a recalibrated 0.8 probability threshold increases usable candidates from 20 to 425 objects while maintaining 91\% precision, a 21-fold operational gain. Fink implements implicit selective classification: the Random Forest abstains on 94\% of objects via a minimum-epoch eligibility gate, achieving conditional ECE $= 0.263$ [0.211, 0.409] on the 6\% where predictions are made; SuperNNova abstains on 36\% of objects, with conditional ECE $= 0.183$ [0.155, 0.220] on predictions, which temperature scaling improves to 0.118. NEEDLE appears well-calibrated in aggregate (ECE $= 0.073$) but per-class analysis reveals class-asymmetric miscalibration: SLSN-I predictions are overconfident while SN predictions are underconfident, driven by inverse-frequency class weighting. Global temperature scaling worsens NEEDLE's calibration, demonstrating that a single scalar parameter cannot correct opposing miscalibration directions. These findings have direct implications for spectroscopic follow-up prioritization under the alert-to-spectrum mismatch of the Rubin era.
 \end{abstract}
 
-\keywords{methods: statistical --- surveys --- supernovae: general --- techniques: photometric}
+\keywords{Transient sources --- Sky surveys --- Astronomical methods --- Astrostatistics --- Classification --- Astronomy data analysis}
 
 % ============================================================
 \section{Introduction} \label{sec:intro}
 % ============================================================
 
-The Vera C. Rubin Observatory's Legacy Survey of Space and Time (LSST) will generate approximately 10 million alerts per night \citep{ivezic2019}, while global spectroscopic follow-up capacity remains fixed at roughly 100,000 spectra per year---a mismatch ratio of approximately 100:1. With the Zwicky Transient Facility \citep[ZTF;][]{bellm2019} currently serving as the primary precursor survey, the community has developed automated alert brokers to triage this data deluge and identify the most scientifically valuable transients for follow-up.
+The Vera C. Rubin Observatory's Legacy Survey of Space and Time (LSST) is designed to generate on the order of $10^7$ alerts per night, with the first public alerts issued on 2026 February 24 \citep{ivezic2019}. With global spectroscopic follow-up capacity remaining fixed at roughly $10^5$ spectra per year, the community faces a substantial alert-to-spectrum mismatch. The Zwicky Transient Facility \citep[ZTF;][]{bellm2019}, currently serving as the primary LSST precursor survey, has driven the development of automated alert brokers to triage this data deluge and identify the most scientifically valuable transients for follow-up.
 
 Several broker systems now operate in production on the ZTF alert stream, including ALeRCE \citep{forster2021}, Fink \citep{moller2021}, ANTARES \citep{narayan2018}, and Lasair \citep{smith2019}. These systems ingest alerts in real time, extract features from light curves and contextual information, and deploy machine learning classifiers to assign class probabilities to each transient. Astronomers routinely use these probability outputs to make follow-up decisions: a transient classified as ``90\% SN~Ia'' is far more likely to receive telescope time than one classified at ``60\% SN~Ia.'' Additional frameworks such as NEEDLE \citep{sheng2024} extend classification to rare transient types including superluminous supernovae (SLSNe) and tidal disruption events (TDEs).
 
-This decision-making process relies on an implicit but critical assumption: that the classifier's stated probabilities are \emph{calibrated}---that is, among all objects assigned a probability $p$ of belonging to a given class, a fraction $p$ actually belongs to that class \citep{dawid1982}. Miscalibrated probabilities lead directly to misallocated resources: an overconfident classifier wastes telescope time on objects it is wrong about, while an underconfident one causes astronomers to overlook genuinely interesting transients. Despite the operational importance of calibration, no production transient classifier currently publishes calibration metrics such as the Expected Calibration Error \citep[ECE;][]{naeini2015}, reliability diagrams, or Brier score decompositions.
+This decision-making process relies on an implicit but critical assumption: that the classifier's stated probabilities are \emph{calibrated}---that is, among all objects assigned a probability $p$ of belonging to a given class, a fraction $p$ actually belongs to that class \citep{dawid1982}. Miscalibrated probabilities lead directly to misallocated resources: an overconfident classifier wastes telescope time on objects it is wrong about, while an underconfident one causes astronomers to overlook genuinely interesting transients. Despite the operational importance of calibration, no prior work has evaluated calibration across multiple production brokers using standard metrics on real survey data.
 
 The machine learning calibration literature has established that modern neural networks are systematically overconfident \citep{guo2017}, a finding that has driven the development of post-hoc calibration methods including temperature scaling \citep{guo2017}, Platt scaling \citep{platt1999}, and Dirichlet calibration \citep{kull2019}. However, Random Forests---the architecture underlying several production broker classifiers---exhibit the opposite calibration behavior: ensemble averaging over bagged trees pushes predictions toward intermediate values, producing systematic underconfidence \citep{niculescumizil2005, bostrom2008}. Class imbalance corrections such as those used in Balanced Random Forests further distort probability estimates by inflating minority-class probabilities \citep{vandengoorbergh2022}. These well-characterized calibration properties of different architectures have direct relevance for astronomical classifiers but have not been evaluated in this domain.
 
-Two recent works include limited calibration analysis. \citet{desoto2024} present per-class calibration curves for Superphot+ deployed on the ANTARES broker, noting overconfident SN~Ib/c and underconfident SN~Ia predictions but without computing formal calibration metrics. \citet{tung2025} evaluate calibration of ATCAT on simulated ELAsTiCC data, applying post-hoc corrections. However, no prior work has conducted a systematic calibration audit of production classifiers operating on real survey data using standard metrics.
+Two recent works include limited calibration analysis. \citet{desoto2024} present per-class calibration curves for Superphot+ deployed on the ANTARES broker, noting overconfident SN~Ib/c and underconfident SN~Ia predictions but without computing formal calibration metrics. \citet{tung2025} evaluate calibration of ATCAT on simulated ELAsTiCC data, applying post-hoc corrections. However, no prior work has evaluated calibration across multiple production brokers using standard metrics on real survey data.
 
-In this paper, we present the first such audit. We evaluate four classifiers across three production systems: ALeRCE's Balanced Random Forest light curve classifier \citep[lc\_classifier v1.1.13;][]{sanchezsaez2021}, Fink's Random Forest and SuperNNova classifiers \citep{leoni2022, moller2020}, and the NEEDLE hybrid CNN+DNN framework \citep{sheng2024}. We restrict our analysis to classifiers that output explicit class probabilities; other brokers such as Lasair, ANTARES, and AMPEL employ crossmatching or feature-based approaches that do not produce probability estimates amenable to calibration analysis. Using spectroscopically confirmed transients from the ZTF Bright Transient Survey \citep[BTS;][]{fremling2020, perley2020} as ground truth, we compute ECE with equal-mass binning \citep{roelofs2022}, classwise reliability diagrams \citep{nixon2019}, and Brier scores, then apply temperature scaling with five-fold cross-validation. We find that all four classifiers are significantly miscalibrated, each with a distinct failure mode, and that temperature scaling is effective for ALeRCE but inappropriate or counterproductive for the other systems.
+In this paper, we present the first such audit. We evaluate four classifiers across three production systems: ALeRCE's Balanced Random Forest light curve classifier \citep[lc\_classifier v1.1.13;][]{sanchezsaez2021}, Fink's Random Forest and SuperNNova classifiers \citep{leoni2022, moller2020}, and the NEEDLE hybrid CNN+DNN framework \citep{sheng2024}. We restrict our analysis to classifiers that output explicit class probabilities; other brokers such as Lasair, ANTARES, and AMPEL employ crossmatching or feature-based approaches that do not produce probability estimates amenable to calibration analysis. Using spectroscopically confirmed transients from the ZTF Bright Transient Survey \citep[BTS;][]{fremling2020, perley2020} as ground truth, we compute ECE with equal-mass binning \citep{roelofs2022}, classwise reliability diagrams \citep{nixon2019}, and Brier scores, then apply temperature scaling with five-fold cross-validation. We find that all four classifiers exhibit significant miscalibration, and that temperature scaling is effective for ALeRCE but inappropriate or counterproductive for the other systems.
 
 The paper is organized as follows. Section~\ref{sec:background} reviews relevant background on calibration metrics and post-hoc methods. Section~\ref{sec:data} describes our data sources and sample construction. Section~\ref{sec:methods} presents our calibration analysis methodology. Section~\ref{sec:results} reports our findings for each classifier. Section~\ref{sec:discussion} interprets the results in the context of the calibration literature and discusses implications for LSST. Section~\ref{sec:conclusions} summarizes our conclusions.
 
@@ -114,17 +115,17 @@ SN~II & 341 & 23.7\% \\
 SN~Ibc & 225 & 15.7\% \\
 SLSN & 97 & 6.8\% \\
 TDE & 39 & 2.7\% \\
-Other & 134 & 9.3\% \\
+Other & 134 & 9.3\%
 \enddata
 \end{deluxetable}
 
 \subsection{Classifier Predictions}
 
-\textbf{ALeRCE.} We query the ALeRCE API\footnote{\url{https://api.alerce.online}} for light curve classifier (lc\_classifier v1.1.13) probabilities. This Balanced Random Forest outputs a 15-class probability vector spanning transient and variable star categories \citep{sanchezsaez2021}. We successfully retrieve predictions for 1,149 of 1,436 sample objects. Since ALeRCE does not include a TDE class in its production taxonomy, we exclude 35 TDE objects, yielding 1,114 objects for analysis. We restrict to the four transient classes (SN~Ia, SN~Ibc, SN~II, SLSN) and renormalize the probability vectors to sum to unity over these classes.
+\textbf{ALeRCE.} We query the ALeRCE API\footnote{\url{https://api.alerce.online}} for light curve classifier (lc\_classifier v1.1.13) probabilities. This Balanced Random Forest outputs a 15-class probability vector spanning transient and variable star categories \citep{sanchezsaez2021}. The 2025 TDE expansion described in \citet{pavezherrera2025} postdates our analysis; we evaluate the pre-TDE lc\_classifier v1.1.13. We successfully retrieve predictions for 1,149 of 1,436 sample objects. Since ALeRCE does not include a TDE class in v1.1.13, we exclude 35 TDE objects, yielding 1,114 objects for analysis. We restrict to the four transient classes (SN~Ia, SN~Ibc, SN~II, SLSN) and renormalize the probability vectors to sum to unity over these classes.
 
-\textbf{Fink.} We query the Fink API\footnote{\url{https://api.fink-portal.org}} for two binary classifiers: the Random Forest SN~Ia classifier (rf\_snia\_vs\_nonia) and SuperNNova \citep[snn\_snia\_vs\_nonia;][]{moller2020}. Both output a single score $\in [0,1]$ representing $P(\text{SN~Ia})$. We retrieve the most recent alert for each object (corresponding to the most complete light curve), obtaining predictions for 1,237 objects.
+\textbf{Fink.} We query the Fink API\footnote{\url{https://api.fink-portal.org}} for two binary classifiers: the Random Forest SN~Ia classifier (\texttt{rf\_snia\_vs\_nonia}) and SuperNNova \citep[\texttt{snn\_snia\_vs\_nonia};][]{moller2020}. Both output a single score $\in [0, 1]$ representing $P(\text{SN~Ia})$. We retrieve the most recent alert for each object (corresponding to the most complete light curve), obtaining predictions for 1,237 objects.
 
-\textbf{NEEDLE.} Unlike ALeRCE and Fink, NEEDLE \citep{sheng2024} does not provide a public API. We perform local inference using the five pre-trained models from the \texttt{lasair\_th\_r} model family, applied to the publicly available dataset. Each model was trained with a different random held-out test set recorded in \texttt{testset\_obj.json}. We map test set ZTF IDs to dataset positions via the provided hash table, yielding 429 predictions across 278 unique objects in three classes (SN, SLSN-I, TDE).
+\textbf{NEEDLE.} Unlike ALeRCE and Fink, NEEDLE \citep{sheng2024} does not provide a public API. We perform local inference using the five pre-trained models from the \texttt{lasair\_th\_r\_model} family, applied to the publicly available dataset. Each model was trained with a different random held-out test set recorded in \texttt{testset\_obj.json}. We map test set ZTF IDs to dataset positions via the provided hash table, yielding 429 predictions across 278 unique objects in three classes (SN, SLSN-I, TDE).
 
 
 % ============================================================
@@ -144,9 +145,11 @@ For each classifier, we compute:
 
 For binary classifiers (Fink RF and SuperNNova), confidence is defined as $\max(p, 1-p)$ and predictions are thresholded at $p = 0.5$.
 
+For Fink classifiers, which implement implicit selective classification through prediction-eligibility gates \citep{geifman2017}, we report calibration metrics both \emph{unconditionally} (computed on all API outputs including score $= 0$) and \emph{conditionally} (restricted to score $> 0$ cases where predictions were made). The unconditional metric reflects the user experience when zeros are naively interpreted as probabilities; the conditional metric isolates actual classifier calibration on the predicted subset. This distinction is essential for systems where abstention is conflated with low-confidence prediction in the API output format.
+
 \subsection{Temperature Scaling}
 
-We fit the temperature parameter $T$ by minimizing negative log-likelihood using bounded scalar optimization ($T \in [0.01, 10.0]$). To avoid fitting and evaluating on the same data, we use five-fold cross-validation: $T$ is fitted on four folds and ECE is evaluated on the held-out fold, with results averaged across folds.
+We fit the temperature parameter $T$ by minimizing negative log-likelihood using bounded scalar optimization ($T \in [0.01, 10.0]$). To avoid fitting and evaluating on the same data, we use five-fold stratified cross-validation: $T$ is fitted on four folds and ECE is evaluated on the held-out fold, with results averaged across folds. Stratified splitting ensures rare classes (SLSN, 6.8\% of sample) are represented in all folds.
 
 For Random Forest classifiers, which do not natively produce logits, we convert vote-fraction probabilities to pseudo-logits via $z_k = \log p_k$ before applying temperature scaling. We note that this conversion assumes a log-linear relationship that may not hold precisely for RF outputs.
 
@@ -166,18 +169,25 @@ For classifiers where global temperature scaling fails, we additionally evaluate
 
 Table~\ref{tab:summary} summarizes the calibration metrics for all four classifiers. We describe each in detail below.
 
-\begin{deluxetable*}{lcccccc}
+\begin{deluxetable*}{llccccc}
 \tablecaption{Calibration Audit Summary \label{tab:summary}}
 \tablehead{
-\colhead{Classifier} & \colhead{Architecture} & \colhead{Classes} & \colhead{$N$} & \colhead{ECE} & \colhead{Post-hoc Method} & \colhead{ECE$_\mathrm{post}$}
+\colhead{Classifier} & \colhead{Subset} & \colhead{Architecture} & \colhead{$N$} & \colhead{ECE [95\% CI]} & \colhead{Post-calibration ECE} & \colhead{Coverage}
 }
 \startdata
-ALeRCE & BRF & 15 (4 transient) & 1114 & $0.271$ $[0.249, 0.296]$ & Temp.\ ($T=0.357$) & $0.030$ \\
-Fink RF & RF & 2 & 1237 & $0.411$ $[0.382, 0.437]$ & N/A (degenerate) & --- \\
-Fink SNN & RNN & 2 & 1237 & $0.198$ $[0.173, 0.226]$ & N/A (bound hit) & --- \\
-NEEDLE & CNN+DNN & 3 & 429 & $0.073$ $[0.063, 0.117]$ & Global $T$ worsens & $0.171$ \\
+ALeRCE & --- & BRF (15 classes) & 1114 & $0.271$ $[0.249, 0.296]$ & $0.097$ (T-scaling) & 100\% \\
+\hline
+\multirow{2}{*}{Fink RF} 
+    & Raw API & \multirow{2}{*}{RF (2 classes)} & \multirow{2}{*}{1237} & $0.411$ $[0.382, 0.437]$ & N/A (abstention) & 100\% \\
+    & Conditional ($\pi=1$) & & & $0.263$ $[0.211, 0.409]$ & $0.254$ (T-scaling) & 6.1\% \\
+\hline
+\multirow{2}{*}{Fink SNN} 
+    & Raw API & \multirow{2}{*}{RNN (2 classes)} & \multirow{2}{*}{1237} & $0.198$ $[0.173, 0.226]$ & N/A (abstention) & 100\% \\
+    & Conditional ($\pi=1$) & & & $0.183$ $[0.155, 0.220]$ & $0.118$ (T-scaling) & 64.1\% \\
+\hline
+NEEDLE & --- & CNN+DNN (3 classes) & 429 & $0.073$ $[0.063, 0.117]$ & $0.171$ (T worsens) & 100\% \\
 \enddata
-\tablecomments{ECE computed with equal-mass binning (15 bins). 95\% confidence intervals via bootstrap (1,000 replicates). Post-hoc ECE for ALeRCE is evaluated on held-out folds.}
+\tablecomments{ECE computed with equal-mass binning (15 bins). 95\% confidence intervals via bootstrap (1,000 replicates). For ALeRCE, post-calibration ECE is evaluated on held-out folds using stratified five-fold cross-validation. For Fink classifiers, ``Raw API'' treats all outputs including score $= 0$ as probabilities; ``Conditional'' restricts to score $> 0$ (predictions actually made). Coverage indicates the fraction of objects for which predictions were generated.}
 \end{deluxetable*}
 
 \subsection{ALeRCE: Systematic Underconfidence} \label{sec:alerce}
@@ -188,7 +198,11 @@ This underconfidence is consistent with the known calibration behavior of Random
 
 Per-class analysis (Figure~\ref{fig:alerce_perclass}) reveals that underconfidence is pervasive: SN~Ia (ECE $= 0.195$, gap $= +0.335$), SN~Ibc (ECE $= 0.154$, gap $= +0.201$), and SN~II (ECE $= 0.150$, gap $= +0.393$) all exhibit strong underconfidence. SLSN is a notable exception with a slight overconfidence (gap $= -0.055$), potentially reflecting the Balanced Random Forest's inflation of minority-class probabilities \citep{vandengoorbergh2022}.
 
-Temperature scaling with $T = 0.357 \pm 0.011$ (five-fold CV) reduces ECE from 0.271 to 0.030---an 89\% improvement (Figure~\ref{fig:alerce_tempscaling}). The sharpening effect ($T < 1$) is the correct direction for underconfident classifiers, spreading the compressed confidence range $[0.3, 0.75]$ out to $[0.35, 1.0]$. We note that $T = 0.357$ is more aggressive than values typically reported in the neural network calibration literature (where $T > 1$ is standard for overconfident models), reflecting the severity of RF underconfidence when distributed across 15 classes.
+Temperature scaling with $T = 0.357 \pm 0.011$ (stratified five-fold CV) reduces ECE from 0.271 to 0.097---a 65\% improvement (Figure~\ref{fig:alerce_tempscaling}). The sharpening effect ($T < 1$) is the correct direction for underconfident classifiers, spreading the compressed confidence range $[0.3, 0.75]$ out to $[0.35, 1.0]$. We note that $T = 0.357$ is more aggressive than values typically reported in the neural network calibration literature (where $T > 1$ is standard for overconfident models), reflecting the severity of RF underconfidence when distributed across 15 classes.
+
+The stratified cross-validation was essential: unstratified splitting underrepresents SLSN (6.8\% of sample), producing an artificially optimistic post-calibration ECE of 0.030. The honest stratified estimate of 0.097 accounts for calibration across all classes including rare ones.
+
+\textbf{Operational impact.} Applying the recalibrated 0.8 probability threshold increases the number of usable SN~Ia candidates from 20 to 425 objects while maintaining 91\% precision, a 21-fold increase in follow-up targets. This demonstrates that miscalibration collapses the usable confidence axis along which astronomers allocate telescope time.
 
 \begin{figure}
 \plotone{fig1_alerce_reliability.pdf}
@@ -202,32 +216,82 @@ Temperature scaling with $T = 0.357 \pm 0.011$ (five-fold CV) reduces ECE from 0
 
 \begin{figure*}
 \plotone{fig3_alerce_tempscaling.pdf}
-\caption{ALeRCE reliability diagrams before (left) and after (right) temperature scaling with $T = 0.357$. ECE is reduced from 0.271 to 0.030 (89\% improvement). The sharpening effect spreads the compressed confidence distribution to span the full $[0.35, 1.0]$ range. \label{fig:alerce_tempscaling}}
+\caption{ALeRCE reliability diagrams before (left) and after (right) temperature scaling with $T = 0.357$. ECE is reduced from 0.271 to 0.097 (65\% improvement) using stratified five-fold cross-validation. The sharpening effect spreads the compressed confidence distribution to span the full $[0.35, 1.0]$ range. \label{fig:alerce_tempscaling}}
 \end{figure*}
 
 
-\subsection{Fink: Structural Limitations} \label{sec:fink}
+\subsection{Fink: Implicit Selective Classification} \label{sec:fink}
 
-\subsubsection{Random Forest}
+Fink's two binary classifiers---a Random Forest \citep{leoni2022} and a recurrent SuperNNova network \citep{moller2020}---both exhibit implicit selective classification through prediction-eligibility mechanisms that determine whether the model produces a probabilistic output. When eligibility criteria are not met, the Fink API returns \texttt{score = 0.0}, which does not represent $P(\text{SN~Ia}) = 0$ but rather ``no prediction made.'' This design reflects a principled engineering choice: abstain rather than predict on incomplete or low-quality data. However, it creates a calibration-evaluation challenge because the raw API output conflates predictions with abstentions, leading to aggregate metrics that do not isolate classifier calibration from prediction coverage.
 
-Fink's Random Forest SN~Ia classifier produces degenerate probability outputs: 94\% of scores (1,161 of 1,237) are exactly 0.0 (Figure~\ref{fig:fink_rf}). The mean score is 0.011, and the formal ECE is 0.411. However, this ECE is misleading because the reliability diagram is dominated by a single bin at confidence $\approx 1.0$ (since $\max(0.0, 1 - 0.0) = 1.0$), containing nearly all objects.
+To address this, we evaluate Fink's classifiers using both \emph{unconditional} calibration metrics (treating all API outputs including \texttt{score = 0} as probability estimates) and \emph{conditional} metrics (restricting to cases where \texttt{score > 0}, i.e., the classifier actually ran). The unconditional metric reflects the user experience when zeros are naively interpreted as probabilities; the conditional metric isolates the calibration of the classifier itself. This distinction is essential for understanding whether observed miscalibration arises from the prediction model or from prediction-coverage design choices.
 
-This behavior is consistent with the classifier's design. \citet{leoni2022} describe a minimum data requirement of at least three observed epochs in each photometric filter before the classifier produces a score. Objects not meeting this threshold receive no classification, which the API returns as a score of 0.0. The high zero rate therefore likely reflects a mismatch between our sample (which includes objects at all evolutionary stages) and the classifier's operational constraints, rather than a fundamental architectural flaw. We classify this output distribution as unsuitable for probability calibration and recommend that Fink's RF scores be interpreted as detection flags rather than calibrated probabilities.
+\subsubsection{Prediction Eligibility and Abstention Mechanisms}
 
-\subsubsection{SuperNNova}
+The Random Forest classifier implements a documented eligibility gate: objects must have at least three detections per photometric filter to receive a prediction \citep{leoni2022}. When this criterion is not met, the API returns \texttt{score = 0.0}. Figure~\ref{fig:fink_rf_histogram} shows the score distribution on our 1,237-object sample: 1,161 objects (93.9\%) return exactly zero, with a gap of 0.031 between zero and the minimum non-zero score. This gap signature is diagnostic of a hard threshold rather than a continuous low-probability tail, confirming that RF zeros represent abstentions rather than genuine $P(\text{SN~Ia}) \approx 0$ estimates.
 
-Fink's SuperNNova classifier \citep{moller2020} shows ECE $= 0.198$ with 36\% of scores at exactly 0.0 and a mean score of 0.361. The reliability diagram (Figure~\ref{fig:fink_snn}) shows a systematic pattern: bars consistently fall below the diagonal, indicating overconfidence.
+SuperNNova's abstention mechanism is less documented but exhibits similar structure. Figure~\ref{fig:fink_snn_histogram} shows 444 objects (35.9\%) return exactly zero, with a gap of 0.005 to the first non-zero score and only 4 objects in the range $(0, 0.01)$. This suggests a possible eligibility threshold, though the smaller gap and higher prediction coverage (64.1\% vs.\ RF's 6.1\%) indicate a less conservative gate. The mechanism may involve minimum light curve length, signal-to-noise requirements, or model confidence thresholds, but without access to Fink's internal implementation we classify this as ``likely abstention'' pending verification.
 
-Temperature scaling optimization drives $T$ to the upper bound ($T = 10.0$), indicating that the method is inappropriate for this distribution. At $T = 10$, the optimizer is attempting to flatten all predictions toward 0.5, which destroys discriminative information. The combination of 36\% exact zeros (which cannot be modified by temperature scaling, as $\log(0) = -\infty$) and a continuous distribution for the remaining 64\% creates a bimodal structure that a single scalar parameter cannot address.
+Mathematically, both classifiers implement a form of \emph{selective classification} \citep{geifman2017}: the system computes a coverage function $\pi(x) \in \{0, 1\}$ indicating prediction eligibility, where $\pi(x) = 0$ triggers abstention. Unlike learning-to-defer frameworks \citep{mozannar2020,madras2018} where deferral policies are optimized jointly with prediction accuracy, Fink's abstention rules appear to be deterministic functions of data quality rather than learned confidence estimates.
+
+\subsubsection{Unconditional Calibration (Raw API Experience)}
+
+We first evaluate calibration as a naive user would experience it, treating all API outputs as probability estimates regardless of whether they represent predictions or abstentions. On our sample of $N = 1{,}237$ objects (527 SN~Ia, 710 not SN~Ia), the Random Forest returns zero for 1,161 cases, yielding an unconditional ECE of $0.411$ [95\% CI: $0.382$, $0.437$]. SuperNNova returns zero for 444 cases, with unconditional ECE of $0.198$ [95\% CI: $0.173$, $0.226$].
+
+Figure~\ref{fig:fink_raw} shows reliability diagrams for both classifiers using all API outputs. The RF diagram is dominated by a single bin at confidence $\approx 1.0$ containing the 1,161 abstention cases treated as high-confidence predictions of ``not SN~Ia.'' This produces severe overconfidence: the bin shows 61\% accuracy at stated 100\% confidence. The SNN diagram similarly shows a concentration of zeros in the leftmost bin, but the effect is less extreme due to higher prediction coverage.
+
+These unconditional ECE values describe the mismatch between stated confidence and accuracy when abstentions are treated as scores, a failure mode that Fink's documentation does not explicitly guard against. They do not, however, isolate the calibration properties of the prediction models themselves.
+
+\subsubsection{Conditional Calibration (Predictions Only)}
+
+Restricting to objects where the classifiers actually produced predictions (\texttt{score > 0}), we compute conditional ECE on the $\pi = 1$ subset. The Random Forest evaluated 76 objects (6.1\% coverage), achieving conditional ECE of $0.263$ [95\% CI: $0.211$, $0.409$] with 61.8\% accuracy at the 0.5 threshold. SuperNNova evaluated 793 objects (64.1\% coverage), achieving conditional ECE of $0.183$ [95\% CI: $0.155$, $0.220$] with 58.9\% accuracy.
+
+Figure~\ref{fig:fink_conditional} shows reliability diagrams for the conditional subsets. The RF diagram reveals persistent miscalibration even after removing abstentions: bins in the $[0.6, 0.9]$ confidence range show systematic overconfidence, suggesting that the eligibility gate filters for data completeness but not prediction reliability. The small sample size (76 objects) yields wide confidence intervals, but the central estimate of ECE $= 0.263$ is substantially higher than the $< 0.05$ threshold typically considered well-calibrated.
+
+SuperNNova's conditional diagram shows better-structured calibration with less severe overconfidence, though still above ideal. Notably, temperature scaling on the conditional subset yields substantial improvement: $T = 3.685$ reduces ECE from $0.183$ to $0.118$ (36\% improvement). In contrast, temperature scaling on RF's conditional subset provides minimal benefit ($0.263 \to 0.254$, 3\% improvement), suggesting that RF's miscalibration arises from limited discriminative power on the small eligible subset rather than a systematic temperature bias.
+
+\subsubsection{Interpretation and Implications}
+
+Fink's design implements a conservative eligibility-gating strategy that prioritizes precision over coverage: abstain when data quality is insufficient. This is conceptually aligned with selective classification frameworks \citep{geifman2017}, where systems learn when not to predict. However, three key differences distinguish Fink's approach from learning-to-defer paradigms \citep{mozannar2020}:
+
+\begin{enumerate}
+    \item \textbf{Hard-coded vs.\ learned deferral}: Fink's eligibility rules are deterministic thresholds (e.g., $\geq 3$ detections per filter) rather than learned functions of feature-space uncertainty.
+    \item \textbf{Data quality vs.\ prediction confidence}: The RF gate filters on light curve completeness, not on model confidence or expected calibration error. Objects that barely meet the 3-epoch threshold receive predictions with ECE $= 0.263$, demonstrating that eligibility does not imply reliability.
+    \item \textbf{Implicit vs.\ explicit abstention}: The API silently maps abstentions to \texttt{score = 0.0} without metadata indicating whether a zero represents ``confident not-SN-Ia'' or ``no prediction made.'' Users must reverse-engineer the abstention mechanism from score distributions.
+\end{enumerate}
+
+The operational consequence is a prediction-coverage tradeoff: RF achieves 6.1\% coverage with ECE $= 0.263$, while SNN achieves 64.1\% coverage with ECE $= 0.183$. Neither classifier is well-calibrated on its predicted subset in the raw form, though SNN becomes usable (ECE $= 0.118$) after temperature scaling. For astronomers building spectroscopic follow-up queues, this means that Fink scores---even when non-zero---require post-hoc recalibration before being used as decision thresholds.
+
+The finding that conditional ECE differs substantially from unconditional ECE (RF: $0.263$ vs.\ $0.411$; SNN: $0.183$ vs.\ $0.198$) demonstrates that standard calibration metrics must account for prediction coverage in systems that implement abstention. Future work extending Fink's implicit selective classification to explicit learning-to-defer policies---where deferral decisions are optimized jointly with prediction accuracy and informed by expected spectroscopic utility---is a natural direction explored in forthcoming work on deferral-aware follow-up prioritization.
 
 \begin{figure}
-\plotone{fig_fink_random_forest.pdf}
-\caption{Reliability diagram for Fink's Random Forest classifier. The degenerate output distribution (94\% of scores at exactly 0.0) produces a misleading reliability diagram concentrated at confidence $\approx 1.0$. ECE $= 0.411$. \label{fig:fink_rf}}
+\plotone{diagnostic_random_forest_histogram.pdf}
+\caption{Score distribution for Fink Random Forest on the BTS validation sample. The concentration of 1,161 objects (93.9\%) at exactly zero, with a gap of 0.031 to the minimum non-zero score, is diagnostic of a hard eligibility threshold rather than a continuous probability distribution. This confirms that \texttt{score = 0} represents abstention (``no prediction made'') rather than $P(\text{SN~Ia}) = 0$. \label{fig:fink_rf_histogram}}
 \end{figure}
 
 \begin{figure}
-\plotone{fig_fink_supernnova.pdf}
-\caption{Reliability diagram for Fink's SuperNNova classifier. Bars consistently below the diagonal indicate systematic overconfidence. ECE $= 0.198$. Temperature scaling hits the optimizer bound at $T = 10$, indicating the method is inappropriate. \label{fig:fink_snn}}
+\plotone{diagnostic_supernnova_histogram.pdf}
+\caption{Score distribution for Fink SuperNNova. The concentration of 444 objects (35.9\%) at zero with a gap of 0.005 to the first non-zero score suggests a likely abstention mechanism, though the smaller gap and higher prediction coverage (64.1\%) indicate a less conservative eligibility gate than the Random Forest. \label{fig:fink_snn_histogram}}
+\end{figure}
+
+\begin{figure}
+\plotone{fig_fink_random_forest_raw.pdf}
+\caption{Reliability diagram for Fink Random Forest (raw API, unconditional). The degenerate output distribution (94\% of scores at exactly 0.0) produces a misleading reliability diagram concentrated at confidence $\approx 1.0$. ECE $= 0.411$. \label{fig:fink_rf_raw}}
+\end{figure}
+
+\begin{figure}
+\plotone{fig_fink_random_forest_conditional.pdf}
+\caption{Reliability diagram for Fink Random Forest conditional on predictions (\texttt{score > 0}, $n = 76$ objects). Even after removing abstentions, the classifier exhibits ECE $= 0.263$, with systematic overconfidence in the $[0.6, 0.9]$ confidence range. This demonstrates that the eligibility gate filters for data completeness but not prediction reliability. \label{fig:fink_rf_conditional}}
+\end{figure}
+
+\begin{figure}
+\plotone{fig_fink_supernnova_raw.pdf}
+\caption{Reliability diagram for Fink SuperNNova (raw API, unconditional). Bars consistently below the diagonal indicate systematic overconfidence. ECE $= 0.198$. \label{fig:fink_snn_raw}}
+\end{figure}
+
+\begin{figure}
+\plotone{fig_fink_supernnova_conditional.pdf}
+\caption{Reliability diagram for Fink SuperNNova conditional on predictions (\texttt{score > 0}, $n = 793$ objects). The classifier achieves ECE $= 0.183$ on the predicted subset, which temperature scaling ($T = 3.685$) improves to 0.118, making it usable for spectroscopic follow-up prioritization after post-hoc recalibration. \label{fig:fink_snn_conditional}}
 \end{figure}
 
 
@@ -241,7 +305,7 @@ This class-asymmetric miscalibration is a direct consequence of NEEDLE's trainin
 
 Global temperature scaling with $T = 1.551$ \emph{worsens} ECE from 0.073 to 0.171. This failure is expected: a single $T$ cannot simultaneously soften overconfident SLSN-I predictions ($T > 1$ needed) and sharpen underconfident SN predictions ($T < 1$ needed). \citet{kull2019} documented this fundamental limitation, noting that temperature scaling ``cannot learn to act differently on different classes.'' Per-class temperature scaling yields $T_{\text{SN}} = 1.85$, $T_{\text{SLSN-I}} = 2.03$, and $T_{\text{TDE}} = 0.54$, confirming the opposing calibration directions, but does not improve aggregate ECE due to the small sample sizes involved (75 SLSN-I, 105 TDE predictions across 5 models).
 
-Silent failure analysis reveals 17 predictions at $\geq$90\% confidence that are incorrect, concentrated on three SLSN-I objects (ZTF20aagikvv, ZTF19abzoyeg, ZTF21aakjkec) that are consistently misclassified as SN with near-100\% confidence across all five models.
+Silent failure analysis reveals 17 predictions at $\geq$90\% confidence that are incorrect, concentrated on three SLSN-I objects (ZTF20aagikvv, ZTF19abzoyeg, ZTF21aakjkec) that are consistently misclassified as SN with near-100\% confidence across all five models. This failure pattern is consistent with the class-weighting mechanism: the rare-class inflation boosts SLSN-I probabilities during training, but the effect is strongest on ambiguous cases near the decision boundary. The result is a calibration failure that concentrates precisely where follow-up resources are scarcest and misclassification is most expensive.
 
 \begin{figure}
 \plotone{fig_needle_reliability.pdf}
@@ -255,11 +319,11 @@ Silent failure analysis reveals 17 predictions at $\geq$90\% confidence that are
 
 \subsection{Comparative Overview}
 
-Figure~\ref{fig:summary} presents the ECE comparison across all four classifiers. None achieves the ``well-calibrated'' threshold of ECE $< 0.05$. Only ALeRCE's miscalibration is addressable by temperature scaling, reducing its ECE below the ``acceptable'' threshold of ECE $< 0.10$. The remaining classifiers require either architectural changes (Fink RF), alternative calibration methods (Fink SuperNNova), or class-aware calibration approaches (NEEDLE).
+Figure~\ref{fig:summary} presents the ECE comparison across all four classifiers. None achieves the ``well-calibrated'' threshold of ECE $< 0.05$ in their raw form. Only ALeRCE's miscalibration is addressable by temperature scaling, reducing its ECE below the ``acceptable'' threshold of ECE $< 0.10$. Fink's SuperNNova becomes usable (ECE $= 0.118$) after temperature scaling on the conditional subset. The remaining classifiers require either architectural changes (Fink RF) or class-aware calibration approaches (NEEDLE).
 
 \begin{figure*}
-\plotone{fig_summary_ece_comparison.pdf}
-\caption{ECE comparison across all four production classifiers. None meets the ``well-calibrated'' threshold (ECE $< 0.05$, dotted line). Only NEEDLE falls below the ``acceptable'' threshold (ECE $< 0.10$, dashed line) in aggregate, but this masks per-class miscalibration. Error bars show 95\% bootstrap confidence intervals. \label{fig:summary}}
+\plotone{fig8_comparison.pdf}
+\caption{ECE comparison across all four production classifiers. None meets the ``well-calibrated'' threshold (ECE $< 0.05$, dotted line) in raw form. Only NEEDLE falls below the ``acceptable'' threshold (ECE $< 0.10$, dashed line) in aggregate, but this masks per-class miscalibration. Error bars show 95\% bootstrap confidence intervals. \label{fig:summary}}
 \end{figure*}
 
 
@@ -275,19 +339,25 @@ NEEDLE's class-asymmetric miscalibration represents a qualitatively different fa
 
 \subsection{The Failure of Temperature Scaling as a Diagnostic}
 
-The failure of global temperature scaling for NEEDLE and Fink is itself informative. When temperature scaling worsens calibration, it indicates that the miscalibration is structural---arising from the model's architecture or training procedure---rather than a simple uniform shift in confidence. For NEEDLE, the opposing per-class temperatures ($T_{\text{SN}} = 1.85$ versus $T_{\text{TDE}} = 0.54$) directly trace the effect of inverse-frequency class weighting, confirming the mechanism identified by \citet{vandengoorbergh2022}. For Fink SuperNNova, the bound-hitting behavior ($T = 10$) reveals that the bimodal score distribution (36\% exact zeros plus a continuous component) is fundamentally incompatible with temperature scaling's assumption of a smooth logit space.
+The failure of global temperature scaling for NEEDLE and Fink is itself informative. When temperature scaling worsens calibration, it indicates that the miscalibration is structural---arising from the model's architecture or training procedure---rather than a simple uniform shift in confidence. For NEEDLE, the opposing per-class temperatures ($T_{\text{SN}} = 1.85$ versus $T_{\text{TDE}} = 0.54$) directly trace the effect of inverse-frequency class weighting, confirming the mechanism identified by \citet{vandengoorbergh2022}. For Fink SuperNNova, the bound-hitting behavior ($T = 10$) on the unconditional dataset reveals that the bimodal score distribution (36\% exact zeros plus a continuous component) is fundamentally incompatible with temperature scaling's assumption of a smooth logit space.
 
 These diagnostic patterns suggest a practical recommendation: apply temperature scaling not only as a correction method but as a probe of miscalibration structure. If $T \approx 1$, the classifier is approximately calibrated. If $T$ converges to a finite value away from 1 and ECE improves, the miscalibration is uniform and fixable. If $T$ hits a bound or worsens ECE, deeper architectural or training-level interventions are needed.
 
+\subsection{Selective Classification and Implicit Deferral}
+
+Fink's eligibility gating represents an early example of selective classification in astronomical ML pipelines. The system effectively decides when \emph{not} to predict, though the deferral rule is deterministic (data completeness threshold) rather than probabilistic. This finding connects directly to learning-to-defer frameworks \citep{mozannar2020,madras2018}, which optimize deferral policies jointly with prediction accuracy to balance coverage against error rates under resource constraints.
+
+Making Fink's implicit abstention explicit and learnable---for instance, by training a model to predict expected calibration error or spectroscopic utility as a function of light curve features---is a natural extension. Such a framework would replace hard-coded data-quality thresholds with learned confidence estimates that account for both model uncertainty and the value of spectroscopic confirmation. We explore this direction in forthcoming work on deferral-aware spectroscopic follow-up prioritization, where the goal is not merely to classify transients but to optimize scientific utility per telescope hour under the alert-to-spectrum mismatch of the Rubin era.
+
 \subsection{Implications for Spectroscopic Follow-up}
 
-Uncalibrated probabilities have direct consequences for follow-up allocation. An astronomer using ALeRCE's raw probabilities and requiring $p > 0.8$ for follow-up would observe very few objects---the classifier's confidence never exceeds 0.75---despite 74\% of its predictions being correct. After temperature scaling, the calibrated confidence distribution spans $[0.35, 1.0]$, enabling meaningful probability-based thresholding.
+Uncalibrated probabilities have direct consequences for follow-up allocation. An astronomer using ALeRCE's raw probabilities and requiring $p > 0.8$ for follow-up would observe very few objects---the classifier's confidence never exceeds 0.75---despite 74\% of its predictions being correct. After temperature scaling, the calibrated confidence distribution spans $[0.35, 1.0]$, enabling meaningful probability-based thresholding. The 21-fold increase in usable candidates (20 $\to$ 425 at 91\% precision) demonstrates that miscalibration collapses the confidence axis along which astronomers allocate telescope time.
 
 For NEEDLE, the practical concern is SLSN-I overconfidence. When the classifier reports 95\% confidence in an SLSN-I classification, the actual accuracy is only 69\%. Given the scientific value of SLSNe and TDEs for probing extreme physics, overconfident classification of these rare objects can lead to wasted spectroscopic resources---precisely the failure mode that calibration is designed to prevent.
 
 \subsection{Implications for LSST}
 
-As the community prepares for LSST's 10-million-alert-per-night data rate, the calibration problems we identify will only intensify. The greater diversity of transient types, the increased class imbalance (rarer classes become proportionally rarer in a larger survey), and the higher volume of alerts all exacerbate miscalibration risk. Our findings suggest three concrete recommendations:
+With the Rubin Observatory's public alert stream now operational, the calibration problems we identify become increasingly urgent. The greater diversity of transient types, the increased class imbalance (rarer classes become proportionally rarer in a larger survey), and the higher volume of alerts all exacerbate miscalibration risk. Our findings suggest three concrete recommendations:
 
 First, broker teams should publish calibration metrics alongside classification performance. ECE, reliability diagrams, and Brier scores should be standard evaluation outputs, not afterthoughts.
 
@@ -295,11 +365,15 @@ Second, post-hoc calibration should be architecture-aware. Temperature scaling i
 
 Third, calibration should be evaluated on real survey data, not only on simulated datasets. Our finding that Fink's RF produces 94\% zero scores when evaluated on BTS objects---behavior that would not appear in simulated data designed to match the classifier's training distribution---illustrates the gap between simulated and operational calibration.
 
+\subsection{Robustness Checks}
+
+We performed two robustness checks to verify that our findings are not artifacts of data processing choices. Script 05 (renormalization audit) confirmed that restricting ALeRCE's 15-class output to the 4-class transient subset does not drive the observed miscalibration---the renormalization step does not introduce calibration artifacts. Script 06 (duplicate audit) for NEEDLE found that deduplicating objects appearing in multiple test folds yields dedup ECE $= 0.048$ versus 0.073 for the full set. The class-asymmetric miscalibration pattern (SN underconfident, SLSN-I overconfident) persists in the deduplicated set with 100\% inter-model class agreement, confirming that the finding is robust to evaluation-set construction choices.
+
 \subsection{Limitations}
 
 Several limitations should be noted. Our ground truth is limited to spectroscopically confirmed objects from BTS, which is itself magnitude-limited and subject to selection effects. The stratified sampling may not capture the full range of classifier behavior across the alert stream. For NEEDLE, our evaluation uses predictions from five models on their respective held-out test sets, which may not represent the classifier's performance on the broader alert stream.
 
-The small sample sizes for rare classes (85 SLSN and 39 TDE in the BTS sample; 75 SLSN-I and 105 TDE predictions for NEEDLE) limit the statistical power of per-class calibration analysis. More flexible calibration methods such as isotonic regression or Dirichlet calibration require larger samples to fit reliably \citep{vaicenavicius2019}, which is why we do not attempt them here.
+The small sample sizes for rare classes (97 SLSN and 39 TDE in the BTS sample; 75 SLSN-I and 105 TDE predictions for NEEDLE) limit the statistical power of per-class calibration analysis. More flexible calibration methods such as isotonic regression or Dirichlet calibration require larger samples to fit reliably \citep{vaicenavicius2019}, which is why we do not attempt them here.
 
 Finally, our temperature scaling converts RF vote fractions to pseudo-logits via $z_k = \log p_k$, an assumption that may not be optimal for non-softmax-based classifiers. The unusually aggressive temperature ($T = 0.357$) may partly reflect this modeling choice rather than the true severity of miscalibration.
 
@@ -311,18 +385,18 @@ Finally, our temperature scaling converts RF vote fractions to pseudo-logits via
 We have presented the first systematic calibration audit of production machine learning classifiers deployed on ZTF transient alert streams. Our key findings are:
 
 \begin{enumerate}
-    \item No production transient classifier currently publishes calibration metrics, yet astronomers routinely use their probability outputs for follow-up decisions.
+    \item No prior work has evaluated calibration across multiple production brokers using standard metrics on real survey data. We find significant miscalibration across all audited systems, with distinct failure modes tied to classifier architecture.
 
-    \item ALeRCE's Balanced Random Forest is systematically underconfident (ECE $= 0.271$), consistent with known RF calibration behavior. Temperature scaling with $T = 0.357$ reduces ECE to 0.030 (89\% improvement), providing a straightforward post-hoc fix.
+    \item ALeRCE's Balanced Random Forest is systematically underconfident (ECE $= 0.271$), consistent with known RF calibration behavior. Temperature scaling with $T = 0.357$ reduces ECE to 0.097 (65\% improvement) using stratified cross-validation. Applying a recalibrated 0.8 probability threshold increases usable SN~Ia candidates from 20 to 425 objects while maintaining 91\% precision, a 21-fold operational gain.
 
-    \item Fink's Random Forest produces degenerate outputs (94\% zeros), likely reflecting minimum-epoch requirements rather than a fundamental flaw, but rendering its scores unsuitable as calibrated probabilities. Fink's SuperNNova is overconfident (ECE $= 0.198$) with miscalibration that temperature scaling cannot address.
+    \item Fink implements implicit selective classification: the Random Forest abstains on 94\% of objects via a minimum-epoch eligibility gate, while SuperNNova abstains on 36\%. Conditional calibration metrics (computed only on score $> 0$ subsets) reveal ECE $= 0.263$ for RF and ECE $= 0.183$ for SNN, both of which exceed well-calibrated thresholds. Unconditional metrics (treating abstentions as scores) yield ECE $= 0.411$ and 0.198 respectively, demonstrating that aggregate calibration metrics must account for prediction coverage in systems with abstention mechanisms. Temperature scaling on SNN's conditional subset achieves ECE $= 0.118$, making it usable for follow-up prioritization after recalibration.
 
-    \item NEEDLE's aggregate ECE of 0.073 masks class-asymmetric miscalibration driven by inverse-frequency class weighting. SLSN-I predictions are overconfident (accuracy 69\% at mean confidence 85\%), while SN predictions are underconfident. Global temperature scaling worsens calibration because it cannot correct opposing miscalibration directions simultaneously.
+    \item NEEDLE's aggregate ECE of 0.073 masks class-asymmetric miscalibration driven by inverse-frequency class weighting. SLSN-I predictions are overconfident (accuracy 69\% at mean confidence 85\%), while SN predictions are underconfident. Global temperature scaling worsens calibration (ECE $0.073 \to 0.171$) because it cannot correct opposing miscalibration directions simultaneously. Silent failures concentrate on boundary cases where class weighting inflates confidence but the classifier is least equipped to handle.
 
     \item The failure mode of temperature scaling is itself diagnostic: worsening ECE indicates structural miscalibration requiring architectural intervention, not post-hoc correction.
 \end{enumerate}
 
-As time-domain astronomy enters the LSST era, calibrated probabilities will be essential for optimal spectroscopic resource allocation. We recommend that broker teams adopt calibration evaluation as a standard component of classifier assessment, using proper scoring rules and per-class reliability analysis.
+As time-domain astronomy operates under the alert-to-spectrum mismatch of the Rubin era, calibrated probabilities are essential for optimal spectroscopic resource allocation. We recommend that broker teams adopt calibration evaluation as a standard component of classifier assessment, using proper scoring rules, per-class reliability analysis, and conditional evaluation for systems implementing abstention.
 
 Our analysis code and results are publicly available at \url{https://github.com/pallavi-2000/transient-calibration-audit}.
 
@@ -347,7 +421,7 @@ We thank Matt Nicholl for encouragement and for suggesting connections with the 
 
 
 % ============================================================
-\bibliography{references}
+\bibliography{references2}
 \bibliographystyle{aasjournal}
 
 \end{document}

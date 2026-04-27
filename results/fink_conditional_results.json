@@ -1,0 +1,93 @@
+{
+  "metadata": {
+    "description": "Fink calibration analysis with conditional/unconditional ECE",
+    "reference": "Geifman & El-Yaniv 2017 (selective classification)",
+    "classifier_type": "binary (SN Ia vs not SN Ia)"
+  },
+  "random_forest": {
+    "zero_diagnostic": {
+      "n_total": 1237,
+      "n_zero": 1161,
+      "zero_fraction": 0.9385610347615198,
+      "n_nonzero": 76,
+      "min_nonzero": 0.031,
+      "n_near_zero": 0,
+      "diagnosis": "ABSTENTION",
+      "explanation": "High zero fraction (94%) with large gap (0.031000) suggests eligibility gate. Score=0 means 'no prediction made', not P(SN Ia)=0."
+    },
+    "results": {
+      "name": "Random Forest",
+      "unconditional": {
+        "n_objects": 1237,
+        "n_positive": 527,
+        "prevalence": 0.4260307194826192,
+        "ece": 0.41077768795472913,
+        "ece_ci": [
+          0.3822632376717866,
+          0.4370373282134196
+        ],
+        "brier_score": 0.8305146257073565
+      },
+      "conditional": {
+        "n_predicted": 76,
+        "n_abstained": 1161,
+        "prediction_coverage": 0.06143896523848019,
+        "ece": 0.26305263157894737,
+        "ece_ci": [
+          0.21067434210526328,
+          0.40904638157894724
+        ],
+        "brier_score": 0.6229814736842105,
+        "accuracy": 0.618421052631579,
+        "temperature": null,
+        "ece_post_temperature": null,
+        "calibration_recommendation": "global_temperature"
+      }
+    }
+  },
+  "supernnova": {
+    "zero_diagnostic": {
+      "n_total": 1237,
+      "n_zero": 444,
+      "zero_fraction": 0.3589329021827001,
+      "n_nonzero": 793,
+      "min_nonzero": 0.0051293913,
+      "n_near_zero": 4,
+      "diagnosis": "LIKELY_ABSTENTION",
+      "explanation": "Moderate zero fraction with gap suggests possible eligibility threshold. Verify against Fink documentation."
+    },
+    "results": {
+      "name": "SuperNNova",
+      "unconditional": {
+        "n_objects": 1237,
+        "n_positive": 527,
+        "prevalence": 0.4260307194826192,
+        "ece": 0.19755601752611157,
+        "ece_ci": [
+          0.17347673361064472,
+          0.22639662156679263
+        ],
+        "brier_score": 0.5128030371987624
+      },
+      "conditional": {
+        "n_predicted": 793,
+        "n_abstained": 444,
+        "prediction_coverage": 0.6410670978172999,
+        "ece": 0.18288773966784364,
+        "ece_ci": [
+          0.15497550848715638,
+          0.2201908361907282
+        ],
+        "brier_score": 0.5477141954790279,
+        "accuracy": 0.5889029003783102,
+        "temperature": null,
+        "ece_post_temperature": null,
+        "calibration_recommendation": "global_temperature"
+      }
+    }
+  },
+  "interpretation": {
+    "rf": "Random Forest implements implicit selective classification via minimum-epoch eligibility gate (\u22653 detections per filter per Leoni et al. 2022). Score=0 means 'no prediction made', not P(SN Ia)=0. Diagnosis: ABSTENTION",
+    "snn": "SuperNNova zero-origin diagnosis: LIKELY_ABSTENTION. Moderate zero fraction with gap suggests possible eligibility threshold. Verify against Fink documentation."
+  }
+}

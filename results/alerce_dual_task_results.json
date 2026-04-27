@@ -1,0 +1,195 @@
+{
+  "metadata": {
+    "description": "ALeRCE dual-task analysis for paper revision Step 1.2",
+    "question": "Does restricting 15-class to 4-class introduce calibration bias?",
+    "methodology": "15-class: native ALeRCE output on all 15 class columns. 4-class: select SNIa/SNIbc/SNII/SLSN columns and renormalize."
+  },
+  "native_15class": {
+    "label": "15-class (native)",
+    "n_objects": 1114,
+    "n_classes": 15,
+    "overall_accuracy": 0.7387791741472173,
+    "ece_aggregate": 0.28323045601436264,
+    "ece_ci": [
+      0.2609072487432675,
+      0.30739159578096953
+    ],
+    "brier_score": 0.4954626517941544,
+    "n_silent_failures": 0,
+    "per_class": {
+      "SNIa": {
+        "ece": 0.07901910233393179,
+        "accuracy_when_predicted": 0.8012295081967213,
+        "mean_confidence_when_predicted": 0.45226120491803284,
+        "gap": 0.3489683032786885,
+        "n_true": 463,
+        "n_predicted": 488
+      },
+      "SNIbc": {
+        "ece": 0.11572054578096948,
+        "accuracy_when_predicted": 0.6666666666666666,
+        "mean_confidence_when_predicted": 0.45897305098039215,
+        "gap": 0.20769361568627448,
+        "n_true": 225,
+        "n_predicted": 255
+      },
+      "SNII": {
+        "ece": 0.10844922441651707,
+        "accuracy_when_predicted": 0.8478260869565217,
+        "mean_confidence_when_predicted": 0.4173701913043479,
+        "gap": 0.43045589565217385,
+        "n_true": 341,
+        "n_predicted": 230
+      },
+      "SLSN": {
+        "ece": 0.10299387791741474,
+        "accuracy_when_predicted": 0.5234375,
+        "mean_confidence_when_predicted": 0.5526515625,
+        "gap": -0.029214062500000026,
+        "n_true": 85,
+        "n_predicted": 128
+      },
+      "QSO": {
+        "ece": 0.0019968043087971146,
+        "accuracy_when_predicted": null,
+        "mean_confidence_when_predicted": null,
+        "gap": null,
+        "n_true": 0,
+        "n_predicted": 0
+      },
+      "AGN": {
+        "ece": 0.004983737881508066,
+        "accuracy_when_predicted": 0.0,
+        "mean_confidence_when_predicted": 0.2542632,
+        "gap": -0.2542632,
+        "n_true": 0,
+        "n_predicted": 5
+      },
+      "Blazar": {
+        "ece": 0.0035453931777378704,
+        "accuracy_when_predicted": null,
+        "mean_confidence_when_predicted": null,
+        "gap": null,
+        "n_true": 0,
+        "n_predicted": 0
+      },
+      "CV/Nova": {
+        "ece": 0.008081597845601462,
+        "accuracy_when_predicted": 0.0,
+        "mean_confidence_when_predicted": 0.19698800000000002,
+        "gap": -0.19698800000000002,
+        "n_true": 0,
+        "n_predicted": 3
+      },
+      "YSO": {
+        "ece": 0.003370922800718141,
+        "accuracy_when_predicted": 0.0,
+        "mean_confidence_when_predicted": 0.22521199999999997,
+        "gap": -0.22521199999999997,
+        "n_true": 0,
+        "n_predicted": 3
+      },
+      "LPV": {
+        "ece": 0.004428991023339344,
+        "accuracy_when_predicted": 0.0,
+        "mean_confidence_when_predicted": 0.244736,
+        "gap": -0.244736,
+        "n_true": 0,
+        "n_predicted": 1
+      },
+      "E": {
+        "ece": 0.00288212208258532,
+        "accuracy_when_predicted": null,
+        "mean_confidence_when_predicted": null,
+        "gap": null,
+        "n_true": 0,
+        "n_predicted": 0
+      },
+      "DSCT": {
+        "ece": 0.0018763770197486377,
+        "accuracy_when_predicted": null,
+        "mean_confidence_when_predicted": null,
+        "gap": null,
+        "n_true": 0,
+        "n_predicted": 0
+      },
+      "RRL": {
+        "ece": 0.004495895870736114,
+        "accuracy_when_predicted": null,
+        "mean_confidence_when_predicted": null,
+        "gap": null,
+        "n_true": 0,
+        "n_predicted": 0
+      },
+      "CEP": {
+        "ece": 0.0032870125673249676,
+        "accuracy_when_predicted": null,
+        "mean_confidence_when_predicted": null,
+        "gap": null,
+        "n_true": 0,
+        "n_predicted": 0
+      },
+      "Periodic-Other": {
+        "ece": 0.004428165170556512,
+        "accuracy_when_predicted": 0.0,
+        "mean_confidence_when_predicted": 0.22248,
+        "gap": -0.22248,
+        "n_true": 0,
+        "n_predicted": 1
+      }
+    }
+  },
+  "restricted_4class": {
+    "label": "4-class (restricted)",
+    "n_objects": 1114,
+    "n_classes": 4,
+    "overall_accuracy": 0.7423698384201077,
+    "ece_aggregate": 0.2714362657091562,
+    "ece_ci": [
+      0.24884694793536807,
+      0.29619605026929974
+    ],
+    "brier_score": 0.48618462477558355,
+    "n_silent_failures": 0,
+    "per_class": {
+      "SNIa": {
+        "ece": 0.08329263913824062,
+        "accuracy_when_predicted": 0.7963340122199593,
+        "mean_confidence_when_predicted": 0.4613360488798371,
+        "gap": 0.33499796334012216,
+        "n_true": 463,
+        "n_predicted": 491
+      },
+      "SNIbc": {
+        "ece": 0.12569479353680432,
+        "accuracy_when_predicted": 0.6666666666666666,
+        "mean_confidence_when_predicted": 0.46610980392156864,
+        "gap": 0.20055686274509799,
+        "n_true": 225,
+        "n_predicted": 255
+      },
+      "SNII": {
+        "ece": 0.10141472172351887,
+        "accuracy_when_predicted": 0.8326359832635983,
+        "mean_confidence_when_predicted": 0.43995815899581586,
+        "gap": 0.39267782426778247,
+        "n_true": 341,
+        "n_predicted": 239
+      },
+      "SLSN": {
+        "ece": 0.11070736086175939,
+        "accuracy_when_predicted": 0.5193798449612403,
+        "mean_confidence_when_predicted": 0.5743875968992248,
+        "gap": -0.05500775193798446,
+        "n_true": 85,
+        "n_predicted": 129
+      }
+    }
+  },
+  "validation": {
+    "baseline_4class_ece": 0.271,
+    "observed_4class_ece": 0.2714362657091562,
+    "absolute_difference": 0.00043626570915616947,
+    "passes_validation": true
+  }
+}

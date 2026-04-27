@@ -1,0 +1,223 @@
+{
+  "metadata": {
+    "description": "NEEDLE dedup analysis for paper revision Step 1.1",
+    "primary": "object-level (dedup)",
+    "sensitivity": "model-instance (full)"
+  },
+  "primary_object_level": {
+    "label": "Deduplicated (object-level)",
+    "n_objects": 278,
+    "overall_accuracy": 0.802158273381295,
+    "ece_aggregate": 0.047538027002478424,
+    "ece_ci": [
+      0.04775227771078424,
+      0.11141344442629447
+    ],
+    "brier_score": 0.26494647278748773,
+    "n_silent_failures": 5,
+    "silent_objects": [
+      {
+        "ztf_id": "ZTF19abzoyeg",
+        "predicted_class": "SN",
+        "true_class": "SLSN-I",
+        "confidence": 0.998856897563325
+      },
+      {
+        "ztf_id": "ZTF20aagikvv",
+        "predicted_class": "SN",
+        "true_class": "SLSN-I",
+        "confidence": 0.999962419444536
+      },
+      {
+        "ztf_id": "ZTF21aagnwkk",
+        "predicted_class": "TDE",
+        "true_class": "SN",
+        "confidence": 0.9007910061774963
+      },
+      {
+        "ztf_id": "ZTF21aakjkec",
+        "predicted_class": "SN",
+        "true_class": "SLSN-I",
+        "confidence": 0.9996809996249271
+      },
+      {
+        "ztf_id": "ZTF21aautijg",
+        "predicted_class": "SLSN-I",
+        "true_class": "SN",
+        "confidence": 0.9068743303601723
+      }
+    ],
+    "per_class": {
+      "SN": {
+        "ece": 0.09501669225273854,
+        "accuracy_when_predicted": 0.9844559585492227,
+        "mean_confidence_when_predicted": 0.8653796183226673,
+        "gap": 0.11907634022655544,
+        "n_true": 242,
+        "n_predicted": 193
+      },
+      "SLSN-I": {
+        "ece": 0.03443455024651067,
+        "accuracy_when_predicted": 0.3076923076923077,
+        "mean_confidence_when_predicted": 0.7302492273594806,
+        "gap": -0.4225569196671729,
+        "n_true": 15,
+        "n_predicted": 39
+      },
+      "TDE": {
+        "ece": 0.029970568803000693,
+        "accuracy_when_predicted": 0.45652173913043476,
+        "mean_confidence_when_predicted": 0.7521001605397346,
+        "gap": -0.29557842140929985,
+        "n_true": 21,
+        "n_predicted": 46
+      }
+    }
+  },
+  "sensitivity_model_instance": {
+    "label": "Full (model-instance)",
+    "n_objects": 429,
+    "overall_accuracy": 0.8414918414918415,
+    "ece_aggregate": 0.07348914121414396,
+    "ece_ci": [
+      0.06300723336133368,
+      0.11729030190925777
+    ],
+    "brier_score": 0.24113606187975398,
+    "n_silent_failures": 17,
+    "silent_objects": [
+      {
+        "ztf_id": "ZTF21aagnwkk",
+        "predicted_class": "TDE",
+        "true_class": "SN",
+        "confidence": 0.9007909893989563
+      },
+      {
+        "ztf_id": "ZTF20aagikvv",
+        "predicted_class": "SN",
+        "true_class": "SLSN-I",
+        "confidence": 0.999992847442627
+      },
+      {
+        "ztf_id": "ZTF19abzoyeg",
+        "predicted_class": "SN",
+        "true_class": "SLSN-I",
+        "confidence": 0.9995085000991821
+      },
+      {
+        "ztf_id": "ZTF21aakjkec",
+        "predicted_class": "SN",
+        "true_class": "SLSN-I",
+        "confidence": 0.999886155128479
+      },
+      {
+        "ztf_id": "ZTF20aagikvv",
+        "predicted_class": "SN",
+        "true_class": "SLSN-I",
+        "confidence": 0.9999679327011108
+      },
+      {
+        "ztf_id": "ZTF19abzoyeg",
+        "predicted_class": "SN",
+        "true_class": "SLSN-I",
+        "confidence": 0.9982391595840454
+      },
+      {
+        "ztf_id": "ZTF21aakjkec",
+        "predicted_class": "SN",
+        "true_class": "SLSN-I",
+        "confidence": 0.9995043277740479
+      },
+      {
+        "ztf_id": "ZTF20aagikvv",
+        "predicted_class": "SN",
+        "true_class": "SLSN-I",
+        "confidence": 0.9999271631240845
+      },
+      {
+        "ztf_id": "ZTF19abzoyeg",
+        "predicted_class": "SN",
+        "true_class": "SLSN-I",
+        "confidence": 0.9986659288406372
+      },
+      {
+        "ztf_id": "ZTF21aakjkec",
+        "predicted_class": "SN",
+        "true_class": "SLSN-I",
+        "confidence": 0.9995693564414978
+      },
+      {
+        "ztf_id": "ZTF21aautijg",
+        "predicted_class": "SLSN-I",
+        "true_class": "SN",
+        "confidence": 0.9068743586540222
+      },
+      {
+        "ztf_id": "ZTF20aagikvv",
+        "predicted_class": "SN",
+        "true_class": "SLSN-I",
+        "confidence": 0.9999599456787109
+      },
+      {
+        "ztf_id": "ZTF19abzoyeg",
+        "predicted_class": "SN",
+        "true_class": "SLSN-I",
+        "confidence": 0.9990567564964294
+      },
+      {
+        "ztf_id": "ZTF21aakjkec",
+        "predicted_class": "SN",
+        "true_class": "SLSN-I",
+        "confidence": 0.9997701048851013
+      },
+      {
+        "ztf_id": "ZTF20aagikvv",
+        "predicted_class": "SN",
+        "true_class": "SLSN-I",
+        "confidence": 0.9999642372131348
+      },
+      {
+        "ztf_id": "ZTF19abzoyeg",
+        "predicted_class": "SN",
+        "true_class": "SLSN-I",
+        "confidence": 0.9988142251968384
+      },
+      {
+        "ztf_id": "ZTF21aakjkec",
+        "predicted_class": "SN",
+        "true_class": "SLSN-I",
+        "confidence": 0.999674916267395
+      }
+    ],
+    "per_class": {
+      "SN": {
+        "ece": 0.07800828489596522,
+        "accuracy_when_predicted": 0.9289099526066351,
+        "mean_confidence_when_predicted": 0.8704082850031378,
+        "gap": 0.05850166760349729,
+        "n_true": 249,
+        "n_predicted": 211
+      },
+      "SLSN-I": {
+        "ece": 0.06202577053474913,
+        "accuracy_when_predicted": 0.6896551724137931,
+        "mean_confidence_when_predicted": 0.8460531303252297,
+        "gap": -0.1563979579114365,
+        "n_true": 75,
+        "n_predicted": 87
+      },
+      "TDE": {
+        "ece": 0.04618082583312905,
+        "accuracy_when_predicted": 0.8015267175572519,
+        "mean_confidence_when_predicted": 0.8229910462867213,
+        "gap": -0.02146432872946935,
+        "n_true": 105,
+        "n_predicted": 131
+      }
+    }
+  },
+  "inter_model_agreement": {
+    "n_multi_model_objects": 43,
+    "agreement_rate_percent": 100.0
+  }
+}

@@ -134,7 +134,11 @@ def compute_metrics(data, label=""):
     pred_confidence = probs.max(axis=1)
     correct = (pred_class == labels).astype(int)
 
-    boot = bootstrap_ece(correct, pred_confidence, n_bins=15)
+    # Use 2D (labels, probs) path for both point estimate and bootstrap CI.
+    # The 1D (correct, pred_confidence) path inverts predictions when max_conf < 0.5
+    # (possible after probability averaging in dedup), producing inconsistent results
+    # where the CI bounds don't bracket the point estimate.
+    boot = bootstrap_ece(labels, probs, n_bins=15)
     ece_agg = boot["ece"]
     ece_ci = [boot["ci_lower"], boot["ci_upper"]]
 
@@ -250,8 +254,8 @@ def make_comparison_figure(full_metrics, dedup_metrics, save_path):
     ci_lows = [full_metrics["ece_ci"][0], dedup_metrics["ece_ci"][0]]
     ci_highs = [full_metrics["ece_ci"][1], dedup_metrics["ece_ci"][1]]
     errors = [
-        [e - l for e, l in zip(eces, ci_lows)],
-        [h - e for e, h in zip(eces, ci_highs)],
+        [max(0.0, e - l) for e, l in zip(eces, ci_lows)],
+        [max(0.0, h - e) for e, h in zip(eces, ci_highs)],
     ]
 
     bars = ax.bar(labels, eces, yerr=errors, capsize=8,
@@ -340,10 +344,8 @@ def main():
 
     probs = dedup["probs"]
     labels_arr = dedup["labels"]
-    pred_confidence = probs.max(axis=1)
-    correct = (probs.argmax(axis=1) == labels_arr).astype(int)
 
-    _, bins = compute_ece(correct, pred_confidence, n_bins=15, strategy="equal_mass")
+    _, bins = compute_ece(labels_arr, probs, n_bins=15, strategy="equal_mass")
     reliability_diagram(
         bins,
         title=f"NEEDLE Object-Level (N={len(labels_arr)})",
