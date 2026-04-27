@@ -2,46 +2,46 @@ This is BibTeX, Version 0.99d (TeX Live 2025)
 Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: main.aux
 The style file: aasjournal.bst
-Database file #1: references.bib
+Database file #1: references2.bib
 Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
-You've used 37 entries,
+You've used 41 entries,
             3168 wiz_defined-function locations,
-            883 strings with 10800 characters,
-and the built_in function-call counts, 16051 in all, are:
-= -- 1479
-> -- 908
-< -- 31
-+ -- 300
-- -- 311
-* -- 1197
-:= -- 2777
-add.period$ -- 39
-call.type$ -- 37
-change.case$ -- 185
-chr.to.int$ -- 37
-cite$ -- 37
-duplicate$ -- 710
-empty$ -- 1178
-format.name$ -- 387
-if$ -- 3411
+            907 strings with 11458 characters,
+and the built_in function-call counts, 18321 in all, are:
+= -- 1705
+> -- 1004
+< -- 37
++ -- 331
+- -- 343
+* -- 1365
+:= -- 3108
+add.period$ -- 43
+call.type$ -- 41
+change.case$ -- 205
+chr.to.int$ -- 41
+cite$ -- 41
+duplicate$ -- 817
+empty$ -- 1365
+format.name$ -- 431
+if$ -- 3926
 int.to.chr$ -- 1
 int.to.str$ -- 0
-missing$ -- 24
-newline$ -- 121
-num.names$ -- 148
-pop$ -- 214
+missing$ -- 25
+newline$ -- 133
+num.names$ -- 164
+pop$ -- 244
 preamble$ -- 1
-purify$ -- 185
+purify$ -- 205
 quote$ -- 0
-skip$ -- 640
+skip$ -- 752
 stack$ -- 0
-substring$ -- 727
-swap$ -- 71
-text.length$ -- 3
+substring$ -- 888
+swap$ -- 105
+text.length$ -- 6
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 333
+type$ -- 369
 warning$ -- 0
-while$ -- 158
+while$ -- 180
 width$ -- 0
-write$ -- 401
+write$ -- 445

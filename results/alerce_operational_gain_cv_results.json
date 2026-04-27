@@ -1,0 +1,115 @@
+{
+  "metadata": {
+    "description": "ALeRCE operational gain with proper held-out CV (Step 1.3)",
+    "threshold": 0.8,
+    "n_folds": 5,
+    "paper_claim_gain": 21.0,
+    "paper_claim_precision": 0.911
+  },
+  "full_dataset_baseline": {
+    "T": 0.3569930173205702,
+    "ece_before": 0.2714362657091562,
+    "ece_after": 0.029659755894476492,
+    "n_before": 20,
+    "n_after": 425,
+    "gain": 21.25,
+    "precision_before": 1.0,
+    "precision_after": 0.9105882352941177,
+    "n_total": 1114
+  },
+  "per_fold": [
+    {
+      "fold": 1,
+      "n_train": 890,
+      "n_test": 224,
+      "T": 0.35160618657591175,
+      "ece_before": 0.2577142857142857,
+      "ece_after": 0.09133934660373068,
+      "n_before": 5,
+      "n_after": 90,
+      "gain": 18.0,
+      "precision_before": 1.0,
+      "precision_after": 0.9111111111111111,
+      "n_total": 224
+    },
+    {
+      "fold": 2,
+      "n_train": 891,
+      "n_test": 223,
+      "T": 0.36287378944200527,
+      "ece_before": 0.25391031390134533,
+      "ece_after": 0.09236458704261226,
+      "n_before": 5,
+      "n_after": 77,
+      "gain": 15.4,
+      "precision_before": 1.0,
+      "precision_after": 0.935064935064935,
+      "n_total": 223
+    },
+    {
+      "fold": 3,
+      "n_train": 891,
+      "n_test": 223,
+      "T": 0.3588748037296177,
+      "ece_before": 0.27606278026905834,
+      "ece_after": 0.07924504381867754,
+      "n_before": 3,
+      "n_after": 79,
+      "gain": 26.333333333333332,
+      "precision_before": 1.0,
+      "precision_after": 0.9113924050632911,
+      "n_total": 223
+    },
+    {
+      "fold": 4,
+      "n_train": 892,
+      "n_test": 222,
+      "T": 0.3377745512862539,
+      "ece_before": 0.2522432432432432,
+      "ece_after": 0.0964373210283495,
+      "n_before": 6,
+      "n_after": 96,
+      "gain": 16.0,
+      "precision_before": 1.0,
+      "precision_after": 0.8541666666666666,
+      "n_total": 222
+    },
+    {
+      "fold": 5,
+      "n_train": 892,
+      "n_test": 222,
+      "T": 0.3737909329816946,
+      "ece_before": 0.3403693693693694,
+      "ece_after": 0.1262075240459512,
+      "n_before": 1,
+      "n_after": 76,
+      "gain": 76.0,
+      "precision_before": 1.0,
+      "precision_after": 0.9342105263157895,
+      "n_total": 222
+    }
+  ],
+  "cv_summary": {
+    "T_mean": 0.35698405280309664,
+    "T_std": 0.011988841076289829,
+    "gain_mean_per_fold": 30.34666666666667,
+    "gain_std_per_fold": 23.160326230671085,
+    "precision_mean_per_fold": 0.9091891288443588,
+    "precision_std_per_fold": 0.02943347572073104
+  },
+  "pooled_held_out": {
+    "ece_before": 0.2714362657091562,
+    "ece_after": 0.030480628070613757,
+    "n_before": 20,
+    "n_after": 418,
+    "gain": 20.9,
+    "precision_before": 1.0,
+    "precision_after": 0.9066985645933014,
+    "n_total": 1114
+  },
+  "validation": {
+    "passes": true,
+    "gain_vs_paper": 0.9952380952380951,
+    "precision_vs_paper": 0.9952783365458852
+  }
+}

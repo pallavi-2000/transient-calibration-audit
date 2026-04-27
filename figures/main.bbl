@@ -46,6 +46,10 @@ Fernando, T., \& Tsokos, C.~P. 2021, IEEE Transactions on Neural Networks and
 \bibitem[{Fremling {et~al.}(2020)}]{fremling2020}
 Fremling, C., {et~al.} 2020, \apj, 895, 32, \dodoi{10.3847/1538-4357/ab8943}
 
+\bibitem[{Geifman \& El-Yaniv(2017)}]{geifman2017}
+Geifman, Y., \& El-Yaniv, R. 2017, in Advances in Neural Information Processing
+  Systems, Vol.~30 (Curran Associates, Inc.), 4878--4887
+
 \bibitem[{Gneiting \& Raftery(2007)}]{gneiting2007}
 Gneiting, T., \& Raftery, A.~E. 2007, Journal of the American Statistical
   Association, 102, 359, \dodoi{10.1198/016214506000001437}
@@ -78,6 +82,10 @@ Leoni, B., {et~al.} 2022, A\&A, 663, A13, \dodoi{10.1051/0004-6361/202142715}
 Loecher, M., \& Walters, S. 2024, Diagnostic and Prognostic Research, 8, 7,
   \dodoi{10.1186/s41512-024-00177-1}
 
+\bibitem[{Madras {et~al.}(2018)Madras, Pitassi, \& Zemel}]{madras2018}
+Madras, D., Pitassi, T., \& Zemel, R. 2018, in Advances in Neural Information
+  Processing Systems, Vol.~31 (Curran Associates, Inc.), 6147--6157
+
 \bibitem[{McKinney(2010)}]{mckinney2010}
 McKinney, W. 2010, in Proceedings of the 9th Python in Science Conference,
   56--61
@@ -89,6 +97,11 @@ McKinney, W. 2010, in Proceedings of the 9th Python in Science Conference,
 \bibitem[{{M{\"o}ller} {et~al.}(2021)}]{moller2021}
 {M{\"o}ller}, A., {et~al.} 2021, MNRAS, 501, 3272,
   \dodoi{10.1093/mnras/staa3602}
+
+\bibitem[{Mozannar \& Sontag(2020)}]{mozannar2020}
+Mozannar, H., \& Sontag, D. 2020, in Proceedings of Machine Learning Research,
+  Vol. 119, Proceedings of the 37th International Conference on Machine
+  Learning (PMLR), 7076--7087
 
 \bibitem[{Mukhoti {et~al.}(2020)Mukhoti, Kulharia, Sanber, Torr, \&
   Dokania}]{mukhoti2020}
@@ -110,6 +123,10 @@ Niculescu-Mizil, A., \& Caruana, R. 2005, in Proceedings of the 22nd
   Tran}]{nixon2019}
 Nixon, J., Dusenberry, M.~W., Zhang, L., Jerfel, G., \& Tran, D. 2019, in CVPR
   Workshops, 38--41
+
+\bibitem[{{Pavez-Herrera} {et~al.}(2025)}]{pavezherrera2025}
+{Pavez-Herrera}, D., {et~al.} 2025, A\&A, 696, A153,
+  \dodoi{10.1051/0004-6361/202451951}
 
 \bibitem[{Perley {et~al.}(2020)}]{perley2020}
 Perley, D.~A., {et~al.} 2020, \apj, 904, 35, \dodoi{10.3847/1538-4357/abbd98}

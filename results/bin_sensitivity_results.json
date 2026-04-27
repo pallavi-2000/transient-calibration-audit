@@ -1,0 +1,105 @@
+{
+  "metadata": {
+    "description": "ECE bin-count sensitivity analysis (Step 1.5)",
+    "bin_counts_tested": [
+      5,
+      10,
+      15,
+      20
+    ],
+    "paper_bin_count": 15,
+    "stability_thresholds": {
+      "excellent": "< 2%",
+      "good": "2\u20135%",
+      "acceptable": "5\u201310%",
+      "poor": "> 10%"
+    }
+  },
+  "results": [
+    {
+      "name": "ALeRCE (4-class)",
+      "n": "N=1114",
+      "bin_counts": [
+        5,
+        10,
+        15,
+        20
+      ],
+      "ece_values": [
+        0.27143626570915613,
+        0.2714362657091562,
+        0.2714362657091562,
+        0.27143626570915613
+      ],
+      "mean": 0.27143626570915613,
+      "std": 3.925231146709438e-17,
+      "range": 5.551115123125783e-17,
+      "relative_change_pct": 2.0450897040684315e-14,
+      "stability": "Excellent (< 2%)"
+    },
+    {
+      "name": "Fink RF (binary, non-zero)",
+      "n": "N=76",
+      "bin_counts": [
+        5,
+        10,
+        15,
+        20
+      ],
+      "ece_values": [
+        0.24344736842105263,
+        0.26013157894736844,
+        0.26305263157894737,
+        0.26721052631578945
+      ],
+      "mean": 0.25846052631578953,
+      "std": 0.009025481394608936,
+      "range": 0.02376315789473682,
+      "relative_change_pct": 9.194114951891248,
+      "stability": "Acceptable (5\u201310%)"
+    },
+    {
+      "name": "Fink SNN (binary, non-zero)",
+      "n": "N=793",
+      "bin_counts": [
+        5,
+        10,
+        15,
+        20
+      ],
+      "ece_values": [
+        0.17966721344564945,
+        0.18395487567313995,
+        0.18288773966784364,
+        0.1912115150070618
+      ],
+      "mean": 0.1844303359484237,
+      "std": 0.004221296932222921,
+      "range": 0.01154430156141234,
+      "relative_change_pct": 6.2594374738008,
+      "stability": "Acceptable (5\u201310%)"
+    },
+    {
+      "name": "NEEDLE (3-class, object-level)",
+      "n": "N=278",
+      "bin_counts": [
+        5,
+        10,
+        15,
+        20
+      ],
+      "ece_values": [
+        0.035626966416162684,
+        0.035626966416162704,
+        0.047538027002478424,
+        0.0610340375594698
+      ],
+      "mean": 0.04495649934856841,
+      "std": 0.010478929924192906,
+      "range": 0.02540707114330712,
+      "relative_change_pct": 56.514789877909344,
+      "stability": "Poor (> 10%)"
+    }
+  ],
+  "overall_passes": false
+}

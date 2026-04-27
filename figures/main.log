@@ -1,8 +1,8 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.4.24)  4 APR 2026 16:19
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.4.24)  23 APR 2026 12:48
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**main
+**main.tex
 (./main.tex
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-01-18>
@@ -520,66 +520,65 @@ LaTeX Info: Redefining \Relbar on input line 970.
 LaTeX Info: Redefining \[ on input line 2953.
 LaTeX Info: Redefining \] on input line 2954.
 )
+(/usr/local/texlive/2025/texmf-dist/tex/latex/multirow/multirow.sty
+Package: multirow 2024/11/12 v2.9 Span multiple rows of a table
+\multirow@colwidth=\skip73
+\multirow@cntb=\count355
+\multirow@dima=\skip74
+\bigstrutjot=\dimen179
+)
 Class revtex4-1 Info: Unrecognized array package. Please update this document c
-lass! (Proceeding with fingers crossed.) on input line 10.
+lass! (Proceeding with fingers crossed.) on input line 11.
 Class revtex4-1 Info: Patching unrecognized longtable package. (Proceeding with
- fingers crossed) on input line 10.
-Class revtex4-1 Info: cite was not loaded (OK!) on input line 10.
-Class revtex4-1 Info: mcite was not loaded (OK!) on input line 10.
-Class revtex4-1 Info: multicol was not loaded (OK!) on input line 10.
+ fingers crossed) on input line 11.
+Class revtex4-1 Info: cite was not loaded (OK!) on input line 11.
+Class revtex4-1 Info: mcite was not loaded (OK!) on input line 11.
+Class revtex4-1 Info: multicol was not loaded (OK!) on input line 11.
 
 (/usr/local/texlive/2025/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
 File: l3backend-pdftex.def 2024-05-08 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count355
+\l__color_backend_stack_int=\count356
 \l__pdf_internal_box=\box90
 )
 (./main.aux)
 \openout1 = `main.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 10.
-LaTeX Font Info:    ... okay on input line 10.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 10.
-LaTeX Font Info:    ... okay on input line 10.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 10.
-LaTeX Font Info:    ... okay on input line 10.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 10.
-LaTeX Font Info:    ... okay on input line 10.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 10.
-LaTeX Font Info:    ... okay on input line 10.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 10.
-LaTeX Font Info:    ... okay on input line 10.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 10.
-LaTeX Font Info:    ... okay on input line 10.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 10.
-LaTeX Font Info:    ... okay on input line 10.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 10.
-LaTeX Font Info:    ... okay on input line 10.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
 
 (/usr/local/texlive/2025/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count356
-\scratchdimen=\dimen179
+\scratchcounter=\count357
+\scratchdimen=\dimen180
 \scratchbox=\box91
-\nofMPsegments=\count357
-\nofMParguments=\count358
+\nofMPsegments=\count358
+\nofMParguments=\count359
 \everyMPshowfont=\toks30
-\MPscratchCnt=\count359
-\MPscratchDim=\dimen180
-\MPnumerator=\count360
-\makeMPintoPDFobject=\count361
+\MPscratchCnt=\count360
+\MPscratchDim=\dimen181
+\MPnumerator=\count361
+\makeMPintoPDFobject=\count362
 \everyMPtoPDFconversion=\toks31
 ) (/usr/local/texlive/2025/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
-
-(/usr/local/texlive/2025/texmf-dist/tex/latex/grfext/grfext.sty
-Package: grfext 2019/12/03 v1.3 Manage graphics extensions (HO)
-)
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
 85.
-Package grfext Info: Graphics extension search list:
-(grfext)             [.pdf,.png,.jpg,.mps,.jpeg,.jbig2,.jb2,.PDF,.PNG,.JPG,.JPE
-G,.JBIG2,.JB2,.eps]
-(grfext)             \AppendGraphicsExtensions on input line 504.
 
 (/usr/local/texlive/2025/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
@@ -587,188 +586,271 @@ e
 ))
 (/usr/local/texlive/2025/texmf-dist/tex/latex/lineno/lineno.sty
 Package: lineno 2025/01/29 line numbers on paragraphs v5.4
-\linenopenalty=\count362
+\linenopenalty=\count363
 \output=\toks32
-\linenoprevgraf=\count363
-\linenumbersep=\dimen181
-\linenumberwidth=\dimen182
-\c@linenumber=\count364
-\c@pagewiselinenumber=\count365
-\c@LN@truepage=\count366
-\c@internallinenumber=\count367
-\c@internallinenumbers=\count368
-\quotelinenumbersep=\dimen183
-\bframerule=\dimen184
-\bframesep=\dimen185
+\linenoprevgraf=\count364
+\linenumbersep=\dimen182
+\linenumberwidth=\dimen183
+\c@linenumber=\count365
+\c@pagewiselinenumber=\count366
+\c@LN@truepage=\count367
+\c@internallinenumber=\count368
+\c@internallinenumbers=\count369
+\quotelinenumbersep=\dimen184
+\bframerule=\dimen185
+\bframesep=\dimen186
 \bframebox=\box92
-\@LN@amsmath@ams@eqpen=\count369
+\@LN@amsmath@ams@eqpen=\count370
 LaTeX Info: Redefining \\ on input line 3187.
 )
-Package hyperref Info: Link coloring ON on input line 10.
+Package hyperref Info: Link coloring ON on input line 11.
  (./main.out)
 (./main.out)
 \@outlinefile=\write4
 \openout4 = `main.out'.
 
 Class revtex4-1 Info: Overriding lineo.sty, restoring output routine, on input 
-line 10.
-Class revtex4-1 Info: Line numbering not turned on yet on input line 10.
-Class revtex4-1 Info: Overriding \@LN@LLerror on input line 10.
-LaTeX Font Info:    Trying to load font information for U+lasy on input line 16
+line 11.
+Class revtex4-1 Info: Line numbering not turned on yet on input line 11.
+Class revtex4-1 Info: Overriding \@LN@LLerror on input line 11.
+LaTeX Font Info:    Trying to load font information for U+lasy on input line 17
 .
  (/usr/local/texlive/2025/texmf-dist/tex/latex/base/ulasy.fd
 File: ulasy.fd 1998/08/17 v2.2e LaTeX symbol font definitions
 )
-LaTeX Font Info:    Trying to load font information for U+msa on input line 16.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 17.
 
 
 (/usr/local/texlive/2025/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 16.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 17.
 
 
 (/usr/local/texlive/2025/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) [1{/usr/local/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-Underfull \hbox (badness 1629) in paragraph at lines 38--39
+Underfull \hbox (badness 1629) in paragraph at lines 39--40
 []\OT1/cmr/m/n/10 In this pa-per, we present the first such au-dit.
  []
 
 [2]
-Underfull \hbox (badness 2111) in paragraph at lines 81--82
+Underfull \hbox (badness 2111) in paragraph at lines 82--83
 \OT1/cmr/m/n/10 trans-for-ma-tion and there-fore can-not cor-rect class-
  []
 
 
-Underfull \hbox (badness 1852) in paragraph at lines 81--82
+Underfull \hbox (badness 1852) in paragraph at lines 82--83
 \OT1/cmr/m/n/10 asymmetric miscalibration---where some classes are
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 91--92
+Underfull \hbox (badness 10000) in paragraph at lines 92--93
 []\OT1/cmr/m/n/10 Many as-tro-nom-i-cal clas-si-fiers em-ploy inverse-
  []
 
 
-Underfull \hbox (badness 1490) in paragraph at lines 91--92
+Underfull \hbox (badness 1490) in paragraph at lines 92--93
 \OT1/cmr/m/n/10 im-bal-ance corrections---including ran-dom un-der-sam-
  []
 
 [3]
-Overfull \hbox (10.88353pt too wide) in paragraph at lines 123--123
+Overfull \hbox (10.88353pt too wide) in paragraph at lines 124--124
 [][]| [] [][][]| 
  []
 
 
-Overfull \hbox (10.88353pt too wide) in paragraph at lines 125--125
+Overfull \hbox (10.88353pt too wide) in paragraph at lines 126--126
 [][]| [] [][][]| 
  []
 
 
-Underfull \hbox (badness 2012) in paragraph at lines 125--126
+Underfull \hbox (badness 6510) in paragraph at lines 126--127
 []\OT1/cmr/bx/n/10 Fink. \OT1/cmr/m/n/10 We query the Fink API[][][][][] for tw
-o bi-
+o
+ []
+
+
+Underfull \hbox (badness 8000) in paragraph at lines 126--127
+\OT1/cmr/m/n/10 bi-nary clas-si-fiers: the Ran-dom For-est SN Ia
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 126--127
+\OT1/cmr/m/n/10 clas-si-fier (\OT1/cmtt/m/n/10 rf[]snia[]vs[]nonia\OT1/cmr/m/n/
+10 ) and Su-perN-Nova
  []
 
 [4]
-<fig1_alerce_reliability.pdf, id=329, 253.78093pt x 309.756pt>
+<fig1_alerce_reliability.pdf, id=346, 253.78093pt x 309.756pt>
 File: fig1_alerce_reliability.pdf Graphic file (type pdf)
 <use fig1_alerce_reliability.pdf>
-Package pdftex.def Info: fig1_alerce_reliability.pdf  used on input line 194.
+Package pdftex.def Info: fig1_alerce_reliability.pdf  used on input line 208.
 (pdftex.def)             Requested size: 205.92802pt x 251.35945pt.
-<fig2_alerce_perclass.pdf, id=330, 728.12555pt x 521.52225pt>
+<fig2_alerce_perclass.pdf, id=347, 728.12555pt x 521.52225pt>
 File: fig2_alerce_perclass.pdf Graphic file (type pdf)
 <use fig2_alerce_perclass.pdf>
-Package pdftex.def Info: fig2_alerce_perclass.pdf  used on input line 199.
+Package pdftex.def Info: fig2_alerce_perclass.pdf  used on input line 213.
 (pdftex.def)             Requested size: 436.15294pt x 312.40646pt.
-<fig3_alerce_tempscaling.pdf, id=331, 498.42114pt x 308.62552pt>
+<fig3_alerce_tempscaling.pdf, id=348, 498.42114pt x 308.62552pt>
 File: fig3_alerce_tempscaling.pdf Graphic file (type pdf)
 <use fig3_alerce_tempscaling.pdf>
-Package pdftex.def Info: fig3_alerce_tempscaling.pdf  used on input line 204.
+Package pdftex.def Info: fig3_alerce_tempscaling.pdf  used on input line 218.
 (pdftex.def)             Requested size: 436.15294pt x 270.0749pt.
- [5 <./fig1_alerce_reliability.pdf>]
-<fig_fink_random_forest.pdf, id=402, 262.4226pt x 309.756pt>
-File: fig_fink_random_forest.pdf Graphic file (type pdf)
-<use fig_fink_random_forest.pdf>
-Package pdftex.def Info: fig_fink_random_forest.pdf  used on input line 224.
+
+Underfull \hbox (badness 1072) in paragraph at lines 225--226
+\OT1/cmr/m/n/10 et al.[][] [][]2022[][]) and a re-cur-rent Su-perN-Nova net-wor
+k
+ []
+
+[5 <./fig1_alerce_reliability.pdf>] [6 <./fig2_alerce_perclass.pdf>]
+
+LaTeX Warning: A float is stuck (cannot be placed) on input line 226.
+
+[7 <./fig3_alerce_tempscaling.pdf>]
+
+LaTeX Warning: Reference `fig:fink_raw' on page 8 undefined on input line 241.
+
+
+LaTeX Warning: Reference `fig:fink_conditional' on page 8 undefined on input li
+ne 249.
+
+
+Underfull \hbox (badness 2443) in paragraph at lines 251--252
+[]\OT1/cmr/m/n/10 SuperNNova's con-di-tional di-a-gram shows better-
+ []
+
+[8]
+<diagnostic_random_forest_histogram.pdf, id=577, 507.27328pt x 337.57996pt>
+File: diagnostic_random_forest_histogram.pdf Graphic file (type pdf)
+<use diagnostic_random_forest_histogram.pdf>
+Package pdftex.def Info: diagnostic_random_forest_histogram.pdf  used on input 
+line 268.
+(pdftex.def)             Requested size: 205.92802pt x 137.03848pt.
+<diagnostic_supernnova_histogram.pdf, id=578, 504.29759pt x 337.57996pt>
+File: diagnostic_supernnova_histogram.pdf Graphic file (type pdf)
+<use diagnostic_supernnova_histogram.pdf>
+Package pdftex.def Info: diagnostic_supernnova_histogram.pdf  used on input lin
+e 273.
+(pdftex.def)             Requested size: 205.92802pt x 137.85236pt.
+<fig_fink_random_forest_raw.pdf, id=579, 262.4226pt x 309.756pt>
+File: fig_fink_random_forest_raw.pdf Graphic file (type pdf)
+<use fig_fink_random_forest_raw.pdf>
+Package pdftex.def Info: fig_fink_random_forest_raw.pdf  used on input line 278
+.
 (pdftex.def)             Requested size: 205.92802pt x 243.06918pt.
-<fig_fink_supernnova.pdf, id=403, 256.66672pt x 309.756pt>
-File: fig_fink_supernnova.pdf Graphic file (type pdf)
-<use fig_fink_supernnova.pdf>
-Package pdftex.def Info: fig_fink_supernnova.pdf  used on input line 229.
+<fig_fink_random_forest_conditional.pdf, id=580, 274.44249pt x 309.756pt>
+File: fig_fink_random_forest_conditional.pdf Graphic file (type pdf)
+<use fig_fink_random_forest_conditional.pdf>
+Package pdftex.def Info: fig_fink_random_forest_conditional.pdf  used on input 
+line 283.
+(pdftex.def)             Requested size: 205.92802pt x 232.42513pt.
+<fig_fink_supernnova_raw.pdf, id=581, 256.66672pt x 309.756pt>
+File: fig_fink_supernnova_raw.pdf Graphic file (type pdf)
+<use fig_fink_supernnova_raw.pdf>
+Package pdftex.def Info: fig_fink_supernnova_raw.pdf  used on input line 288.
 (pdftex.def)             Requested size: 205.92802pt x 248.52827pt.
- [6 <./fig2_alerce_perclass.pdf>]
-[7 <./fig3_alerce_tempscaling.pdf> <./fig_fink_random_forest.pdf> <./fig_fink_s
-upernnova.pdf>]
-Underfull \hbox (badness 2809) in paragraph at lines 244--245
+<fig_fink_supernnova_conditional.pdf, id=582, 267.83185pt x 309.756pt>
+File: fig_fink_supernnova_conditional.pdf Graphic file (type pdf)
+<use fig_fink_supernnova_conditional.pdf>
+Package pdftex.def Info: fig_fink_supernnova_conditional.pdf  used on input lin
+e 293.
+(pdftex.def)             Requested size: 205.92802pt x 238.16309pt.
+ [9 <./diagnostic_random_forest_histogram.pdf> <./diagnostic_supernnova_histogr
+am.pdf>]
+
+LaTeX Warning: A float is stuck (cannot be placed) on input line 303.
+
+
+LaTeX Warning: A float is stuck (cannot be placed) on input line 303.
+
+
+Class revtex4-1 Warning: Deferred float stuck during \clearpage processing.
+
+[10 <./fig_fink_random_forest_raw.pdf> <./fig_fink_random_forest_conditional.pd
+f> <./fig_fink_supernnova_raw.pdf> <./fig_fink_supernnova_conditional.pdf>]
+Underfull \hbox (badness 2809) in paragraph at lines 308--309
 []\OT1/cmr/m/n/10 Silent fail-ure anal-y-sis re-veals 17 pre-dic-tions at
  []
 
-<fig_needle_reliability.pdf, id=650, 253.78093pt x 309.756pt>
+<fig_needle_reliability.pdf, id=902, 253.78093pt x 309.756pt>
 File: fig_needle_reliability.pdf Graphic file (type pdf)
 <use fig_needle_reliability.pdf>
-Package pdftex.def Info: fig_needle_reliability.pdf  used on input line 247.
+Package pdftex.def Info: fig_needle_reliability.pdf  used on input line 311.
 (pdftex.def)             Requested size: 205.92802pt x 251.35945pt.
-<fig_needle_perclass.pdf, id=653, 729.08917pt x 272.37143pt>
+<fig_needle_perclass.pdf, id=905, 729.08917pt x 272.37143pt>
 File: fig_needle_perclass.pdf Graphic file (type pdf)
 <use fig_needle_perclass.pdf>
-Package pdftex.def Info: fig_needle_perclass.pdf  used on input line 252.
+Package pdftex.def Info: fig_needle_perclass.pdf  used on input line 316.
 (pdftex.def)             Requested size: 436.15294pt x 162.942pt.
-<fig_summary_ece_comparison.pdf, id=655, 498.25023pt x 281.74608pt>
-File: fig_summary_ece_comparison.pdf Graphic file (type pdf)
-<use fig_summary_ece_comparison.pdf>
-Package pdftex.def Info: fig_summary_ece_comparison.pdf  used on input line 261
-.
+<fig8_comparison.pdf, id=907, 498.25023pt x 281.74608pt>
+File: fig8_comparison.pdf Graphic file (type pdf)
+<use fig8_comparison.pdf>
+Package pdftex.def Info: fig8_comparison.pdf  used on input line 325.
 (pdftex.def)             Requested size: 436.15294pt x 246.64328pt.
 
-Underfull \hbox (badness 1983) in paragraph at lines 274--275
+Underfull \hbox (badness 1983) in paragraph at lines 338--339
 []\OT1/cmr/m/n/10 NEEDLE's class-asymmetric mis-cal-i-bra-tion rep-re-
  []
 
-[8 <./fig_needle_reliability.pdf>]
-Underfull \hbox (badness 4779) in paragraph at lines 284--285
+[11 <./fig_needle_reliability.pdf>] [12 <./fig_needle_perclass.pdf> <./fig8_com
+parison.pdf>]
+Underfull \hbox (badness 4752) in paragraph at lines 350--351
+[]\OT1/cmr/m/n/10 Making Fink's im-plicit ab-sten-tion ex-plicit and
+ []
+
+
+Underfull \hbox (badness 4779) in paragraph at lines 354--355
 \OT1/cmr/m/n/10 for follow-up al-lo-ca-tion. An as-tronomer us-ing
  []
 
-[9 <./fig_needle_perclass.pdf> <./fig_summary_ece_comparison.pdf>]
-Underfull \hbox (badness 3068) in paragraph at lines 320--321
+
+Underfull \hbox (badness 2781) in paragraph at lines 354--355
+\OT1/cmr/m/n/10 en-abling mean-ing-ful probability-based thresh-old-ing.
+ []
+
+[13]
+Underfull \hbox (badness 3068) in paragraph at lines 394--395
 \OT1/cmr/m/n/10 asymmetric mis-cal-i-bra-tion driven by inverse-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 327--328
+Underfull \hbox (badness 10000) in paragraph at lines 401--402
 []\OT1/cmr/m/n/10 Our anal-y-sis code and re-sults are pub-
  []
 
 
-Underfull \hbox (badness 7273) in paragraph at lines 327--328
+Underfull \hbox (badness 7273) in paragraph at lines 401--402
 \OT1/cmr/m/n/10 licly avail-able at [][]$https : / / github . com / pallavi-[]2
 000 /
  []
 
 
-Underfull \hbox (badness 1783) in paragraph at lines 331--332
+Underfull \hbox (badness 1783) in paragraph at lines 405--406
 \OT1/cmr/m/n/10 sults are pub-licly avail-able at [][]$https : / / github . com
  /
  []
 
-[10] (./main.bbl [11]) [12] (./main.aux)
+(./main.bbl [14]) [15] (./main.aux)
  ***********
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-01-18>
  ***********
+
+
+LaTeX Warning: There were undefined references.
+
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: EAFBC753A5FB88065D492F2F44279E52;4809.
+(rerunfilecheck)             Checksum: 8C8079F53E0AA73196CA514D06CF6E27;6217.
  ) 
 Here is how much of TeX's memory you used:
- 13958 strings out of 473190
- 207846 string characters out of 5715800
- 675117 words of memory out of 5000000
- 36922 multiletter control sequences out of 15000+600000
- 571635 words of font info for 86 fonts, out of 8000000 for 9000
+ 14059 strings out of 473190
+ 210105 string characters out of 5715800
+ 695270 words of memory out of 5000000
+ 37004 multiletter control sequences out of 15000+600000
+ 571802 words of font info for 87 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 90i,11n,93p,1817b,675s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 90i,11n,93p,1951b,511s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
 ></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb><
 /usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></u
@@ -789,11 +871,12 @@ mf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/2025/texm
 f-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/local/texlive/2025/texmf
 -dist/fonts/type1/public/amsfonts/cm/cmti8.pfb></usr/local/texlive/2025/texmf-d
 ist/fonts/type1/public/amsfonts/cm/cmti9.pfb></usr/local/texlive/2025/texmf-dis
-t/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
-Output written on main.pdf (12 pages, 449202 bytes).
+t/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive/2025/texmf-dist
+/fonts/type1/public/amsfonts/cm/cmtt9.pfb>
+Output written on main.pdf (15 pages, 538143 bytes).
 PDF statistics:
- 1046 PDF objects out of 1200 (max. 8388607)
- 601 compressed objects within 7 object streams
- 109 named destinations out of 1000 (max. 500000)
- 265 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 1312 PDF objects out of 1440 (max. 8388607)
+ 694 compressed objects within 7 object streams
+ 127 named destinations out of 1000 (max. 500000)
+ 317 words of extra memory for PDF output out of 10000 (max. 10000000)
 

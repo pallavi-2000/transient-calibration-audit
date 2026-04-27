@@ -1,0 +1,22 @@
+{
+  "metadata": {
+    "description": "Fink SNN abstention source analysis",
+    "question": "Where do zero scores come from? Are they documented?"
+  },
+  "analysis": {
+    "n_total": 1237,
+    "n_zero": 444,
+    "n_nonzero": 793,
+    "n_nan": 0,
+    "pct_zero": 35.89329021827001,
+    "pct_nonzero": 64.10670978172999,
+    "pct_nan": 0.0
+  },
+  "paper_claim": "Fink SNN coverage: 64.1%",
+  "verified": true,
+  "recommendations": [
+    "Cite M\u00f6ller et al. 2020 (Fink system paper) for SNN specifications",
+    "Reference Fink GitHub for SuperNNova module behavior",
+    "Note that zero scores represent abstention (no prediction made)"
+  ]
+}

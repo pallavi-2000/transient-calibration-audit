@@ -219,9 +219,11 @@ This behavior is consistent with the classifier's design. \citet{leoni2022} desc
 
 \subsubsection{SuperNNova}
 
-Fink's SuperNNova classifier \citep{moller2020} shows ECE $= 0.198$ with 36\% of scores at exactly 0.0 and a mean score of 0.361. The reliability diagram (Figure~\ref{fig:fink_snn}) shows a systematic pattern: bars consistently fall below the diagonal, indicating overconfidence.
+Fink's SuperNNova classifier \citep{moller2020} implements a data-quality abstention gate, returning score $= 0$ for objects with insufficient photometric data. In our sample, 444 of 1,237 objects (35.9\%) trigger this gate, yielding 64.1\% effective prediction coverage (793 objects). The abstention rate is class-dependent: SN~Ia objects abstain at 19.0\% (100/527), while non-SN~Ia objects abstain at 48.5\% (344/710)---a 2.5$\times$ ratio consistent with sparser light curves for non-thermonuclear transients. This class asymmetry confirms that zeros represent deliberate abstentions rather than a data loading artefact. The first non-zero score is 0.0051, creating a hard gap from exactly zero and diagnostic of a threshold-based eligibility test (Figure~\ref{fig:fink_snn_hist}).
 
-Temperature scaling optimization drives $T$ to the upper bound ($T = 10.0$), indicating that the method is inappropriate for this distribution. At $T = 10$, the optimizer is attempting to flatten all predictions toward 0.5, which destroys discriminative information. The combination of 36\% exact zeros (which cannot be modified by temperature scaling, as $\log(0) = -\infty$) and a continuous distribution for the remaining 64\% creates a bimodal structure that a single scalar parameter cannot address.
+Among the 793 non-zero predictions, scores are actively discriminating (mean $= 0.564$, median $= 0.664$). The reliability diagram (Figure~\ref{fig:fink_snn}) shows bars consistently below the diagonal, indicating overconfidence (ECE $= 0.198$ [0.173, 0.226]).
+
+Temperature scaling optimization drives $T$ to the upper bound ($T = 10.0$), indicating the method is inappropriate for this distribution. At $T = 10$ the optimizer attempts to flatten all predictions toward 0.5, destroying discriminative information. The combination of 35.9\% exact zeros (which temperature scaling cannot modify, as $\log(0) = -\infty$) and a continuous distribution for the remaining 64\% creates a bimodal structure incompatible with single-scalar calibration.
 
 \begin{figure}
 \plotone{fig_fink_random_forest.pdf}
@@ -230,7 +232,12 @@ Temperature scaling optimization drives $T$ to the upper bound ($T = 10.0$), ind
 
 \begin{figure}
 \plotone{fig_fink_supernnova.pdf}
-\caption{Reliability diagram for Fink's SuperNNova classifier. Bars consistently below the diagonal indicate systematic overconfidence. ECE $= 0.198$. Temperature scaling hits the optimizer bound at $T = 10$, indicating the method is inappropriate. \label{fig:fink_snn}}
+\caption{Reliability diagram for Fink's SuperNNova classifier (conditional on non-zero predictions, $n = 793$). Bars consistently below the diagonal indicate systematic overconfidence. ECE $= 0.198$. Temperature scaling hits the optimizer bound at $T = 10$. \label{fig:fink_snn}}
+\end{figure}
+
+\begin{figure}
+\plotone{fig_fink_snn_zero_distribution.pdf}
+\caption{Zero-score distribution for Fink SuperNNova. Left: full score distribution with 444 objects (35.9\%) at exactly zero and a hard gap of 0.005 to the first non-zero score, diagnostic of a data-quality abstention gate. Centre: abstention rate by true class---non-SN~Ia objects abstain at 2.5$\times$ the rate of SN~Ia objects (48.5\% vs.\ 19.0\%), confirming the zeros are class-dependent and not a loading artefact. Right: non-zero score distribution for SN~Ia and non-SN~Ia objects, showing discriminative power when predictions are made. \label{fig:fink_snn_hist}}
 \end{figure}
 
 
@@ -377,11 +384,17 @@ Third, calibration should be evaluated on real survey data, not only on simulate
 
 \subsection{Robustness Checks} \label{sec:robustness}
 
-We performed two robustness checks to verify that our primary findings are not artifacts of data processing choices.
+We performed five robustness checks to verify that primary findings are not artefacts of data processing or methodological choices.
 
-\textbf{ALeRCE renormalization.} Script 05 confirmed that restricting ALeRCE's 15-class output to the 4-class transient subset does not drive the observed miscalibration: renormalized ECE (0.271) is within 5\% of the raw 15-class ECE (0.283), with negligible per-class inflation factors (1.02--1.06$\times$).
+\textbf{ALeRCE class restriction.} Restricting ALeRCE's 15-class output to the 4-class transient subset does not drive the observed miscalibration: the 4-class renormalized ECE (0.271) matches the native 15-class ECE (0.283) within 4\%, with negligible per-class probability inflation (1.02--1.06$\times$). The 15-class analysis serves as a harder baseline (more classes, lower accuracy) confirming the 4-class restriction is conservative.
 
-\textbf{NEEDLE object-level deduplication.} The NEEDLE evaluation set contains 429 predictions from five held-out test sets across 278 unique objects. Of these, 43 objects appear in multiple test sets (mean 1.54 models per object overall; rare-class objects appear in up to all 5 sets). We deduplicate to the object level by averaging model probabilities per unique ZTF identifier and renormalizing. The object-level ECE (0.048) is lower than the model-instance ECE (0.075), a 36\% reduction, because rare-class objects that are more miscalibrated contribute proportionally less weight when counted once. The 100\% inter-model class agreement across all 43 multi-model objects (zero disagreements) validates the averaging methodology: model variance in predicted class is zero, and confidence uncertainty dominates. The class-asymmetric miscalibration pattern (SN underconfident, SLSN-I and TDE overconfident) persists in both analyses, confirming that the finding is robust to evaluation-set construction choices. Object-level results are primary throughout this paper; model-instance results are reported as sensitivity analysis in \S\ref{sec:needle_sensitivity}.
+\textbf{NEEDLE object-level deduplication.} The NEEDLE evaluation set contains 429 model-instance predictions across 278 unique objects, with 43 objects appearing in two or more held-out test sets. Deduplicating to object level via mean-of-model-probabilities yields ECE $= 0.048$ (model-instance: 0.075), a 36\% reduction. The 100\% inter-model class agreement across all 43 multi-model objects (zero class disagreements) validates the averaging methodology: model variance in predicted class is zero, and confidence uncertainty dominates. Per-class miscalibration patterns persist in both analyses. Object-level results are primary; model-instance results are reported in \S\ref{sec:needle_sensitivity}.
+
+\textbf{ALeRCE operational gain: held-out cross-validation.} The paper's 21$\times$ operational gain (20 $\to$ 425 objects at $p > 0.80$) was originally computed on the full dataset with temperature $T = 0.357$. To address potential data leakage, we recomputed with stratified 5-fold cross-validation: $T$ fitted on four folds, gain measured on the held-out fold. The pooled held-out result (20 $\to$ 418 objects, gain $= 20.9\times$, precision $= 0.907$) is essentially identical to the full-dataset claim, because $T$ is a single scalar that converges to $0.357 \pm 0.012$ regardless of which fold trains it. Per-fold gain shows high variance ($30\times \pm 23\times$) due to tiny pre-scaling counts per fold (1--6 objects), but the pooled estimate is the appropriate metric (Figure~\ref{fig:alerce_cv}).
+
+\textbf{Calibration method comparison (Fink RF).} We compared temperature scaling, Platt scaling, and isotonic regression on Fink RF's 76 non-zero predictions via 5-fold cross-validation. Isotonic regression achieves the lowest point estimate (ECE $= 0.123 \pm 0.058$) versus temperature scaling (ECE $= 0.175 \pm 0.055$), but the high variance at $N = 76$ ($\approx$12 test objects per fold) makes the difference inconclusive. Temperature scaling is the more conservative choice at this sample size; isotonic regression represents a potential improvement if Fink RF coverage expands (Figure~\ref{fig:fink_methods}).
+
+\textbf{Bin-count sensitivity.} ECE was computed at 5, 10, 15, and 20 equal-mass bins for all classifiers (Figure~\ref{fig:bins}). ALeRCE ($N = 1114$) shows zero relative variation (0.0\%), Fink SNN ($N = 793$) 6.3\%, and Fink RF ($N = 76$) 9.2\%, all below the ``acceptable'' threshold of 10\%. NEEDLE ($N = 278$, 3 classes) shows 56.5\% relative variation due to small sample size and rare-class imbalance: with 15 bins, only $\approx$18 objects occupy each bin, and the 15 SLSN-I and 21 TDE true objects span fractional bins. The wide CI $[0.048, 0.111]$ already captures this bin-count uncertainty; the 15-bin point estimate of 0.048 is neither the minimum nor maximum across bin counts (0.036 at 5--10 bins; 0.061 at 20 bins). For large-sample classifiers, 15 bins is well within the stable region.
 
 \subsection{Limitations}
 
@@ -393,7 +406,7 @@ Our analysis uses the most recent alert for each Fink object, corresponding to t
 
 The pseudo-logit transformation $z_k = \log p_k$ used to apply temperature scaling to Random Forest outputs lacks formal theoretical justification---temperature scaling was designed for softmax-based neural network outputs, not ensemble vote fractions. While the consistent cross-validated improvement (ECE reduction from 0.276 to 0.097 with $T$ variance of $\pm 0.012$) suggests the transformation is empirically effective, future work could compare alternative transformations such as Platt scaling applied directly to vote fractions.
 
-Finally, even equal-mass ECE is a biased estimator of true calibration error \citep{roelofs2022}. We report bootstrap confidence intervals throughout to quantify estimation uncertainty, and we verified that our results are robust to the choice of bin count (ECE varies by $< 0.01$ for $M \in [10, 20]$).
+Finally, even equal-mass ECE is a biased estimator of true calibration error \citep{roelofs2022}. We report bootstrap confidence intervals throughout to quantify estimation uncertainty. Bin-count sensitivity analysis (\S\ref{sec:robustness}) shows that ECE is stable for all classifiers at large sample sizes; for NEEDLE ($N = 278$) the wide CI $[0.048, 0.111]$ already subsumes bin-count uncertainty.
 
 
 % ============================================================
@@ -442,5 +455,32 @@ We thank Matt Nicholl for encouragement and for suggesting connections with the 
 % ============================================================
 \bibliography{references}
 \bibliographystyle{aasjournal}
+
+% ============================================================
+\appendix
+% ============================================================
+
+\section{Cross-Validated Operational Gain (ALeRCE)} \label{app:cv}
+
+\begin{figure*}
+\plotone{fig_alerce_operational_gain_cv.pdf}
+\caption{Cross-validated operational gain for ALeRCE temperature scaling (5-fold stratified CV). \emph{Left}: temperature $T$ per fold; mean $T = 0.357 \pm 0.012$ is virtually identical to the full-dataset estimate, confirming that the scalar calibration parameter is insensitive to training-set composition and that no data leakage inflates the paper's operational gain claim. \emph{Centre}: per-fold and pooled gain factor at $p > 0.80$; the pooled held-out result ($20 \to 418$ objects, gain $= 20.9\times$) matches the paper claim of 21$\times$. High per-fold variance (15--76$\times$) arises because the pre-scaling count per fold is 1--6 objects. \emph{Right}: per-fold ECE before (0.276 $\pm$ 0.033) and after (0.097 $\pm$ 0.016) temperature scaling, consistent with the full-dataset improvement. \label{fig:alerce_cv}}
+\end{figure*}
+
+
+\section{Calibration Method Comparison for Fink RF} \label{app:methods}
+
+\begin{figure*}
+\plotone{fig_fink_rf_calibration_methods.pdf}
+\caption{Comparison of three post-hoc calibration methods for Fink RF non-zero predictions ($N = 76$, 5-fold CV). Temperature scaling (ECE $= 0.175 \pm 0.055$), Platt scaling (ECE $= 0.198 \pm 0.096$), and isotonic regression (ECE $= 0.123 \pm 0.058$) all reduce ECE from the raw value of 0.324. Isotonic regression achieves the lowest point estimate but with the highest variance; the overlapping uncertainty ranges and risk of overfitting on $\approx$12 test objects per fold make temperature scaling the more conservative recommendation at $N = 76$. \label{fig:fink_methods}}
+\end{figure*}
+
+
+\section{Bin-Count Sensitivity Analysis} \label{app:bins}
+
+\begin{figure*}
+\plotone{fig_bin_sensitivity_analysis.pdf}
+\caption{ECE as a function of bin count (5, 10, 15, 20 equal-mass bins) for all four classifiers. ALeRCE ($N = 1114$): 0.0\% relative variation (excellent). Fink RF ($N = 76$): 9.2\% (acceptable). Fink SNN ($N = 793$): 6.3\% (acceptable). NEEDLE ($N = 278$): 56.5\% (poor, driven by small sample and rare-class imbalance). The dashed vertical line marks the paper's choice of 15 bins; it is neither a minimum nor maximum for any classifier, and the choice is well within the stable region for ALeRCE and Fink SNN. For NEEDLE, the wide bootstrap CI $[0.048, 0.111]$ already subsumes the bin-count uncertainty. \label{fig:bins}}
+\end{figure*}
 
 \end{document}
