@@ -1,0 +1,201 @@
+{
+  "metadata": {
+    "description": "Class-dependent missingness in broker predictions",
+    "addresses": "Reviewer concern about retrieval rates and bias direction",
+    "n_bts_total": 1436,
+    "n_alerce_retrieved": 1149,
+    "n_fink_retrieved": 1237
+  },
+  "alerce": {
+    "by_class": {
+      "SNIa": {
+        "n_total": 600,
+        "n_retrieved": 463,
+        "n_missing": 137,
+        "missing_rate": 0.22833333333333333,
+        "missing_rate_ci": [
+          0.19653696364484088,
+          0.26358622723926983
+        ]
+      },
+      "SNIbc": {
+        "n_total": 300,
+        "n_retrieved": 225,
+        "n_missing": 75,
+        "missing_rate": 0.25,
+        "missing_rate_ci": [
+          0.20436988915825566,
+          0.3019515964540173
+        ]
+      },
+      "SNII": {
+        "n_total": 400,
+        "n_retrieved": 341,
+        "n_missing": 59,
+        "missing_rate": 0.1475,
+        "missing_rate_ci": [
+          0.11610607335839329,
+          0.18560009414728573
+        ]
+      },
+      "SLSN": {
+        "n_total": 97,
+        "n_retrieved": 85,
+        "n_missing": 12,
+        "missing_rate": 0.12371134020618557,
+        "missing_rate_ci": [
+          0.07220400208023733,
+          0.20388739074856868
+        ]
+      },
+      "TDE": {
+        "n_total": 39,
+        "n_retrieved": 35,
+        "n_missing": 4,
+        "missing_rate": 0.10256410256410256,
+        "missing_rate_ci": [
+          0.0406133134466838,
+          0.23578854462856524
+        ]
+      }
+    },
+    "chi2_statistic": 20.441499400346746,
+    "dof": 4,
+    "p_value": 0.00040851375015776034,
+    "is_class_dependent": true,
+    "observable_property_tests": {
+      "peakmag": {
+        "median_retrieved": 18.2686,
+        "median_missing": 18.2645,
+        "n_retrieved": 1149,
+        "n_missing": 287,
+        "mannwhitney_statistic": 158091.5,
+        "mannwhitney_p": 0.2799480130146561,
+        "significant_at_0.05": false
+      },
+      "duration": {
+        "median_retrieved": 26.314,
+        "median_missing": 24.433,
+        "n_retrieved": 888,
+        "n_missing": 135,
+        "mannwhitney_statistic": 73042.0,
+        "mannwhitney_p": 4.198646909526596e-05,
+        "significant_at_0.05": true
+      },
+      "redshift": {
+        "median_retrieved": 0.05,
+        "median_missing": 0.04726,
+        "n_retrieved": 1146,
+        "n_missing": 287,
+        "mannwhitney_statistic": 171102.5,
+        "mannwhitney_p": 0.2887112703754413,
+        "significant_at_0.05": false
+      },
+      "peakabs": {
+        "median_retrieved": -18.84,
+        "median_missing": -18.76,
+        "n_retrieved": 1146,
+        "n_missing": 287,
+        "mannwhitney_statistic": 154678.5,
+        "mannwhitney_p": 0.1190612574084334,
+        "significant_at_0.05": false
+      }
+    }
+  },
+  "fink": {
+    "by_class": {
+      "SNIa": {
+        "n_total": 600,
+        "n_retrieved": 527,
+        "n_missing": 73,
+        "missing_rate": 0.12166666666666667,
+        "missing_rate_ci": [
+          0.09788899177278655,
+          0.15025802866091365
+        ]
+      },
+      "SNIbc": {
+        "n_total": 300,
+        "n_retrieved": 245,
+        "n_missing": 55,
+        "missing_rate": 0.18333333333333332,
+        "missing_rate_ci": [
+          0.14364526409824457,
+          0.2310286176773012
+        ]
+      },
+      "SNII": {
+        "n_total": 400,
+        "n_retrieved": 345,
+        "n_missing": 55,
+        "missing_rate": 0.1375,
+        "missing_rate_ci": [
+          0.10718448673484568,
+          0.1747119266575193
+        ]
+      },
+      "SLSN": {
+        "n_total": 97,
+        "n_retrieved": 83,
+        "n_missing": 14,
+        "missing_rate": 0.14432989690721648,
+        "missing_rate_ci": [
+          0.08796356947511699,
+          0.22779404840416537
+        ]
+      },
+      "TDE": {
+        "n_total": 39,
+        "n_retrieved": 37,
+        "n_missing": 2,
+        "missing_rate": 0.05128205128205128,
+        "missing_rate_ci": [
+          0.014177955415274127,
+          0.1688564004761361
+        ]
+      }
+    },
+    "chi2_statistic": 8.991692938987558,
+    "dof": 4,
+    "p_value": 0.061307453682415546,
+    "is_class_dependent": false,
+    "observable_property_tests": {
+      "peakmag": {
+        "median_retrieved": 18.2594,
+        "median_missing": 18.3471,
+        "n_retrieved": 1237,
+        "n_missing": 199,
+        "mannwhitney_statistic": 112490.0,
+        "mannwhitney_p": 0.05109415170301728,
+        "significant_at_0.05": false
+      },
+      "duration": {
+        "median_retrieved": 25.964,
+        "median_missing": 26.1335,
+        "n_retrieved": 853,
+        "n_missing": 170,
+        "mannwhitney_statistic": 74724.0,
+        "mannwhitney_p": 0.5282573221093873,
+        "significant_at_0.05": false
+      },
+      "redshift": {
+        "median_retrieved": 0.04936,
+        "median_missing": 0.049,
+        "n_retrieved": 1234,
+        "n_missing": 199,
+        "mannwhitney_statistic": 121205.5,
+        "mannwhitney_p": 0.7709503271270276,
+        "significant_at_0.05": false
+      },
+      "peakabs": {
+        "median_retrieved": -18.85,
+        "median_missing": -18.61,
+        "n_retrieved": 1234,
+        "n_missing": 199,
+        "mannwhitney_statistic": 116107.5,
+        "mannwhitney_p": 0.2178685431381263,
+        "significant_at_0.05": false
+      }
+    }
+  }
+}

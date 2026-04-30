@@ -1,0 +1,186 @@
+{
+  "metadata": {
+    "description": "NEEDLE per-class calibration with 95% confidence intervals",
+    "addresses": "Reviewer concern about rare-class point estimates being too sharp",
+    "n_bootstrap": 1000,
+    "ci_level": 0.95,
+    "wilson_method_for_accuracy": true,
+    "bootstrap_method_for_confidence_and_gap": true
+  },
+  "object_level": {
+    "n_unique_objects": 278,
+    "aggregate_ece": {
+      "ece": 0.04753802663130726,
+      "ci_low": 0.047071086805608627,
+      "ci_high": 0.11150847473751302
+    },
+    "per_class": {
+      "SN": {
+        "class_name": "SN",
+        "n_true": 242,
+        "n_pred": 193,
+        "n_correct": 190,
+        "accuracy_when_predicted": 0.9844559585492227,
+        "accuracy_ci": [
+          0.9553033351151177,
+          0.994699784757821
+        ],
+        "mean_confidence": 0.8653796234896763,
+        "mean_confidence_ci": [
+          0.8401508218652226,
+          0.8875243228372823
+        ],
+        "gap": 0.1190763350595464,
+        "gap_ci": [
+          0.09105748269764864,
+          0.14950110445600095
+        ],
+        "ece_class": 0.1190763350595464,
+        "ece_class_ci": [
+          0.09105748269764864,
+          0.14950110445600095
+        ]
+      },
+      "SLSN-I": {
+        "class_name": "SLSN-I",
+        "n_true": 15,
+        "n_pred": 39,
+        "n_correct": 12,
+        "accuracy_when_predicted": 0.3076923076923077,
+        "accuracy_ci": [
+          0.18565932306911137,
+          0.464212543741493
+        ],
+        "mean_confidence": 0.7302492306782649,
+        "mean_confidence_ci": [
+          0.6712696817822945,
+          0.7891339782911998
+        ],
+        "gap": -0.42255692298595715,
+        "gap_ci": [
+          -0.5203137415914962,
+          -0.31228383676363874
+        ],
+        "ece_class": 0.42255692298595715,
+        "ece_class_ci": [
+          0.31228383676363874,
+          0.5203137415914962
+        ]
+      },
+      "TDE": {
+        "class_name": "TDE",
+        "n_true": 21,
+        "n_pred": 46,
+        "n_correct": 21,
+        "accuracy_when_predicted": 0.45652173913043476,
+        "accuracy_ci": [
+          0.32154733782284584,
+          0.5981981894019872
+        ],
+        "mean_confidence": 0.7521001554053762,
+        "mean_confidence_ci": [
+          0.7065184976581645,
+          0.7948551541761212
+        ],
+        "gap": -0.29557841627494147,
+        "gap_ci": [
+          -0.41301399777116976,
+          -0.17179042752022325
+        ],
+        "ece_class": 0.29557841627494147,
+        "ece_class_ci": [
+          0.17179042752022325,
+          0.41301399777116976
+        ]
+      }
+    }
+  },
+  "model_instance": {
+    "n_predictions": 429,
+    "aggregate_ece": {
+      "ece": 0.07348914823054156,
+      "ci_low": 0.06352864752039487,
+      "ci_high": 0.11663426941473447
+    },
+    "per_class": {
+      "SN": {
+        "class_name": "SN",
+        "n_true": 249,
+        "n_pred": 211,
+        "n_correct": 196,
+        "accuracy_when_predicted": 0.9289099526066351,
+        "accuracy_ci": [
+          0.8860333000461003,
+          0.9564484117870982
+        ],
+        "mean_confidence": 0.8704083561897278,
+        "mean_confidence_ci": [
+          0.8491165623068809,
+          0.8920381769537926
+        ],
+        "gap": 0.05850159641690733,
+        "gap_ci": [
+          0.012455227384917578,
+          0.10028815115515091
+        ],
+        "ece_class": 0.05850159641690733,
+        "ece_class_ci": [
+          0.012455227384917578,
+          0.10028815115515091
+        ]
+      },
+      "SLSN-I": {
+        "class_name": "SLSN-I",
+        "n_true": 75,
+        "n_pred": 87,
+        "n_correct": 60,
+        "accuracy_when_predicted": 0.6896551724137931,
+        "accuracy_ci": [
+          0.5861618074204779,
+          0.7771084485662353
+        ],
+        "mean_confidence": 0.8460531234741211,
+        "mean_confidence_ci": [
+          0.811526894569397,
+          0.8802189216017723
+        ],
+        "gap": -0.15639795106032794,
+        "gap_ci": [
+          -0.23124432793293873,
+          -0.08822320170443641
+        ],
+        "ece_class": 0.15639795106032794,
+        "ece_class_ci": [
+          0.08822320170443639,
+          0.2312443279329387
+        ]
+      },
+      "TDE": {
+        "class_name": "TDE",
+        "n_true": 105,
+        "n_pred": 131,
+        "n_correct": 105,
+        "accuracy_when_predicted": 0.8015267175572519,
+        "accuracy_ci": [
+          0.7250704184045624,
+          0.8608028040518225
+        ],
+        "mean_confidence": 0.8229910731315613,
+        "mean_confidence_ci": [
+          0.8014048546552658,
+          0.8439580529928208
+        ],
+        "gap": -0.02146435557430937,
+        "gap_ci": [
+          -0.078138500895664,
+          0.035430849895222494
+        ],
+        "ece_class": 0.02146435557430937,
+        "ece_class_ci": [
+          0.0011787182843412541,
+          0.07813850089566399
+        ]
+      }
+    }
+  }
+}

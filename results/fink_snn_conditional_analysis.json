@@ -1,0 +1,102 @@
+{
+  "metadata": {
+    "description": "Fink SNN conditional calibration with abstention-bias quantification",
+    "framing": "Selective classification: calibrate only on accepted (non-zero) predictions",
+    "novel_contribution": "Quantify how class-dependent abstention biases the conditional ECE estimate"
+  },
+  "step1_conditional_calibration": {
+    "n_accepted": 793,
+    "ece": 0.18288773966784364,
+    "ece_ci": [
+      0.15401999894156373,
+      0.2195054661208607
+    ],
+    "brier": 0.27385709773951394,
+    "accuracy": 0.5889029003783102,
+    "n_true_snia": 427,
+    "frac_true_snia": 0.5384615384615384
+  },
+  "step2_abstention_bias": {
+    "bts_class_composition": {
+      "SNIa": 0.4260307194826192,
+      "SNIbc": 0.19805982215036377,
+      "SNII": 0.2789005658852061,
+      "SLSN": 0.06709781729991916,
+      "TDE": 0.029911075181891674
+    },
+    "accepted_class_composition": {
+      "SNIa": 0.5384615384615384,
+      "SNIbc": 0.21689785624211855,
+      "SNII": 0.19293820933165196,
+      "SLSN": 0.034047919293820936,
+      "TDE": 0.017654476670870115
+    },
+    "per_class_calibration": {
+      "SNIa": {
+        "n": 427,
+        "mean_predicted_p_snia": 0.6187498415599533,
+        "true_frac_snia": 1.0,
+        "true_frac_ci": [
+          0.9910838227332879,
+          1.0
+        ],
+        "gap": 0.3812501584400467,
+        "ece_class": 0.3812501584400467
+      },
+      "SNIbc": {
+        "n": 172,
+        "mean_predicted_p_snia": 0.4448155906284884,
+        "true_frac_snia": 0.0,
+        "true_frac_ci": [
+          0.0,
+          0.021846149630794797
+        ],
+        "gap": -0.4448155906284884,
+        "ece_class": 0.4448155906284884
+      },
+      "SNII": {
+        "n": 153,
+        "mean_predicted_p_snia": 0.5070932615875817,
+        "true_frac_snia": 0.0,
+        "true_frac_ci": [
+          0.0,
+          0.024492623631394532
+        ],
+        "gap": -0.5070932615875817,
+        "ece_class": 0.5070932615875817
+      },
+      "SLSN": {
+        "n": 27,
+        "mean_predicted_p_snia": 0.682605755537037,
+        "true_frac_snia": 0.0,
+        "true_frac_ci": [
+          0.0,
+          0.12455502974186708
+        ],
+        "gap": -0.682605755537037,
+        "ece_class": 0.682605755537037
+      },
+      "TDE": {
+        "n": 14,
+        "mean_predicted_p_snia": 0.7346851612857143,
+        "true_frac_snia": 0.0,
+        "true_frac_ci": [
+          0.0,
+          0.2153108027376358
+        ],
+        "gap": -0.7346851612857143,
+        "ece_class": 0.7346851612857143
+      }
+    },
+    "weighted_ece_accepted": 0.4358175484519546,
+    "weighted_ece_bts_reweighted": 0.45972955305314905,
+    "abstention_bias": 0.02391200460119447
+  },
+  "step3_temperature_scaling": {
+    "temperature": 3.6504188733899543,
+    "bound_hit": false,
+    "ece_pre": 0.18288773966784364,
+    "ece_post": 0.050922190098244176,
+    "interpretation": "T = 3.650 reduces ECE by 72.2%. Standard temperature scaling is effective."
+  }
+}

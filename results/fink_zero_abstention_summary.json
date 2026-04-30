@@ -1,0 +1,164 @@
+{
+  "metadata": {
+    "description": "Fink abstention analysis (selective classification framing)",
+    "framing": "Zero scores are abstentions on real BTS transients, not negative predictions",
+    "evaluation_sample": "BTS spectroscopically confirmed transients",
+    "n_total_objects": 1237
+  },
+  "fink_random_forest": {
+    "classifier_name": "Fink Random Forest",
+    "score_column": "rf_snia_vs_nonia",
+    "overall": {
+      "total_objects": 1237,
+      "zero_score_count": 1161,
+      "zero_score_fraction": 0.9385610347615198,
+      "nonzero_score_count": 76,
+      "nonzero_score_fraction": 0.06143896523848019,
+      "coverage": 0.06143896523848019
+    },
+    "by_class": {
+      "SNIa": {
+        "true_class": "SNIa",
+        "total_objects_in_class": 527,
+        "zero_score_count": 490,
+        "zero_score_fraction": 0.9297912713472486,
+        "zero_score_ci_low": 0.9047249462890452,
+        "zero_score_ci_high": 0.9486371874945048,
+        "nonzero_score_count": 37,
+        "nonzero_score_fraction": 0.07020872865275142
+      },
+      "SNIbc": {
+        "true_class": "SNIbc",
+        "total_objects_in_class": 245,
+        "zero_score_count": 221,
+        "zero_score_fraction": 0.9020408163265307,
+        "zero_score_ci_low": 0.8583828513412993,
+        "zero_score_ci_high": 0.933285871923785,
+        "nonzero_score_count": 24,
+        "nonzero_score_fraction": 0.09795918367346938
+      },
+      "SNII": {
+        "true_class": "SNII",
+        "total_objects_in_class": 345,
+        "zero_score_count": 332,
+        "zero_score_fraction": 0.9623188405797102,
+        "zero_score_ci_low": 0.93660665475999,
+        "zero_score_ci_high": 0.9778488720527425,
+        "nonzero_score_count": 13,
+        "nonzero_score_fraction": 0.03768115942028986
+      },
+      "SLSN": {
+        "true_class": "SLSN",
+        "total_objects_in_class": 83,
+        "zero_score_count": 82,
+        "zero_score_fraction": 0.9879518072289156,
+        "zero_score_ci_low": 0.934864193319676,
+        "zero_score_ci_high": 0.9978700225718917,
+        "nonzero_score_count": 1,
+        "nonzero_score_fraction": 0.012048192771084338
+      },
+      "TDE": {
+        "true_class": "TDE",
+        "total_objects_in_class": 37,
+        "zero_score_count": 36,
+        "zero_score_fraction": 0.972972972972973,
+        "zero_score_ci_low": 0.8617593013626949,
+        "zero_score_ci_high": 0.9952130255480595,
+        "nonzero_score_count": 1,
+        "nonzero_score_fraction": 0.02702702702702703
+      }
+    },
+    "class_dependent_test": {
+      "chi2_statistic": 14.017571371451188,
+      "dof": 4,
+      "p_value": 0.007239185811218431,
+      "is_class_dependent": false
+    }
+  },
+  "fink_supernnova": {
+    "classifier_name": "Fink SuperNNova",
+    "score_column": "snn_snia_vs_nonia",
+    "overall": {
+      "total_objects": 1237,
+      "zero_score_count": 444,
+      "zero_score_fraction": 0.3589329021827001,
+      "nonzero_score_count": 793,
+      "nonzero_score_fraction": 0.6410670978172999,
+      "coverage": 0.6410670978172999
+    },
+    "by_class": {
+      "SNIa": {
+        "true_class": "SNIa",
+        "total_objects_in_class": 527,
+        "zero_score_count": 100,
+        "zero_score_fraction": 0.18975332068311196,
+        "zero_score_ci_low": 0.1585673446003859,
+        "zero_score_ci_high": 0.2254295257147999,
+        "nonzero_score_count": 427,
+        "nonzero_score_fraction": 0.8102466793168881
+      },
+      "SNIbc": {
+        "true_class": "SNIbc",
+        "total_objects_in_class": 245,
+        "zero_score_count": 73,
+        "zero_score_fraction": 0.2979591836734694,
+        "zero_score_ci_low": 0.2441667369033021,
+        "zero_score_ci_high": 0.35798958998378744,
+        "nonzero_score_count": 172,
+        "nonzero_score_fraction": 0.7020408163265306
+      },
+      "SNII": {
+        "true_class": "SNII",
+        "total_objects_in_class": 345,
+        "zero_score_count": 192,
+        "zero_score_fraction": 0.5565217391304348,
+        "zero_score_ci_low": 0.5037627762697818,
+        "zero_score_ci_high": 0.6080358618045021,
+        "nonzero_score_count": 153,
+        "nonzero_score_fraction": 0.4434782608695652
+      },
+      "SLSN": {
+        "true_class": "SLSN",
+        "total_objects_in_class": 83,
+        "zero_score_count": 56,
+        "zero_score_fraction": 0.6746987951807228,
+        "zero_score_ci_low": 0.5681352168462455,
+        "zero_score_ci_high": 0.7658066629174021,
+        "nonzero_score_count": 27,
+        "nonzero_score_fraction": 0.3253012048192771
+      },
+      "TDE": {
+        "true_class": "TDE",
+        "total_objects_in_class": 37,
+        "zero_score_count": 23,
+        "zero_score_fraction": 0.6216216216216216,
+        "zero_score_ci_low": 0.46100430439217654,
+        "zero_score_ci_high": 0.7593600082420173,
+        "nonzero_score_count": 14,
+        "nonzero_score_fraction": 0.3783783783783784
+      }
+    },
+    "class_dependent_test": {
+      "chi2_statistic": 175.10966842618495,
+      "dof": 4,
+      "p_value": 8.368178040604813e-37,
+      "is_class_dependent": true
+    }
+  },
+  "abstention_class_asymmetry": {
+    "RF": {
+      "sn_ia_abstention_rate": 0.9297912713472486,
+      "non_sn_ia_abstention_rate": 0.9450704225352112,
+      "ratio_non_to_ia": 1.01643288301236,
+      "n_sn_ia_total": 527,
+      "n_non_sn_ia_total": 710
+    },
+    "SNN": {
+      "sn_ia_abstention_rate": 0.18975332068311196,
+      "non_sn_ia_abstention_rate": 0.48450704225352115,
+      "ratio_non_to_ia": 2.5533521126760563,
+      "n_sn_ia_total": 527,
+      "n_non_sn_ia_total": 710
+    }
+  }
+}

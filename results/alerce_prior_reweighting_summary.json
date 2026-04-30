@@ -1,0 +1,229 @@
+{
+  "metadata": {
+    "description": "ALeRCE operational metrics under three prior schemes",
+    "metric": "top-class confidence (max probability across 4 transient classes)",
+    "addresses": "Reviewer concern about prevalence-sensitive threshold counts",
+    "temperature": 0.3569930173205702,
+    "n_total": 1114
+  },
+  "priors": {
+    "stratified": {
+      "SNIa": 0.4156193895870736,
+      "SNIbc": 0.20197486535008977,
+      "SNII": 0.30610412926391384,
+      "SLSN": 0.0763016157989228
+    },
+    "natural_bts": {
+      "SNIa": 0.4294917680744452,
+      "SNIbc": 0.2147458840372226,
+      "SNII": 0.2863278453829635,
+      "SLSN": 0.06943450250536864
+    },
+    "ztf_stream_illustrative": {
+      "SNIa": 0.65,
+      "SNII": 0.2,
+      "SNIbc": 0.1,
+      "SLSN": 0.05
+    }
+  },
+  "results_by_scheme": {
+    "Stratified (current paper)": {
+      "raw": {
+        "0.5": {
+          "n_pass_unweighted": 392,
+          "n_pass_weighted": 392.0,
+          "precision_unweighted": 0.8979591836734694,
+          "precision_weighted": 0.8979591836734694
+        },
+        "0.6": {
+          "n_pass_unweighted": 134,
+          "n_pass_weighted": 134.0,
+          "precision_unweighted": 0.9402985074626866,
+          "precision_weighted": 0.9402985074626866
+        },
+        "0.7": {
+          "n_pass_unweighted": 40,
+          "n_pass_weighted": 40.0,
+          "precision_unweighted": 1.0,
+          "precision_weighted": 1.0
+        },
+        "0.8": {
+          "n_pass_unweighted": 20,
+          "n_pass_weighted": 20.0,
+          "precision_unweighted": 1.0,
+          "precision_weighted": 1.0
+        },
+        "0.9": {
+          "n_pass_unweighted": 1,
+          "n_pass_weighted": 1.0,
+          "precision_unweighted": 1.0,
+          "precision_weighted": 1.0
+        }
+      },
+      "calibrated": {
+        "0.5": {
+          "n_pass_unweighted": 972,
+          "n_pass_weighted": 972.0,
+          "precision_unweighted": 0.7839506172839507,
+          "precision_weighted": 0.7839506172839507
+        },
+        "0.6": {
+          "n_pass_unweighted": 812,
+          "n_pass_weighted": 812.0,
+          "precision_unweighted": 0.8275862068965517,
+          "precision_weighted": 0.8275862068965517
+        },
+        "0.7": {
+          "n_pass_unweighted": 627,
+          "n_pass_weighted": 627.0,
+          "precision_unweighted": 0.8708133971291866,
+          "precision_weighted": 0.8708133971291866
+        },
+        "0.8": {
+          "n_pass_unweighted": 425,
+          "n_pass_weighted": 425.0,
+          "precision_unweighted": 0.9105882352941177,
+          "precision_weighted": 0.9105882352941177
+        },
+        "0.9": {
+          "n_pass_unweighted": 194,
+          "n_pass_weighted": 194.0,
+          "precision_unweighted": 0.9484536082474226,
+          "precision_weighted": 0.9484536082474226
+        }
+      }
+    },
+    "Natural BTS prior": {
+      "raw": {
+        "0.5": {
+          "n_pass_unweighted": 392,
+          "n_pass_weighted": 392.3027588676923,
+          "precision_unweighted": 0.8979591836734694,
+          "precision_weighted": 0.9012362851854205
+        },
+        "0.6": {
+          "n_pass_unweighted": 134,
+          "n_pass_weighted": 130.8004006348081,
+          "precision_unweighted": 0.9402985074626866,
+          "precision_weighted": 0.9429836940166331
+        },
+        "0.7": {
+          "n_pass_unweighted": 40,
+          "n_pass_weighted": 36.54878720880142,
+          "precision_unweighted": 1.0,
+          "precision_weighted": 1.0
+        },
+        "0.8": {
+          "n_pass_unweighted": 20,
+          "n_pass_weighted": 18.200008421407215,
+          "precision_unweighted": 1.0,
+          "precision_weighted": 1.0
+        },
+        "0.9": {
+          "n_pass_unweighted": 1,
+          "n_pass_weighted": 0.9100004210703607,
+          "precision_unweighted": 1.0,
+          "precision_weighted": 1.0
+        }
+      },
+      "calibrated": {
+        "0.5": {
+          "n_pass_unweighted": 972,
+          "n_pass_weighted": 972.7668122924317,
+          "precision_unweighted": 0.7839506172839507,
+          "precision_weighted": 0.7885434628575014
+        },
+        "0.6": {
+          "n_pass_unweighted": 812,
+          "n_pass_weighted": 813.5121877466682,
+          "precision_unweighted": 0.8275862068965517,
+          "precision_weighted": 0.8317530625970283
+        },
+        "0.7": {
+          "n_pass_unweighted": 627,
+          "n_pass_weighted": 628.0092633589036,
+          "precision_unweighted": 0.8708133971291866,
+          "precision_weighted": 0.8747388697115419
+        },
+        "0.8": {
+          "n_pass_unweighted": 425,
+          "n_pass_weighted": 424.7602962437769,
+          "precision_unweighted": 0.9105882352941177,
+          "precision_weighted": 0.9140399701741879
+        },
+        "0.9": {
+          "n_pass_unweighted": 194,
+          "n_pass_weighted": 190.94681134958583,
+          "precision_unweighted": 0.9484536082474226,
+          "precision_weighted": 0.9504763659714909
+        }
+      }
+    },
+    "ZTF operational prior (illustrative)": {
+      "raw": {
+        "0.5": {
+          "n_pass_unweighted": 392,
+          "n_pass_weighted": 388.9006010121087,
+          "precision_unweighted": 0.8979591836734694,
+          "precision_weighted": 0.9211865403751087
+        },
+        "0.6": {
+          "n_pass_unweighted": 134,
+          "n_pass_weighted": 121.65547738713937,
+          "precision_unweighted": 0.9402985074626866,
+          "precision_weighted": 0.957018777386155
+        },
+        "0.7": {
+          "n_pass_unweighted": 40,
+          "n_pass_weighted": 27.118479790134987,
+          "precision_unweighted": 1.0,
+          "precision_weighted": 1.0
+        },
+        "0.8": {
+          "n_pass_unweighted": 20,
+          "n_pass_weighted": 13.10588235294118,
+          "precision_unweighted": 1.0,
+          "precision_weighted": 1.0
+        },
+        "0.9": {
+          "n_pass_unweighted": 1,
+          "n_pass_weighted": 0.6552941176470588,
+          "precision_unweighted": 1.0,
+          "precision_weighted": 1.0
+        }
+      },
+      "calibrated": {
+        "0.5": {
+          "n_pass_unweighted": 972,
+          "n_pass_weighted": 975.0834808236211,
+          "precision_unweighted": 0.7839506172839507,
+          "precision_weighted": 0.8227943002153728
+        },
+        "0.6": {
+          "n_pass_unweighted": 812,
+          "n_pass_weighted": 821.7155136499481,
+          "precision_unweighted": 0.8275862068965517,
+          "precision_weighted": 0.8628286087656204
+        },
+        "0.7": {
+          "n_pass_unweighted": 627,
+          "n_pass_weighted": 637.0436920375264,
+          "precision_unweighted": 0.8708133971291866,
+          "precision_weighted": 0.906590113573122
+        },
+        "0.8": {
+          "n_pass_unweighted": 425,
+          "n_pass_weighted": 425.9471500612743,
+          "precision_unweighted": 0.9105882352941177,
+          "precision_weighted": 0.942169343394079
+        },
+        "0.9": {
+          "n_pass_unweighted": 194,
+          "n_pass_weighted": 184.6221939366948,
+          "precision_unweighted": 0.9484536082474226,
+          "precision_weighted": 0.9654571069441105
+        }
+      }
+    }
+  }
+}
