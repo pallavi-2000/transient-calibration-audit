@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use this software or its results, please cite the manuscript and this repository."
+type: software
+title: "Calibration Audit of Production Astronomical Transient Classifiers on ZTF Alert Streams"
+authors:
+  - family-names: "Sati"
+    given-names: "Pallavi"
+    affiliation: "Independent Researcher"
+    email: "pallavisati23@gmail.com"
+repository-code: "https://github.com/pallavi-2000/transient-calibration-audit"
+license: MIT
+preferred-citation:
+  type: article
+  title: "Calibration Audit of Production Astronomical Transient Classifiers on ZTF Alert Streams"
+  authors:
+    - family-names: "Sati"
+      given-names: "Pallavi"
+  journal: "The Astronomical Journal"
+  year: 2026
+  status: in-preparation
