@@ -4,7 +4,6 @@
 \usepackage{natbib}
 \usepackage{graphicx}
 \usepackage{multirow}
-\usepackage{booktabs}
 
 \shorttitle{Calibration Audit of Transient Classifiers}
 \shortauthors{Sati}
@@ -127,79 +126,6 @@ Other & 134 & 9.3\% \\
 \textbf{Fink.} We query the Fink API\footnote{\url{https://api.fink-portal.org}} for two binary classifiers: the Random Forest SN~Ia classifier (rf\_snia\_vs\_nonia) and SuperNNova \citep[snn\_snia\_vs\_nonia;][]{moller2020}. Both output a single score $\in [0,1]$ representing $P(\text{SN~Ia})$. We retrieve the most recent alert for each object (corresponding to the most complete light curve), obtaining predictions for 1,237 objects.
 
 \textbf{NEEDLE.} Unlike ALeRCE and Fink, NEEDLE \citep{sheng2024} does not provide a public API. We perform local inference using the five pre-trained models from the \texttt{lasair\_th\_r} model family, applied to the publicly available dataset. Each model was trained with a different random held-out test set recorded in \texttt{testset\_obj.json}. We map test set ZTF IDs to dataset positions via the provided hash table, yielding 429 predictions across 278 unique objects in three classes (SN, SLSN-I, TDE). Of these, 43 objects appear in the held-out test sets of multiple models, contributing 151 duplicate predictions. Our primary analysis deduplicates to the object level by averaging model probabilities per object (278 unique objects); the 429-prediction model-instance set is retained as a sensitivity analysis (Section~\ref{sec:needle_sensitivity}). The 100\% inter-model class agreement (Section~\ref{sec:needle_sensitivity}) validates the averaging methodology.
-
-
-\subsection{Missingness Analysis}
-\label{sec:missingness}
-
-Of the 1{,}436 BTS objects in the stratified evaluation sample, broker
-predictions were retrieved for 1{,}149 (ALeRCE; 80.0\%) and 1{,}237
-(Fink; 86.1\%). To verify that the missing objects do not introduce
-systematic bias into the calibration audit, we tested whether retrieval
-is class-dependent and whether retrieved and missing objects differ on
-observable BTS properties. Table~\ref{tab:missingness} reports per-class
-missing rates with 95\% Wilson confidence intervals and chi-squared tests
-for class-dependence.
-
-ALeRCE retrieval is significantly class-dependent ($\chi^2$
-$p = 4.1 \times 10^{-4}$): SN~Ibc transients are most likely to be missed
-(25.0\% missing rate; 95\% CI [0.20, 0.30]) while
-TDE and SLSN have lower missing rates (10.3\% and 12.4\%, respectively).
-A Mann-Whitney $U$ comparison of observable properties between retrieved
-and missing ALeRCE objects further reveals significantly longer median
-durations for retrieved objects (26.3 versus 24.4 days;
-$p = 4.2 \times 10^{-5}$) and no significant differences in peak magnitude
-or redshift. This is consistent with the ALeRCE light-curve classifier's
-documented minimum-detection requirements \citep{sanchezsaez2021}: shorter,
-less-evolved transients are more likely to fail eligibility criteria.
-ALeRCE-side calibration metrics in this paper should therefore be
-interpreted as conditional on the retrieval-eligible subset of BTS-bright
-transients.
-
-Fink retrieval shows no significant class-dependence ($\chi^2$ $p = 0.061$)
-and no significant property differences, consistent with Fink's
-classifier-agnostic acquisition pipeline that returns scores (including
-zeros) for all submitted alerts. Note that Fink \emph{coverage} (the
-fraction with non-zero scores) is strongly class-dependent and is
-analyzed separately in Section~\ref{sec:fink_snn}; the missingness
-analyzed here refers to \emph{retrieval}, i.e., whether any score was
-returned at all.
-
-\begin{table*}[t]
-\centering
-\caption{Class-dependent missingness analysis. Missing rate is the
-fraction of BTS objects in each class for which no broker prediction
-was retrieved. 95\% confidence intervals are Wilson binomial.
-$\chi^2$ statistics test class-dependence of retrieval. ALeRCE missingness
-is significantly class-dependent and biased toward shorter-duration
-transients; Fink missingness is approximately uniform.
-\label{tab:missingness}}
-\begin{tabular}{lcccccc}
-\toprule
- & \multicolumn{3}{c}{ALeRCE ($\chi^2$ $p = 4.1 \times 10^{-4}$)}
- & \multicolumn{3}{c}{Fink ($\chi^2$ $p = 0.061$)} \\
-\cmidrule(lr){2-4}\cmidrule(lr){5-7}
-Class & $n_{\rm BTS}$ & $n_{\rm missing}$ & Missing rate [95\% CI]
-& $n_{\rm BTS}$ & $n_{\rm missing}$ & Missing rate [95\% CI] \\
-\midrule
-SN~Ia  & 600 & 137 & 0.228 [0.197, 0.264] & 600 & 73 & 0.122 [0.098, 0.150] \\
-SN~Ibc & 300 &  75 & 0.250 [0.204, 0.302] & 300 & 55 & 0.183 [0.144, 0.231] \\
-SN~II  & 400 &  59 & 0.147 [0.116, 0.186] & 400 & 55 & 0.138 [0.107, 0.175] \\
-SLSN   &  97 &  12 & 0.124 [0.072, 0.204] &  97 & 14 & 0.144 [0.088, 0.228] \\
-TDE    &  39 &   4 & 0.103 [0.041, 0.236] &  39 &  2 & 0.051 [0.014, 0.169] \\
-\bottomrule
-\end{tabular}
-\end{table*}
-
-\begin{figure}[t]
-\plotone{missingness_by_class.pdf}
-\caption{Class-conditional missing rates in broker predictions on the
-1{,}436-object BTS evaluation sample. Error bars are 95\% Wilson
-confidence intervals. ALeRCE retrieval is significantly class-dependent
-($\chi^2$ $p = 4 \times 10^{-4}$), with SN~Ibc most likely to be missed;
-Fink retrieval is approximately uniform across classes
-($\chi^2$ $p = 0.06$). \label{fig:missingness}}
-\end{figure}
 
 
 % ============================================================
@@ -370,53 +296,13 @@ TDE    &  21 &  46 & 0.457 & 0.752 & $-0.296$ & Overconfident  \\
 \tablecomments{Gap = Accuracy $-$ Mean Confidence (when class is predicted). Positive gap: classifier is more accurate than confident (underconfident). Negative gap: classifier is more confident than accurate (overconfident). $n_\mathrm{pred}$ exceeds $n_\mathrm{true}$ for SLSN-I and TDE because many non-rare objects are misclassified into those categories.}
 \end{deluxetable}
 
-\textbf{SN (majority class, $n_{\rm true} = 242$).} SN predictions are
-underconfident: when NEEDLE predicts SN, it achieves accuracy 0.984
-[Wilson 95\% CI: 0.955, 0.995] but assigns mean confidence 0.865,
-yielding a gap of $+0.119$ [bootstrap 95\% CI: $+0.091$, $+0.150$].
-This is consistent with the systematic suppression of majority-class
-probabilities under inverse-frequency weighting, which upweights
-rare-class gradients at the expense of the dominant class. The CI does
-not include zero, and the magnitude is well-resolved relative to the
-CI width.
+\textbf{SN (majority class, $n = 242$).} SN predictions are underconfident: when NEEDLE predicts SN, it achieves 98.4\% accuracy but assigns only 86.5\% mean confidence (gap $= +0.119$). This is consistent with the systematic suppression of majority-class probabilities under inverse-frequency weighting, which upweights rare class gradients at the expense of the dominant class.
 
-\textbf{SLSN-I (rare class, $n_{\rm true} = 15$).} SLSN-I predictions
-are overconfident in direction with magnitudes that carry substantial
-uncertainty given the small sample size. When NEEDLE predicts SLSN-I,
-it achieves accuracy 0.308 [Wilson 95\% CI: 0.186, 0.464] but assigns
-mean confidence 0.730, yielding a gap of $-0.423$ [bootstrap 95\% CI:
-$-0.520$, $-0.312$]. The CI does not include zero, so the direction
-(overconfident) is robust; however, model-instance sensitivity analysis
-(Section~\ref{sec:needle_sensitivity}) yields a smaller gap of $-0.156$
-[$-0.231$, $-0.088$] on $n_{\rm pred} = 87$ predictions, indicating
-that the magnitude is sample-size sensitive. Of the 39 objects predicted
-as SLSN-I at the object level, 24 are false positives.
+\textbf{SLSN-I (rare class, $n = 15$).} SLSN-I predictions are severely overconfident: when NEEDLE predicts SLSN-I, it achieves only 30.8\% accuracy but assigns 73.0\% mean confidence (gap $= -0.423$). Critically, 39 objects are predicted as SLSN-I despite only 15 being truly SLSN-I---meaning 24 of these predictions are false positives issued with high confidence. This is the dominant failure mode of the classifier.
 
-\textbf{TDE (rare class, $n_{\rm true} = 21$).} TDE predictions are
-also overconfident in direction at the object level: accuracy 0.457
-[Wilson 95\% CI: 0.322, 0.598], mean confidence 0.752, gap $-0.296$
-[bootstrap 95\% CI: $-0.413$, $-0.172$]. The model-instance sensitivity
-analysis yields a markedly smaller gap of $-0.021$ [$-0.078$, $+0.035$]
-on $n_{\rm pred} = 131$ predictions, with a CI that crosses zero. We
-therefore report TDE overconfidence as \textit{directionally consistent}
-between object-level and model-instance analyses, but conclude that
-the magnitude is \textit{not robustly resolved} at the present
-sample size.
+\textbf{TDE (rare class, $n = 21$).} TDE predictions are similarly overconfident: 45.7\% accuracy against 75.2\% mean confidence (gap $= -0.296$). Of 46 TDE predictions, 25 are false positives. The pattern is analogous to SLSN-I, consistent with the same inverse-frequency weighting mechanism.
 
-The asymmetry---SN underconfident while both rare classes are overconfident---is the canonical signature of inverse-frequency class weighting identified by \citet{vandengoorbergh2022}. The aggregate ECE of 0.048 conceals this because the majority-class underconfidence (SN, $n = 242$) partially cancels the minority-class overconfidence (SLSN-I + TDE, $n = 36$) in the weighted average. We emphasise that the rare-class point estimates are sample-size constrained: bootstrap intervals on the SLSN-I gap are $\pm 0.10$ in width and on the TDE gap $\pm 0.12$ in width (Section~\ref{sec:needle_sensitivity}). The qualitative direction of the asymmetry---SN underconfident, rare classes overconfident---is robust; the precise magnitudes should be interpreted as strongly suggestive of class-imbalance-induced miscalibration rather than as definitive quantitative measurements.
-
-\begin{figure}[t]
-\plotone{needle_per_class_bootstrap_object_level.pdf}
-\caption{NEEDLE per-class calibration with explicit 95\% confidence
-intervals (object-level analysis, $N = 278$). Blue bars show accuracy
-when each class is predicted, with Wilson 95\% binomial CIs; orange
-bars show mean confidence assigned to the predicted class with
-bootstrap 95\% CIs. Direction of miscalibration is robust for all
-three classes (SN underconfident, SLSN-I and TDE overconfident);
-magnitudes for rare classes ($n_{\rm pred} = 39$ for SLSN-I,
-$n_{\rm pred} = 46$ for TDE) carry substantial uncertainty.
-\label{fig:needle_per_class_ci}}
-\end{figure}
+The asymmetry---SN underconfident while both rare classes are overconfident---is the canonical signature of inverse-frequency class weighting identified by \citet{vandengoorbergh2022}. The aggregate ECE of 0.048 conceals this because the majority-class underconfidence (SN, $n = 242$) partially cancels the minority-class overconfidence (SLSN-I + TDE, $n = 36$) in the weighted average.
 
 \subsubsection{Silent Failures and Confidence-Accuracy Mismatch} \label{sec:needle_silent}
 
@@ -445,40 +331,11 @@ As a sensitivity analysis, we evaluate all 429 model-instance predictions, treat
 
 The higher model-instance ECE (0.073 vs.\ 0.048 object-level) reflects an artifact of the evaluation design: rare-class objects (SLSN-I, TDE) appear in many more models' held-out test sets than SN objects (mean 5.0 models per rare object vs.\ 1.03 for SN), inflating the effective rare-class sample weight and shifting the aggregate ECE upward. The 100\% inter-model class agreement across all 43 multi-model objects---zero objects show disagreement in predicted class across models---validates that the averaging methodology used in the primary analysis is sound.
 
-The model-instance analysis yields per-class gaps with 95\% bootstrap
-intervals of $+0.059$ [$+0.012$, $+0.100$] for SN, $-0.156$ [$-0.231$,
-$-0.088$] for SLSN-I, and $-0.021$ [$-0.078$, $+0.035$] for TDE. The
-direction of miscalibration is consistent with the object-level analysis
-(Section~\ref{sec:needle_perclass}) for SN and SLSN-I, and the TDE
-direction is consistent at the object level but with a model-instance CI
-that crosses zero. The smaller magnitude differences between object-level
-and model-instance analyses for rare classes reflect the rare-class
-prediction count: rare-class objects appear repeatedly across multiple
-held-out test sets in the model-instance analysis (mean 5.0 instances
-per rare-class object versus 1.03 for SN), inflating the effective
-$n_{\rm pred}$. Both analyses agree on direction; the precise magnitude
-depends on whether predictions are deduplicated to the object level or
-not, and on which counting convention is more appropriate for the
-science use-case.
-
-\begin{figure}[t]
-\plotone{needle_per_class_bootstrap_model_instance.pdf}
-\caption{NEEDLE per-class calibration with 95\% confidence intervals
-under the model-instance counting convention ($N = 429$). Compare with
-Figure~\ref{fig:needle_per_class_ci} (object-level, $N = 278$).
-Direction of miscalibration is consistent with the object-level
-analysis for SN and SLSN-I; the TDE gap shrinks substantially in the
-model-instance counting and the bootstrap CI crosses zero, illustrating
-that magnitude estimates for rare classes are sample-size sensitive
-and should be interpreted within the bracket spanned by both
-counting conventions. \label{fig:needle_per_class_ci_mi}}
-\end{figure}
-
 \subsubsection{Interpretation: Class Imbalance and Learned Biases} \label{sec:needle_interp}
 
 The class-asymmetric miscalibration we observe is a direct consequence of NEEDLE's training procedure. \citet{sheng2024} employ inverse-frequency class weighting to address the extreme imbalance between common supernovae and rare transients, with approximately 80$\times$ more SN training examples than TDE examples. \citet{vandengoorbergh2022} demonstrated that such corrections systematically inflate minority-class probability estimates, which is precisely the pattern we observe for both SLSN-I (gap $= -0.423$) and TDE (gap $= -0.296$).
 
-Global temperature scaling with $T = 1.552$ \emph{worsens} ECE from 0.073 to 0.169 (model-instance). This failure is expected: a single $T$ cannot simultaneously soften overconfident SLSN-I/TDE predictions ($T > 1$ needed) and sharpen underconfident SN predictions ($T < 1$ needed). \citet{kull2019} documented this fundamental limitation. Per-class temperature scaling yields $T_{\text{SN}} = 1.85$, $T_{\text{SLSN-I}} = 2.03$, and $T_{\text{TDE}} = 0.54$, confirming the opposing calibration directions, but worsens every individual classwise ECE. These results indicate that, within the range of post-hoc rescaling methods we evaluated and at the present sample sizes ($n_{\rm pred}$ of 39 for SLSN-I and 46 for TDE at the object level), no single global or per-class temperature can simultaneously sharpen the underconfident SN distribution and soften the overconfident rare-class distributions to produce uniform improvement. We therefore characterize this as \textit{strongly suggestive of class-imbalance-induced structural miscalibration} that single-parameter post-hoc methods cannot resolve at current sample sizes; whether more flexible methods (Dirichlet calibration, focal calibration; cf.\ \citealt{kull2019, mukhoti2020}) can recover acceptable per-class calibration on a larger labeled rare-class sample is an open question that we do not address in this audit.
+Global temperature scaling with $T = 1.552$ \emph{worsens} ECE from 0.073 to 0.169 (model-instance). This failure is expected: a single $T$ cannot simultaneously soften overconfident SLSN-I/TDE predictions ($T > 1$ needed) and sharpen underconfident SN predictions ($T < 1$ needed). \citet{kull2019} documented this fundamental limitation. Per-class temperature scaling yields $T_{\text{SN}} = 1.85$, $T_{\text{SLSN-I}} = 2.03$, and $T_{\text{TDE}} = 0.54$, confirming the opposing calibration directions, but worsens every individual classwise ECE---indicating structural miscalibration incompatible with post-hoc probability rescaling.
 
 \begin{figure}
 \plotone{fig_needle_dedup_reliability.pdf}
@@ -582,83 +439,6 @@ Our analysis uses the most recent alert for each Fink object, corresponding to t
 The pseudo-logit transformation $z_k = \log p_k$ used to apply temperature scaling to Random Forest outputs lacks formal theoretical justification---temperature scaling was designed for softmax-based neural network outputs, not ensemble vote fractions. While the consistent cross-validated improvement (ECE reduction from 0.276 to 0.097 with $T$ variance of $\pm 0.012$) suggests the transformation is empirically effective, future work could compare alternative transformations such as Platt scaling applied directly to vote fractions.
 
 Finally, even equal-mass ECE is a biased estimator of true calibration error \citep{roelofs2022}. We report bootstrap confidence intervals throughout to quantify estimation uncertainty. Bin-count sensitivity analysis (\S\ref{sec:robustness}) shows that ECE is stable for all classifiers at large sample sizes; for NEEDLE ($N = 278$) the wide CI $[0.048, 0.111]$ already subsumes bin-count uncertainty.
-
-
-\subsection{Sensitivity to Evaluation-Sample Composition}
-\label{sec:prior_sensitivity}
-
-Operational threshold metrics (number of objects passing $p \geq 0.8$
-and the resulting precision) depend not only on classifier calibration
-but also on the class composition of the evaluation sample. Our headline
-ALeRCE result---a 21.2$\times$ expansion of the high-confidence
-selection set---is computed on the stratified evaluation sample
-designed for per-class statistical power, where SN~Ia comprises
-41.6\% of the audited objects. To assess whether this gain claim
-generalises to deployment-realistic class priors, we recompute the
-threshold counts under two alternative weighting schemes
-(Table~\ref{tab:prior_sensitivity}, Figure~\ref{fig:prior_sensitivity}):
-
-\begin{enumerate}
-\item \textbf{Natural BTS prior}: per-class weights derived from the
-pre-stratification BTS objects within the four transient classes,
-in which SN~Ia comprises 42.9\% (close to the stratified value).
-\item \textbf{ZTF operational prior (illustrative)}: a rough estimate
-of the alert-stream class composition after standard real/bogus
-filtering, in which SN~Ia comprises 65\%.
-\end{enumerate}
-
-The post-calibration high-confidence count at $p \geq 0.8$ is essentially
-invariant across all three priors (425, 425, and 426 weighted objects,
-respectively), reflecting that calibration is a per-object transformation
-that does not depend on the class prior. The pre-calibration count
-varies modestly (20, 18, 13), yielding implied gain factors of
-21.2$\times$, 23.3$\times$, and 32.5$\times$. The gain claim is thus
-not only robust but conservatively stated: under realistic deployment
-priors that contain a higher fraction of SN~Ia, the gain factor is
-larger, not smaller. The qualitative result---that calibration converts
-a regime where almost no objects pass operational thresholds into one
-where hundreds of high-precision candidates are available---is robust
-across all three prior schemes.
-
-We note the converse caveat for absolute precision values: at
-$p \geq 0.8$, calibrated precision is 0.911 under the stratified prior
-but 0.914 (natural BTS) and 0.942 (ZTF stream). Higher SN~Ia
-prevalence in the deployment-time prior yields higher precision because
-the dominant class is well-classified.
-
-\begin{table}[t]
-\centering
-\caption{Operational threshold counts and precision for ALeRCE under
-three class-prior weighting schemes. Counts are sample-size-weighted
-to reflect each target prior. The pre-calibration column shows that
-almost no objects pass $p \geq 0.8$ regardless of prior, consistent
-with ALeRCE's compressed confidence range. The post-calibration column
-shows that the count of high-confidence objects is approximately
-invariant across priors.
-\label{tab:prior_sensitivity}}
-\begin{tabular}{lcccccc}
-\toprule
- & \multicolumn{3}{c}{Pre-$T$ (raw)} & \multicolumn{3}{c}{Post-$T$ ($T = 0.357$)} \\
-\cmidrule(lr){2-4}\cmidrule(lr){5-7}
-Prior & $p \geq 0.5$ & $p \geq 0.8$ & $p \geq 0.9$
-& $p \geq 0.5$ & $p \geq 0.8$ & $p \geq 0.9$ \\
-\midrule
-Stratified (paper) & 392 & 20 & 1 & 972 & 425 & 194 \\
-Natural BTS        & 392 & 18 & 1 & 973 & 425 & 191 \\
-ZTF stream (illustr.) & 389 & 13 & 1 & 975 & 426 & 185 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{figure}[t]
-\plotone{alerce_prior_reweighting_thresholds.pdf}
-\caption{Sensitivity of ALeRCE post-calibration threshold counts to
-assumed deployment-time class prior. Bars show the number of objects
-passing five threshold values under three weighting schemes. The
-post-calibration counts are approximately invariant across priors,
-indicating that the operational gain claim does not hinge on the
-stratified evaluation sample composition. \label{fig:prior_sensitivity}}
-\end{figure}
 
 
 % ============================================================
