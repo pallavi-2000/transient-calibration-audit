@@ -3,162 +3,105 @@
 ## What We Did
 
 Collected classification scores from Fink's two binary classifiers
-(Random Forest and SuperNNova) for the same spectroscopically
-confirmed ZTF transients used in the ALeRCE audit.
+(Random Forest and SuperNNova) for spectroscopically confirmed ZTF
+transients from the BTS sample.
 
-## Why
+## Understanding Fink's Output: Selective Classification
 
-Fink takes a fundamentally different approach from ALeRCE.
-Instead of multi-class probabilities ("which of 15 classes?"),
-Fink provides binary scores ("is this a SN Ia? yes/no").
-Auditing both architectures lets us compare how different
-classifier designs affect calibration.
+Both Fink classifiers return score = 0 for objects that fail eligibility
+criteria. **Score = 0 does not mean P(SN Ia) = 0.** It means the
+classifier abstained — the object did not pass the acceptance gate.
 
-## How Fink Differs from ALeRCE
+This distinction matters for calibration. Treating zeros as probabilities
+produces meaningless ECE values and conflates two different regimes:
+objects where the classifier ran (score > 0) and objects where it didn't.
 
-| | ALeRCE | Fink |
-|---|---|---|
-| Question asked | "Which of 15 classes?" | "Is this SN Ia?" |
-| Output | Probability vector summing to 1.0 | Single score per classifier |
-| Architecture | Balanced Random Forest (multi-class) | RF + SuperNNova (binary) |
-| Classifiers | 1 production (lc_classifier) | 2 independent (RF, SNN) |
-| Data per object | 1 row (final classification) | 1 row per alert (we take latest) |
+We evaluate three properties separately:
+1. **Coverage**: what fraction of objects receive a non-zero score?
+2. **Conditional calibration**: are the emitted scores reliable?
+3. **Abstention bias**: does the abstention pattern bias the calibration estimate?
 
-## Step-by-Step Process
+## The Two Classifiers
 
-### Step 1: API Endpoint Discovery
+### rf_snia_vs_nonia (Random Forest, Leoni et al. 2022)
 
-The Fink API URL changed in January 2025:
-- Old (dead): `fink-portal.org/api/v1/`
-- New (working): `api.fink-portal.org/api/v1/`
+Designed as an **early-time SN Ia detector** for the ZTF alert stream,
+typically activated within ~9 days of first detection. Requires at least
+3 observed epochs per filter, fewer than 20 prior detections, and a
+host-galaxy cross-match.
 
-This is documented in Fink's blog post (2025-01-30).
-The API uses POST requests with `json=` parameters, not `data=`.
+**In our BTS sample:** 93.9% abstention (1,161 / 1,237 objects).
+Abstention is near-uniform across classes:
+- SNIa: 93.0%, SNIbc: 90.2%, SNII: 96.2%, SLSN: 98.8%, TDE: 97.3%
 
-### Step 2: Understanding the Response
+**Interpretation:** Regime mismatch. BTS contains well-evolved,
+spectroscopically confirmed transients — the opposite of the early
+alert stream for which RF was designed. The high abstention rate is
+expected and does not represent a calibration failure. ECE on the 76
+non-zero predictions is not population-representative and is excluded
+from the paper's calibration analysis.
 
-Fink returns one row per alert — every time ZTF detected the
-object, Fink scored it again. For calibration, we use the
-**latest alert** (most complete light curve = most informed
-classification).
+### snn_snia_vs_nonia (SuperNNova, Möller et al. 2020)
 
-Example for ZTF25aagezfh (actual: SN Ia):
-- 43 alerts total
-- RF score across all alerts: mostly 0.0, briefly 0.358-0.678 during early alerts
-- SNN score across all alerts: starts at 0.48, rises to ~0.91, latest is 0.69
+Recurrent neural network classifier for SN Ia vs non-SN Ia. Uses a
+photometric data-quality gate that produces score = 0 for objects with
+insufficient light-curve data.
 
-### Step 3: SSL Certificate Issue
+**In our BTS sample:** 35.9% abstention (444 / 1,237 objects).
+Abstention is strongly class-dependent (χ², p = 8.4×10⁻³⁷):
+- SNIa: 19.0%, SNIbc: 29.8%, SNII: 55.7%, TDE: 62.2%, SLSN: 67.5%
 
-Fink's SSL certificate had expired at time of data collection.
-Workaround: `verify=False` in requests.post(). This is safe for
-our use case — we're downloading public classification scores,
-not sending sensitive data.
+Non-Ia transients abstain at 2.6× the SN Ia rate, consistent with
+sparser light curves for fainter, rarer classes. The first non-zero
+score is 0.0051 (hard gap diagnostic of an explicit threshold gate).
 
-### Step 4: Binary Classifier Scores
+**On the 793 accepted objects:**
+- Mean score: 0.564, median: 0.664
+- Conditional ECE: 0.183 [0.154, 0.220]
+- Optimal temperature: T = 3.65 (no bound hit)
+- Post-T conditional ECE: 0.051 (72% reduction)
+- Post-T score range: [0.191, 0.708] — all p≥0.8 predictions eliminated
+- Pre-T at p≥0.8: 209 objects at 73.2% precision
 
-Two classifiers queried:
+**Abstention bias:** The accepted set is enriched in SNIa (+11.2%) and
+depleted in SNII (−8.6%) relative to BTS. BTS-reweighted calibration gap
+is 0.460 vs conditional gap 0.436 — abstention bias of +0.024.
 
-**rf_snia_vs_nonia (Random Forest)**
-- Binary score: P(SN Ia) vs P(not SN Ia)
-- Range: 0.0 to 1.0
-- Finding: 94% of scores are exactly 0.0
-- Mean score: 0.011
-- Interpretation: Essentially non-functional for our sample.
-  Returns zero for almost everything, including confirmed SN Ia.
-  This is the classifier with ECE = 0.464.
+## Data Acquisition Details
 
-**snn_snia_vs_nonia (SuperNNova)**
-- Binary score: P(SN Ia) vs P(not SN Ia)
-- Architecture: Recurrent Neural Network (Möller & de Boissière 2020)
-- Range: 0.0 to 1.0
-- Finding: 36% of scores are exactly 0.0
-- Mean score: 0.361
-- Interpretation: Has discriminative power but is underconfident.
-  For a sample that is 43% SN Ia, a well-calibrated classifier
-  should average closer to 0.43. ECE = 0.304.
+### API
 
-### Step 5: API Query
-
-- Endpoint: api.fink-portal.org/api/v1/objects
+- Endpoint: `api.fink-portal.org/api/v1/objects`
 - Method: POST with JSON body
-- Columns requested: i:objectId, d:rf_snia_vs_nonia, d:snn_snia_vs_nonia, i:jd
-- Rate limit: 0.15 seconds between calls
-- Checkpointing: every 50 objects (resumable)
+- Columns: `i:objectId`, `d:rf_snia_vs_nonia`, `d:snn_snia_vs_nonia`, `i:jd`
+- Rate limit: 0.15 s between calls; checkpointing every 50 objects
 
-Results:
-- Successful queries: 1,237 / 1,436 (86%)
-- Failed queries: 199
-- Saved to: data/raw/fink_classifications.csv
+Note: API URL changed in January 2025 from `fink-portal.org/api/v1/`.
+If SSL certificate errors occur, use `verify=False` (public data only).
 
-## Key Observation: The RF Zero Problem
+### Per-alert vs per-object
 
-The RF classifier returning 0.0 for 94% of objects is not a data
-error. It is a real property of the classifier. The RF was
-originally designed for the early ZTF alert stream and appears
-to require specific alert properties that many objects in our
-sample do not trigger. This is itself a calibration failure —
-a score of 0.0 for a confirmed SN Ia is maximally wrong.
+Fink returns one row per alert. We take the **latest alert** per object
+(most complete light curve = most informed classification). This evaluates
+the classifier at its best — if it is miscalibrated with complete data,
+that is a stronger finding than measuring calibration on early partial data.
 
-When we compute ECE for the RF:
-- Bin 0.0-0.1 has ~1161 objects, 94% of the sample
-- Of these, ~450+ are actual SN Ia (ground truth)
-- The classifier says "~0% chance of SN Ia" for objects that ARE SN Ia
-- This single bin drives most of the ECE = 0.464
+### Sample composition
 
-## Key Observation: Binary vs Multi-class Calibration
+| Class | Objects queried |
+|-------|----------------|
+| SNIa  | 527            |
+| SNII  | 345            |
+| SNIbc | 245            |
+| SLSN  | 83             |
+| TDE   | 37             |
+| **Total** | **1,237** |
 
-Calibrating binary scores is conceptually simpler than
-multi-class. For Fink, calibration asks: "When the SNN says
-0.7, is the object actually SN Ia 70% of the time?"
+Unlike ALeRCE, Fink binary classifiers evaluate TDE objects (the question
+"Is this SN Ia?" is well-defined for TDEs — the answer is no).
 
-But there is a subtlety: binary calibration treats "not SN Ia"
-as a single class, lumping SN II, SN Ibc, SLSN, TDE, and
-everything else together. A score of 0.3 for a SN Ibc and
-0.3 for a SLSN mean the same thing to the binary classifier —
-both are "not SN Ia." This limits the operational utility
-compared to ALeRCE's multi-class approach.
+## Output File
 
-## Key Decision: Why We Take the Latest Alert
-
-Fink provides scores for every alert (detection) of an object.
-Early alerts have less light curve data, so classifications are
-less informed. By taking the latest alert, we evaluate the
-classifier at its best — when it has the most data to work with.
-
-If the classifier is miscalibrated even with complete light
-curves, that is a stronger finding than measuring calibration
-on early, noisy predictions.
-
-Alternative approach (not taken): evaluate calibration as a
-function of light curve completeness. This is interesting but
-out of scope — it would show how calibration evolves over time,
-which is a separate paper.
-
-## Files Produced
-
-| File | Location | Contents |
-|------|----------|----------|
-| fink_classifications.csv | data/raw/ | 1,237 objects with RF and SNN scores |
-
-## Objects Per True Class
-
-| Class | Objects |
-|-------|---------|
-| SNIa  | 527     |
-| SNII  | 345     |
-| SNIbc | 245     |
-| SLSN  | 83      |
-| TDE   | 37      |
-| Total | 1,237   |
-
-Note: Unlike ALeRCE, Fink's binary classifiers CAN evaluate TDE
-objects. The question "Is this SN Ia?" has a valid answer for
-TDEs (no, it is not). So TDEs are included in Fink calibration.
-
-## What Comes Next
-
-1. Build calibration module (ECE, reliability diagrams)
-2. Apply to ALeRCE multi-class predictions
-3. Apply to Fink binary scores
-4. Temperature scaling and post-hoc calibration
-
+| File | Contents |
+|---|---|
+| `data/raw/fink_classifications.csv` | 1,237 objects × {oid, rf_snia_vs_nonia, snn_snia_vs_nonia} |
