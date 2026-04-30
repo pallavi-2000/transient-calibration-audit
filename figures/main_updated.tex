@@ -143,7 +143,7 @@ For each classifier, we compute:
     \item Bootstrap confidence intervals (1,000 replicates, 95\% level) on ECE.
 \end{enumerate}
 
-For binary classifiers (Fink RF and SuperNNova), confidence is defined as $\max(p, 1-p)$ and predictions are thresholded at $p = 0.5$. We verified that ECE is robust to the choice of bin count for our smallest sample (NEEDLE, $N = 429$): ECE varies from 0.066 at $M = 10$ to 0.075 at $M = 20$, a range of 0.009.
+For binary classifiers (Fink RF and SuperNNova), confidence is defined as $\max(p, 1-p)$ and predictions are thresholded at $p = 0.5$. We verified that ECE is robust to the choice of bin count for our primary NEEDLE sample (object-level, $N = 278$): ECE varies from 0.036 at $M = 5$--10 to 0.061 at $M = 20$; see Appendix~\ref{app:bins} for the full bin-sensitivity analysis.
 
 \subsection{Temperature Scaling}
 
@@ -178,7 +178,7 @@ Fink RF$^{\dagger}$ & RF & 2 & 1237 & --- & --- & N/A (regime mismatch) & --- \\
 Fink SNN$^{\ddagger}$ (cond.) & RNN & 2 & 793 & $0.183$ $[0.154, 0.220]$ & 0.274 & Temp.\ ($T=3.65$) & $0.051$ \\
 \hline
 NEEDLE (obj.-level)$^{\ddagger}$ & CNN+DNN & 3 & 278 & $0.048$ $[0.048, 0.111]$ & 0.265 & Global $T$ worsens & $0.169$ \\
-\quad (model-instance) & & & 429 & $0.075$ $[0.062, 0.115]$ & 0.241 & (sensitivity; \S\ref{sec:needle_sensitivity}) & --- \\
+\quad (model-instance) & & & 429 & $0.073$ $[0.063, 0.117]$ & 0.241 & (sensitivity; \S\ref{sec:needle_sensitivity}) & --- \\
 \enddata
 \tablecomments{ECE computed with equal-mass binning (15 bins). 95\% confidence intervals via bootstrap (1,000 replicates). Post-hoc ECE for ALeRCE is the cross-validated estimate (stratified 5-fold). Brier score: 0 is perfect; for reference, random guessing gives $\sim$0.5 for binary classifiers and $\sim$1.5 for 4-class. $^{\dagger}$Fink RF abstains on 93.9\% of BTS objects with near-uniform abstention across classes (regime mismatch; see \S\ref{sec:fink_rf}); ECE on the 76 non-zero predictions is not population-representative and is omitted. $^{\ddagger}$Fink SNN conditional metrics on 793 non-zero predictions (64.1\% coverage). Reweighting to BTS prevalence yields population-equivalent gap of 0.460 (abstention bias $+0.024$). Post-$T$ value of 0.051 is operationally null at $p \ge 0.8$; see Table~\ref{tab:fink_snn_thresholds} and \S\ref{sec:fink_snn}. $^{\S}$NEEDLE object-level (primary): 278 unique objects, deduplicated by averaging probabilities across models. See \S\ref{sec:needle} and \S\ref{sec:robustness}.}
 \end{deluxetable*}
@@ -275,7 +275,7 @@ For \emph{probability reporting} to astronomers, $T = 3.65$ produces honest outp
 
 \subsubsection{Aggregate Calibration: Object-Level Results}
 
-Our primary NEEDLE analysis evaluates 278 unique ZTF objects, deduplicated by averaging probabilities from all models that classified each object (Section~\ref{sec:robustness}). At the object level, NEEDLE achieves aggregate ECE $= 0.048$ [95\% CI: 0.048, 0.111] and overall accuracy 80.2\% (Brier $= 0.265$). This aggregate ECE lies at the boundary of the ``well-calibrated'' threshold (ECE $< 0.05$), a markedly better result than the model-instance ECE of 0.075 that inflates rare-class contributions due to repeated appearances across held-out sets (Section~\ref{sec:needle_sensitivity}).
+Our primary NEEDLE analysis evaluates 278 unique ZTF objects, deduplicated by averaging probabilities from all models that classified each object (Section~\ref{sec:robustness}). At the object level, NEEDLE achieves aggregate ECE $= 0.048$ [95\% CI: 0.048, 0.111] and overall accuracy 80.2\% (Brier $= 0.265$). This aggregate ECE lies at the boundary of the ``well-calibrated'' threshold (ECE $< 0.05$), a markedly better result than the model-instance ECE of 0.073 that inflates rare-class contributions due to repeated appearances across held-out sets (Section~\ref{sec:needle_sensitivity}).
 
 Figure~\ref{fig:needle_aggregate} shows the object-level reliability diagram. The aggregate bars track the diagonal reasonably well, consistent with the low ECE. However, as the per-class analysis below reveals, this aggregate view conceals severe, class-specific miscalibration driven by class imbalance.
 
@@ -327,9 +327,9 @@ Three of the five silent failures (ZTF20aagikvv, ZTF21aakjkec, ZTF19abzoyeg) are
 
 \subsubsection{Model-Instance Sensitivity: Robustness Across Held-Out Models} \label{sec:needle_sensitivity}
 
-As a sensitivity analysis, we evaluate all 429 model-instance predictions, treating each model's prediction on its held-out test objects as independent (see Section~\ref{sec:robustness} for the deduplication methodology). The model-instance aggregate ECE is 0.075 [0.062, 0.115], with 17 silent failures (4.0\%).
+As a sensitivity analysis, we evaluate all 429 model-instance predictions, treating each model's prediction on its held-out test objects as independent (see Section~\ref{sec:robustness} for the deduplication methodology). The model-instance aggregate ECE is 0.073 [0.063, 0.117], with 17 silent failures (4.0\%).
 
-The higher model-instance ECE (0.075 vs.\ 0.048 object-level) reflects an artifact of the evaluation design: rare-class objects (SLSN-I, TDE) appear in many more models' held-out test sets than SN objects (mean 5.0 models per rare object vs.\ 1.03 for SN), inflating the effective rare-class sample weight and shifting the aggregate ECE upward. The 100\% inter-model class agreement across all 43 multi-model objects---zero objects show disagreement in predicted class across models---validates that the averaging methodology used in the primary analysis is sound.
+The higher model-instance ECE (0.073 vs.\ 0.048 object-level) reflects an artifact of the evaluation design: rare-class objects (SLSN-I, TDE) appear in many more models' held-out test sets than SN objects (mean 5.0 models per rare object vs.\ 1.03 for SN), inflating the effective rare-class sample weight and shifting the aggregate ECE upward. The 100\% inter-model class agreement across all 43 multi-model objects---zero objects show disagreement in predicted class across models---validates that the averaging methodology used in the primary analysis is sound.
 
 \subsubsection{Interpretation: Class Imbalance and Learned Biases} \label{sec:needle_interp}
 
@@ -420,7 +420,7 @@ We performed five robustness checks to verify that primary findings are not arte
 
 \textbf{ALeRCE class restriction.} Restricting ALeRCE's 15-class output to the 4-class transient subset does not drive the observed miscalibration: the 4-class renormalized ECE (0.271) matches the native 15-class ECE (0.283) within 4\%, with negligible per-class probability inflation (1.02--1.06$\times$). The 15-class analysis serves as a harder baseline (more classes, lower accuracy) confirming the 4-class restriction is conservative.
 
-\textbf{NEEDLE object-level deduplication.} The NEEDLE evaluation set contains 429 model-instance predictions across 278 unique objects, with 43 objects appearing in two or more held-out test sets. Deduplicating to object level via mean-of-model-probabilities yields ECE $= 0.048$ (model-instance: 0.075), a 36\% reduction. The 100\% inter-model class agreement across all 43 multi-model objects (zero class disagreements) validates the averaging methodology: model variance in predicted class is zero, and confidence uncertainty dominates. Per-class miscalibration patterns persist in both analyses. Object-level results are primary; model-instance results are reported in \S\ref{sec:needle_sensitivity}.
+\textbf{NEEDLE object-level deduplication.} The NEEDLE evaluation set contains 429 model-instance predictions across 278 unique objects, with 43 objects appearing in two or more held-out test sets. Deduplicating to object level via mean-of-model-probabilities yields ECE $= 0.048$ (model-instance: 0.073), a 34\% reduction. The 100\% inter-model class agreement across all 43 multi-model objects (zero class disagreements) validates the averaging methodology: model variance in predicted class is zero, and confidence uncertainty dominates. Per-class miscalibration patterns persist in both analyses. Object-level results are primary; model-instance results are reported in \S\ref{sec:needle_sensitivity}.
 
 \textbf{ALeRCE operational gain: held-out cross-validation.} The paper's 21$\times$ operational gain (20 $\to$ 425 objects at $p > 0.80$) was originally computed on the full dataset with temperature $T = 0.357$. To address potential data leakage, we recomputed with stratified 5-fold cross-validation: $T$ fitted on four folds, gain measured on the held-out fold. The pooled held-out result (20 $\to$ 418 objects, gain $= 20.9\times$, precision $= 0.907$) is essentially identical to the full-dataset claim, because $T$ is a single scalar that converges to $0.357 \pm 0.012$ regardless of which fold trains it. Per-fold gain shows high variance ($30\times \pm 23\times$) due to tiny pre-scaling counts per fold (1--6 objects), but the pooled estimate is the appropriate metric (Figure~\ref{fig:alerce_cv}).
 
