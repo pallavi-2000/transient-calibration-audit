@@ -13,3 +13,14 @@ __pycache__/
 
 # OS junk
 .DS_Store
+
+# LaTeX build byproducts (regenerate via pdflatex + bibtex; see README)
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+texput.log
