@@ -34,3 +34,7 @@ astropy==5.2.2
 
 # Progress bars
 tqdm==4.67.1
+
+# Testing (tests/) -- not required to reproduce paper numbers,
+# only to run the pytest suite
+pytest==8.3.5

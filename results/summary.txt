@@ -17,39 +17,38 @@ ALeRCE (Balanced Random Forest, lc_classifier v1.1.13)
 Fink Random Forest (rf_snia_vs_nonia)
   Type: Binary (SN Ia vs not)
   Sample: 1237 objects
-  Zero scores: 94%
-  ECE: 0.411
-  Finding: Structurally broken — 94% zeros
+  Zero scores (abstentions): 93.9%
+  Finding: Operational regime mismatch, not a calibration failure -- RF is an early-time classifier (Leoni et al. 2022) evaluated on well-evolved BTS objects outside its design regime; ECE excluded from calibration analysis (see figures/main_updated.tex sec:fink_rf)
 
 Fink SuperNNova (snn_snia_vs_nonia)
   Type: Binary (SN Ia vs not)
   Sample: 1237 objects
-  Zero scores: 36%
-  ECE: 0.198
-  Finding: Temperature scaling hits optimizer bound
+  Zero scores (abstentions): 35.9%
+  Finding: Implicit selective classification, class-dependent abstention. Conditional ECE (accepted set only) = 0.183, reduced to 0.051 by T=3.65 -- but T>1 eliminates all p>=0.8 predictions (operationally null at high thresholds; see results/fink_snn_conditional_analysis.json)
 
 NEEDLE (Sheng et al. 2024)
   Architecture: Hybrid CNN + DNN
   Classes: SN, SLSN-I, TDE
   Sample: 429 predictions, 278 objects
+  NOTE: object-level dedup (see results/needle_dedup_results.json) is PRIMARY in the paper (ECE=0.048, N=278 unique objects). The model-instance numbers below (N=429 predictions) are the paper's sensitivity analysis.
   Accuracy: 0.841
   Mean confidence: 0.851
-  Aggregate ECE: 0.073
+  Aggregate ECE (model-instance): 0.073
     SN: ECE=0.171, acc=0.929, conf=0.870
     SLSN-I: ECE=0.118, acc=0.690, conf=0.846
     TDE: ECE=0.070, acc=0.801, conf=0.823
   Global T=1.552: ECE 0.126 -> 0.169 (WORSENS)
   Per-class T: {'SN': 1.852, 'SLSN-I': 2.034, 'TDE': 0.539}
   Per-class ECE: 0.167
-  Finding: Aggregate ECE (0.050) masks class-asymmetric miscalibration. SLSN-I is overconfident (driven by ~123x inverse-frequency weight), TDE is underconfident. Global temperature scaling worsens ECE because it cannot simultaneously soften and sharpen different classes.
+  Finding: Aggregate ECE (0.050) masks class-asymmetric miscalibration. SLSN-I is overconfident (driven by inverse-frequency class weighting; Sheng et al. 2024 Table 1 gives SN=5237, TDE=64 training examples, ~80:1), TDE is underconfident. Global temperature scaling worsens ECE because it cannot simultaneously soften and sharpen different classes.
 
 ======================================================================
 KEY TAKEAWAYS
 ======================================================================
 1. No production classifier publishes calibration metrics
-2. ALeRCE: fixable underconfidence (T=0.36 reduces ECE by ~71%)
-3. Fink RF: structurally broken (94% zeros)
-4. Fink SNN: miscalibrated, T scaling inappropriate
-5. NEEDLE: aggregate ECE masks class-asymmetric miscalibration
-6. Inverse-frequency class weighting distorts probabilities
+2. ALeRCE: fixable underconfidence (T=0.36 reduces ECE by ~65%), 21x operational gain at p>0.8 under held-out CV
+3. Fink RF: operational regime mismatch (93.9% abstain outside its early-time design regime) -- not structurally broken
+4. Fink SNN: implicit selective classification; T-scaling improves conditional ECE but is operationally null at high thresholds
+5. NEEDLE: aggregate ECE (object-level, primary) masks class-asymmetric miscalibration
+6. Inverse-frequency class weighting (~80:1 SN:TDE, Sheng et al. 2024 Table 1) distorts probabilities
 7. The failure of temperature scaling for NEEDLE is itself publishable

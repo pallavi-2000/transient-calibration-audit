@@ -186,18 +186,24 @@ def generate_text_summary(results):
         if rf:
             lines.append(f"  Type: Binary (SN Ia vs not)")
             lines.append(f"  Sample: {rf['n_objects']} objects")
-            lines.append(f"  Zero scores: {rf['zero_fraction']*100:.0f}%")
-            lines.append(f"  ECE: {rf['ece']:.3f}")
-            lines.append(f"  Finding: Structurally broken — 94% zeros")
+            lines.append(f"  Zero scores (abstentions): {rf['zero_fraction']*100:.1f}%")
+            lines.append(f"  Finding: Operational regime mismatch, not a calibration "
+                         f"failure -- RF is an early-time classifier (Leoni et al. 2022) "
+                         f"evaluated on well-evolved BTS objects outside its design "
+                         f"regime; ECE excluded from calibration analysis (see "
+                         f"figures/main_updated.tex sec:fink_rf)")
         lines.append("")
 
         lines.append(f"Fink SuperNNova (snn_snia_vs_nonia)")
         if snn:
             lines.append(f"  Type: Binary (SN Ia vs not)")
             lines.append(f"  Sample: {snn['n_objects']} objects")
-            lines.append(f"  Zero scores: {snn['zero_fraction']*100:.0f}%")
-            lines.append(f"  ECE: {snn['ece']:.3f}")
-            lines.append(f"  Finding: Temperature scaling hits optimizer bound")
+            lines.append(f"  Zero scores (abstentions): {snn['zero_fraction']*100:.1f}%")
+            lines.append(f"  Finding: Implicit selective classification, class-dependent "
+                         f"abstention. Conditional ECE (accepted set only) = 0.183, "
+                         f"reduced to 0.051 by T=3.65 -- but T>1 eliminates all "
+                         f"p>=0.8 predictions (operationally null at high thresholds; "
+                         f"see results/fink_snn_conditional_analysis.json)")
         lines.append("")
 
     if "NEEDLE" in results:
@@ -209,9 +215,13 @@ def generate_text_summary(results):
         lines.append(f"  Architecture: {r['architecture']}")
         lines.append(f"  Classes: {', '.join(r['class_names'])}")
         lines.append(f"  Sample: {r['n_predictions']} predictions, {r['n_unique_objects']} objects")
+        lines.append(f"  NOTE: object-level dedup (see results/needle_dedup_results.json) "
+                     f"is PRIMARY in the paper (ECE=0.048, N=278 unique objects). "
+                     f"The model-instance numbers below (N={r['n_predictions']} "
+                     f"predictions) are the paper's sensitivity analysis.")
         lines.append(f"  Accuracy: {r['accuracy']:.3f}")
         lines.append(f"  Mean confidence: {r['mean_confidence']:.3f}")
-        lines.append(f"  Aggregate ECE: {r['ece']:.3f}")
+        lines.append(f"  Aggregate ECE (model-instance): {r['ece']:.3f}")
 
         if "per_class" in r:
             for cls, stats in r["per_class"].items():
@@ -232,11 +242,16 @@ def generate_text_summary(results):
     lines.append("KEY TAKEAWAYS")
     lines.append("=" * 70)
     lines.append("1. No production classifier publishes calibration metrics")
-    lines.append("2. ALeRCE: fixable underconfidence (T=0.36 reduces ECE by ~71%)")
-    lines.append("3. Fink RF: structurally broken (94% zeros)")
-    lines.append("4. Fink SNN: miscalibrated, T scaling inappropriate")
-    lines.append("5. NEEDLE: aggregate ECE masks class-asymmetric miscalibration")
-    lines.append("6. Inverse-frequency class weighting distorts probabilities")
+    lines.append("2. ALeRCE: fixable underconfidence (T=0.36 reduces ECE by ~65%), "
+                 "21x operational gain at p>0.8 under held-out CV")
+    lines.append("3. Fink RF: operational regime mismatch (93.9% abstain outside its "
+                 "early-time design regime) -- not structurally broken")
+    lines.append("4. Fink SNN: implicit selective classification; T-scaling improves "
+                 "conditional ECE but is operationally null at high thresholds")
+    lines.append("5. NEEDLE: aggregate ECE (object-level, primary) masks "
+                 "class-asymmetric miscalibration")
+    lines.append("6. Inverse-frequency class weighting (~80:1 SN:TDE, Sheng et al. "
+                 "2024 Table 1) distorts probabilities")
     lines.append("7. The failure of temperature scaling for NEEDLE is itself publishable")
 
     text = "\n".join(lines)

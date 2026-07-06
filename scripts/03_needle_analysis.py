@@ -217,9 +217,11 @@ def main():
         },
         "key_finding": (
             "Aggregate ECE (0.050) masks class-asymmetric miscalibration. "
-            "SLSN-I is overconfident (driven by ~123x inverse-frequency weight), "
-            "TDE is underconfident. Global temperature scaling worsens ECE "
-            "because it cannot simultaneously soften and sharpen different classes."
+            "SLSN-I is overconfident (driven by inverse-frequency class "
+            "weighting; Sheng et al. 2024 Table 1 gives SN=5237, TDE=64 "
+            "training examples, ~80:1), TDE is underconfident. Global "
+            "temperature scaling worsens ECE because it cannot "
+            "simultaneously soften and sharpen different classes."
         ),
     }
 

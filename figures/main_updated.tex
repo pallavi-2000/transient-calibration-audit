@@ -755,7 +755,7 @@ but 0.914 (natural BTS) and 0.942 (ZTF stream). Higher SN~Ia
 prevalence in the deployment-time prior yields higher precision because
 the dominant class is well-classified.
 
-\begin{table}[t]
+\begin{table*}[t]
 \centering
 \caption{Operational threshold counts and precision for ALeRCE under
 three class-prior weighting schemes. Counts are sample-size-weighted
@@ -777,9 +777,9 @@ Natural BTS        & 392 & 18 & 1 & 973 & 425 & 191 \\
 ZTF stream (illustr.) & 389 & 13 & 1 & 975 & 426 & 185 \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
-\begin{figure}[t]
+\begin{figure}[!b]
 \plotone{alerce_prior_reweighting_thresholds.pdf}
 \caption{Sensitivity of ALeRCE post-calibration threshold counts to
 assumed deployment-time class prior. Bars show the number of objects
@@ -825,7 +825,20 @@ values; the present audit aims to inform rather than forecast that work.
 % ============================================================
 \section*{Data and Code Availability}
 
-All analysis code, data acquisition scripts, and results are publicly available at \url{https://github.com/pallavi-2000/transient-calibration-audit}. The repository includes scripts to reproduce all figures and tables from the raw data. Spectroscopic ground truth is drawn from the publicly accessible ZTF Bright Transient Survey \citep{fremling2020, perley2020}. ALeRCE and Fink predictions were obtained via their respective public APIs. NEEDLE predictions were generated using publicly available pre-trained models and datasets.
+All analysis code, data acquisition scripts, and results are publicly
+available at \url{https://github.com/pallavi-2000/transient-calibration-audit}.
+The exact version corresponding to this manuscript is tagged as
+\texttt{v1.0-submitted} (commit hash \texttt{be9c6f9}).
+A pinned Python environment is provided in \texttt{requirements.txt}
+(Python 3.8.0; full dependency freeze in
+\texttt{requirements\_frozen\_full.txt}), and data acquisition timestamps
+and API endpoints are documented in \texttt{DATA\_ACQUISITION.md}
+(all broker predictions retrieved 2026-04-01).
+Spectroscopic ground truth is drawn from the publicly accessible ZTF
+Bright Transient Survey \citep{fremling2020, perley2020}. ALeRCE and
+Fink predictions were obtained via their respective public APIs. NEEDLE
+predictions were generated using publicly available pre-trained models
+from \citet{sheng2024}.
 
 
 % ============================================================
