@@ -59,36 +59,67 @@ transient-calibration-audit/
 │   ├── 12_bin_sensitivity_analysis.py    # ECE stability: 5/10/15/20 bins
 │   ├── 13_fink_snn_abstention_verification.py # SNN zero-score characterisation
 │   ├── 14_fink_abstention_analysis.py    # RF/SNN chi-sq abstention tests
-│   └── 15_fink_snn_conditional_calibration.py # SNN conditional T=3.65
+│   ├── 15_fink_snn_conditional_calibration.py # SNN conditional T=3.65
+│   ├── 16_needle_per_class_bootstrap.py  # Per-class Wilson + bootstrap CIs
+│   ├── 17_alerce_prior_reweighting.py    # Operational gain under 3 class priors
+│   ├── 18_missingness_analysis.py        # Broker retrieval missingness (chi-sq)
+│   └── 19_verify_canonical.py            # Verification gate — run this first
+│
+├── tests/                            # pytest suite (recomputes metrics from
+│   │                                  # raw data, asserts against canonical
+│   │                                  # numbers; skips if raw data absent)
+│   ├── test_calibration_core.py
+│   └── test_stratified_cv.py
 │
 ├── figures/                          # Figures + paper source
-│   ├── main_updated.tex              # Paper source (AASTeX 6.3.1)
-│   ├── main_updated.pdf              # Compiled paper (18 pages)
+│   ├── main_updated.tex              # Paper source (AASTeX 6.3.1) — canonical
+│   ├── main_updated.pdf              # Compiled paper (22 pages)
 │   ├── references.bib                # Bibliography
 │   └── fig_*.pdf / *.png             # Publication figures
 │
+├── archive/                          # Superseded manuscript drafts and
+│   │                                  # exploratory figures, kept for
+│   │                                  # traceability. See CLEANUP_MANIFEST.md.
+│   └── figures/
+│
 ├── results/                          # JSON + CSV outputs (canonical numbers)
+│   ├── canonical_numbers_v1.json     # Snapshot verified by script 19
 │   ├── alerce_results.json
 │   ├── alerce_dual_task_results.json
 │   ├── alerce_operational_gain_cv_results.json
+│   ├── alerce_prior_reweighting_summary.json / _table.csv
 │   ├── bin_sensitivity_results.json
 │   ├── fink_conditional_results.json
 │   ├── fink_rf_calibration_comparison.json
 │   ├── fink_snn_abstention_analysis.json
 │   ├── fink_snn_conditional_analysis.json
 │   ├── fink_snn_operational_threshold_table.csv
-│   ├── fink_zero_abstention_summary.json
-│   ├── needle_dedup_results.json
-│   └── needle_results.json
+│   ├── fink_zero_abstention_summary.json / .csv
+│   ├── missingness_analysis.json / _table.csv
+│   ├── needle_dedup_results.json     # Primary NEEDLE numbers (object-level)
+│   ├── needle_results.json           # Sensitivity (model-instance)
+│   ├── needle_duplicates.json
+│   ├── needle_per_class_bootstrap.json / .csv
+│   ├── renormalization_audit.json
+│   ├── reviewer_fixes.json
+│   ├── summary.txt / summary_table.tex
 │
 ├── data/
 │   ├── raw/           # API outputs (not tracked — see Data section)
 │   ├── ground_truth/  # BTS spectroscopic labels (not tracked)
 │   └── processed/     # needle_predictions.npz (not tracked)
 │
-├── docs_alerce_acquisition.md
-├── docs_fink_acquisition.md
-└── requirements.txt
+├── CLAUDE.md                  # Repo rules: frozen data, canonical tex, defects
+├── CLEANUP_MANIFEST.md         # What was archived/deleted and why
+├── DATA_ACQUISITION.md         # Snapshot dates, API versions, endpoints
+├── docs_alerce_acquisition.md  # ALeRCE methodology narrative (class mapping,
+│                               # stratified sampling rationale, TDE exclusion)
+├── docs_fink_acquisition.md    # Fink methodology narrative (selective
+│                               # classification, abstention mechanisms)
+├── RELEASES.md                 # Milestone history
+├── CITATION.cff
+├── requirements.txt / requirements_frozen_full.txt
+└── README.md
 ```
 
 ---
@@ -138,15 +169,27 @@ python3 scripts/12_bin_sensitivity_analysis.py    # Bin-count sensitivity
 python3 scripts/13_fink_snn_abstention_verification.py
 python3 scripts/14_fink_abstention_analysis.py
 python3 scripts/15_fink_snn_conditional_calibration.py
+python3 scripts/16_needle_per_class_bootstrap.py  # Per-class Wilson/bootstrap CIs
+python3 scripts/17_alerce_prior_reweighting.py    # Operational gain, 3 priors
+python3 scripts/18_missingness_analysis.py        # Broker retrieval missingness
 ```
 
-### 5. Compile the Paper
+### 5. Verify
+
+```bash
+python3 scripts/19_verify_canonical.py
+# Expected: 25/25 checks PASS; writes results/canonical_numbers_v1.json
+pytest tests/
+# Expected: all pass (tests requiring raw data skip if data/ is absent)
+```
+
+### 6. Compile the Paper
 
 ```bash
 cd figures
 pdflatex main_updated.tex && bibtex main_updated
 pdflatex main_updated.tex && pdflatex main_updated.tex
-# Output: figures/main_updated.pdf (18 pages)
+# Output: figures/main_updated.pdf (22 pages)
 ```
 
 ---
