@@ -18,11 +18,13 @@ Methodology:
 import numpy as np
 from scipy.optimize import minimize_scalar
 from scipy.special import softmax
+from sklearn.model_selection import GroupKFold
 import matplotlib.pyplot as plt
 import os
 
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'outputs')
-PRED_PATH = os.path.join(OUTPUT_DIR, 'needle_predictions.npz')
+PRED_PATH = os.path.join(os.path.dirname(__file__), '..', 'data', 'processed', 'needle_predictions.npz')
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 CLASS_NAMES = ['SN', 'SLSN-I', 'TDE']
 
@@ -88,35 +90,36 @@ def fit_temperature(logits, labels):
     return result.x
 
 
-def run_cross_validation(probs, labels, n_folds=5):
+def run_cross_validation(probs, labels, groups, n_folds=5):
     """
     5-fold cross-validation for temperature scaling.
-    
+
     This avoids the methodological issue of fitting T on the same data
     you evaluate on (which was identified as a critical fix in your
     ALeRCE paper revision).
+
+    Folds are grouped by ZTF object ID (GroupKFold), not by row. NEEDLE-TH
+    is a 5-model ensemble and the pooled 429 predictions cover only 278
+    unique objects — 43 objects appear 2-5x (once per model that held
+    them out). A plain row-wise shuffle-split can put one appearance of
+    an object in the training fold and another appearance of the SAME
+    object in the "held-out" test fold, leaking its true label (and a
+    correlated confidence pattern) across the split. GroupKFold guarantees
+    every appearance of a given object lands in the same fold.
     """
     logits = probs_to_logits(probs)
     n = len(probs)
-    indices = np.arange(n)
-    np.random.seed(42)
-    np.random.shuffle(indices)
-    
-    fold_size = n // n_folds
+
+    gkf = GroupKFold(n_splits=n_folds)
+
     fold_T_values = []
     all_test_true = []
     all_test_proba_before = []
     all_test_proba_after = []
-    
-    print(f"\nRunning {n_folds}-fold stratified cross-validation...")
-    
-    for fold in range(n_folds):
-        # Split
-        test_start = fold * fold_size
-        test_end = test_start + fold_size if fold < n_folds - 1 else n
-        test_idx = indices[test_start:test_end]
-        train_idx = np.concatenate([indices[:test_start], indices[test_end:]])
-        
+
+    print(f"\nRunning {n_folds}-fold group-aware (by ZTF ID) cross-validation...")
+
+    for fold, (train_idx, test_idx) in enumerate(gkf.split(np.arange(n), groups=groups)):
         # Fit T on training folds
         T = fit_temperature(logits[train_idx], labels[train_idx])
         fold_T_values.append(T)
@@ -195,11 +198,17 @@ def main():
     data = np.load(PRED_PATH, allow_pickle=True)
     probs = data['probs']
     labels = data['labels']
-    
-    print(f"Loaded {len(probs)} predictions")
-    
-    # === Cross-validated temperature scaling ===
-    fold_T, all_true, all_before, all_after = run_cross_validation(probs, labels)
+    ztf_ids = data['ztf_ids']
+
+    n_unique = len(set(ztf_ids.tolist()))
+    print(f"Loaded {len(probs)} predictions ({n_unique} unique objects)")
+    if n_unique < len(probs):
+        print(f"  NOTE: {len(probs) - n_unique} repeat object-appearances across "
+              f"the 5 ensemble models — using GroupKFold(groups=ztf_id) so no "
+              f"object crosses the train/test fold boundary.")
+
+    # === Cross-validated temperature scaling (grouped by object ID) ===
+    fold_T, all_true, all_before, all_after = run_cross_validation(probs, labels, groups=ztf_ids)
     
     # Combine all folds
     combined_true = np.concatenate(all_true)

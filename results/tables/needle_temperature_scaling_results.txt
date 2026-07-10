@@ -1,14 +1,14 @@
 NEEDLE Temperature Scaling Results
 ==================================================
 
-Temperature (mean +/- std): 1.5511 +/- 0.0552
-Temperature range: [1.4897, 1.6355]
+Temperature (mean +/- std): 1.5530 +/- 0.1572
+Temperature range: [1.3986, 1.7732]
 ECE before: 0.0504
-ECE after: 0.1300
-ECE reduction: -157.9%
+ECE after: 0.1278
+ECE reduction: -153.5%
 Brier before: 0.2411
-Brier after: 0.2665
+Brier after: 0.2666
 
 Direction: overconfident
 
-Fold T values: [1.6355, 1.5487, 1.4897, 1.5861, 1.4955]
+Fold T values: [1.7097, 1.4725, 1.7732, 1.3986, 1.4107]

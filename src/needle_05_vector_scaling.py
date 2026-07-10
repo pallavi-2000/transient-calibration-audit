@@ -19,20 +19,22 @@ Methodology: same 5-fold CV as script 04 for fair comparison.
 import numpy as np
 from scipy.optimize import minimize
 from scipy.special import softmax, log_softmax
+from sklearn.model_selection import GroupKFold
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import os
 
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'outputs')
-PRED_PATH  = os.path.join(OUTPUT_DIR, 'needle_predictions.npz')
+PRED_PATH  = os.path.join(os.path.dirname(__file__), '..', 'data', 'processed', 'needle_predictions.npz')
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 CLASS_NAMES = ['SN', 'SLSN-I', 'TDE']
 
-# Reference values from previous scripts
-GLOBAL_T      = 1.5511
+# Reference values from previous scripts (needle_04_temperature.py, GroupKFold-by-object)
+GLOBAL_T      = 1.5530
 ECE_RAW       = 0.0504
-ECE_GLOBAL_T  = 0.1300
+ECE_GLOBAL_T  = 0.1278
 ALERCE_T      = 0.36
 ALERCE_ECE    = 0.259
 
@@ -125,27 +127,28 @@ def fit_vector_T(logits, labels, init=None):
 
 # ── cross-validation ──────────────────────────────────────────────────────────
 
-def run_cv(probs, labels, n_folds=5):
+def run_cv(probs, labels, groups, n_folds=5):
+    """
+    Group-aware (GroupKFold by ZTF object ID) cross-validation.
+
+    Same rationale as needle_04_temperature.py: the 429 pooled predictions
+    span only 278 unique objects (NEEDLE-TH is a 5-model ensemble, so some
+    objects were held out by more than one model). Splitting by row index
+    can leak an object's label/pattern across the train/test boundary;
+    GroupKFold keeps every appearance of an object in the same fold.
+    """
     logits = probs_to_logits(probs)
     n = len(probs)
-    idx = np.arange(n)
-    np.random.seed(42)
-    np.random.shuffle(idx)
 
-    fold_size = n // n_folds
-    fold_T, all_true, all_before, all_after = [], [], [], []
+    gkf = GroupKFold(n_splits=n_folds)
+    fold_T, all_true, all_before, all_after, all_test_idx = [], [], [], [], []
 
-    print(f"\nRunning {n_folds}-fold CV for vector scaling …")
+    print(f"\nRunning {n_folds}-fold group-aware (by ZTF ID) CV for vector scaling …")
     print(f"  {'Fold':>4}  {'T_SN':>7}  {'T_SLSNI':>8}  {'T_TDE':>7}  "
           f"{'ECE_bef':>8}  {'ECE_aft':>8}  {'Brier_bef':>10}  {'Brier_aft':>10}")
     print("  " + "─" * 76)
 
-    for fold in range(n_folds):
-        start = fold * fold_size
-        end   = start + fold_size if fold < n_folds - 1 else n
-        te_idx = idx[start:end]
-        tr_idx = np.concatenate([idx[:start], idx[end:]])
-
+    for fold, (tr_idx, te_idx) in enumerate(gkf.split(np.arange(n), groups=groups)):
         T_vec = fit_vector_T(logits[tr_idx], labels[tr_idx])
         fold_T.append(T_vec)
 
@@ -160,8 +163,9 @@ def run_cv(probs, labels, n_folds=5):
         all_true.append(tl)
         all_before.append(pb)
         all_after.append(pa)
+        all_test_idx.append(te_idx)
 
-    return np.array(fold_T), all_true, all_before, all_after
+    return np.array(fold_T), all_true, all_before, all_after, np.concatenate(all_test_idx)
 
 
 # ── plotting ──────────────────────────────────────────────────────────────────
@@ -252,10 +256,11 @@ def main():
     data   = np.load(PRED_PATH, allow_pickle=True)
     probs  = data['probs']
     labels = data['labels']
-    print(f"Loaded {len(probs)} predictions")
+    ztf_ids = data['ztf_ids']
+    print(f"Loaded {len(probs)} predictions ({len(set(ztf_ids.tolist()))} unique objects)")
 
-    # ── cross-validated vector scaling ────────────────────────────────────────
-    fold_T, all_true, all_before, all_after = run_cv(probs, labels)
+    # ── cross-validated vector scaling (grouped by object ID) ─────────────────
+    fold_T, all_true, all_before, all_after, test_idx_order = run_cv(probs, labels, groups=ztf_ids)
 
     combined_true   = np.concatenate(all_true)
     combined_before = np.concatenate(all_before)
@@ -319,16 +324,18 @@ def main():
     print(f"  {'T_TDE':22} {T_mean[2]:>15.4f}  {'0.36':>8}")
 
     # ── global-T probs for comparison plot ────────────────────────────────────
+    # Reordered to match test_idx_order so every panel shares the same row
+    # alignment as combined_true/combined_before/combined_after (previously
+    # this array was left in original row order while the other three were
+    # in fold-concatenation order, silently pairing global-T probs with the
+    # wrong labels in the middle panel).
     from scipy.special import softmax as sp_softmax
     logits_all   = probs_to_logits(probs)
-    probs_global = sp_softmax(logits_all / GLOBAL_T, axis=1)
+    probs_global = sp_softmax(logits_all / GLOBAL_T, axis=1)[test_idx_order]
 
     # ── plots ─────────────────────────────────────────────────────────────────
     plot_comparison(
-        combined_before, probs_global[np.concatenate([
-            np.where(np.isin(np.arange(len(probs)), fold_idx))[0]
-            for fold_idx in [np.arange(len(probs))]   # full set
-        ])], combined_after, combined_true,
+        combined_before, probs_global, combined_after, combined_true,
         save_path=os.path.join(OUTPUT_DIR, 'needle_vector_scaling_comparison.png'),
     )
 
