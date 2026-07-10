@@ -1,0 +1,176 @@
+{
+  "config": {
+    "cost": {
+      "SNIa": 1.0,
+      "SNII": 2.0,
+      "SNIbc": 3.0,
+      "SLSN": 10.0
+    },
+    "c_spec": 1.0,
+    "T_calib": 0.361,
+    "decision_classes": [
+      "SNIa",
+      "SNII",
+      "SNIbc",
+      "SLSN"
+    ],
+    "rare_class": "SLSN",
+    "n_primary": 1576,
+    "n_ood_tde": 30
+  },
+  "aurc": {
+    "confidence": 0.3223,
+    "expcost_raw": 0.6322,
+    "expcost_calibrated": 0.4487
+  },
+  "by_budget": [
+    {
+      "budget_frac": 0.05,
+      "budget": 79,
+      "signals": {
+        "confidence": {
+          "budget": 79,
+          "coverage": 0.9499,
+          "total_cost": 894.0,
+          "silent_failure_rate": 0.2665,
+          "rare_recall": 0.0364
+        },
+        "expcost_raw": {
+          "budget": 79,
+          "coverage": 0.9499,
+          "total_cost": 926.0,
+          "silent_failure_rate": 0.2879,
+          "rare_recall": 0.0364
+        },
+        "expcost_calib": {
+          "budget": 79,
+          "coverage": 0.9499,
+          "total_cost": 913.0,
+          "silent_failure_rate": 0.2839,
+          "rare_recall": 0.0545
+        }
+      }
+    },
+    {
+      "budget_frac": 0.1,
+      "budget": 158,
+      "signals": {
+        "confidence": {
+          "budget": 158,
+          "coverage": 0.8997,
+          "total_cost": 891.0,
+          "silent_failure_rate": 0.2532,
+          "rare_recall": 0.0545
+        },
+        "expcost_raw": {
+          "budget": 158,
+          "coverage": 0.8997,
+          "total_cost": 944.0,
+          "silent_failure_rate": 0.2884,
+          "rare_recall": 0.0909
+        },
+        "expcost_calib": {
+          "budget": 158,
+          "coverage": 0.8997,
+          "total_cost": 935.0,
+          "silent_failure_rate": 0.2807,
+          "rare_recall": 0.0727
+        }
+      }
+    },
+    {
+      "budget_frac": 0.2,
+      "budget": 315,
+      "signals": {
+        "confidence": {
+          "budget": 315,
+          "coverage": 0.8001,
+          "total_cost": 915.0,
+          "silent_failure_rate": 0.2244,
+          "rare_recall": 0.0545
+        },
+        "expcost_raw": {
+          "budget": 315,
+          "coverage": 0.8001,
+          "total_cost": 1007.0,
+          "silent_failure_rate": 0.2879,
+          "rare_recall": 0.1091
+        },
+        "expcost_calib": {
+          "budget": 315,
+          "coverage": 0.8001,
+          "total_cost": 980.0,
+          "silent_failure_rate": 0.2744,
+          "rare_recall": 0.1091
+        }
+      }
+    },
+    {
+      "budget_frac": 0.3,
+      "budget": 473,
+      "signals": {
+        "confidence": {
+          "budget": 473,
+          "coverage": 0.6999,
+          "total_cost": 903.0,
+          "silent_failure_rate": 0.1913,
+          "rare_recall": 0.1818
+        },
+        "expcost_raw": {
+          "budget": 473,
+          "coverage": 0.6999,
+          "total_cost": 1076.0,
+          "silent_failure_rate": 0.2974,
+          "rare_recall": 0.1636
+        },
+        "expcost_calib": {
+          "budget": 473,
+          "coverage": 0.6999,
+          "total_cost": 1037.0,
+          "silent_failure_rate": 0.2774,
+          "rare_recall": 0.1636
+        }
+      }
+    }
+  ],
+  "threshold_feasibility": {
+    "c_spec": 1.0,
+    "n_defer_raw": 1442,
+    "n_defer_calibrated": 653,
+    "over_defer_frac": 0.5006,
+    "note": "Fixed-threshold rule (defer iff E[cost] > c_spec). Under-confident raw probs inflate expected costs and over-defer, overrunning a fixed budget."
+  },
+  "ood_sidebar": {
+    "description": "TDEs (out-of-taxonomy) ranked jointly with in-distribution objects by the calibrated expected-cost signal. TDEs are deferred at 1.1-2.4x the in-distribution rate \u2014 because ALeRCE, unable to name them, tends to emit a diffuse (high expected-cost) vector \u2014 so the probability signal is a WEAK, budget-sensitive novelty detector, not a null one. But it is far from sufficient: at a 10% budget ~77% of TDEs are still silently auto-accepted as SNe. Reliable capture would need a dedicated OOD / epistemic-uncertainty channel (the ensemble). This is an out-of-taxonomy observation, NOT an ALeRCE performance critique: the deployed classifier has no TDE class (Sanchez-Saez 2021); a TDE-aware version exists but is not deployed (Pavez-Herrera 2025).",
+    "by_budget": [
+      {
+        "budget_frac": 0.05,
+        "tde_defer_rate": 0.0667,
+        "indist_defer_rate": 0.0495,
+        "ratio": 1.347,
+        "tde_silently_accepted": 0.9333
+      },
+      {
+        "budget_frac": 0.1,
+        "tde_defer_rate": 0.2333,
+        "indist_defer_rate": 0.0977,
+        "ratio": 2.388,
+        "tde_silently_accepted": 0.7667
+      },
+      {
+        "budget_frac": 0.2,
+        "tde_defer_rate": 0.3,
+        "indist_defer_rate": 0.198,
+        "ratio": 1.515,
+        "tde_silently_accepted": 0.7
+      },
+      {
+        "budget_frac": 0.3,
+        "tde_defer_rate": 0.3333,
+        "indist_defer_rate": 0.2995,
+        "ratio": 1.113,
+        "tde_silently_accepted": 0.6667
+      }
+    ]
+  }
+}
