@@ -1,0 +1,26 @@
+{
+  "basis": "15-class top-1 ECE (matches headline)",
+  "pooled": {
+    "n": 1571,
+    "ece": 0.2579,
+    "ci_lo": 0.2363,
+    "ci_hi": 0.2784,
+    "T": 0.3552
+  },
+  "by_version": {
+    "hierarchical_rf_1.1.0": {
+      "n": 1346,
+      "ece": 0.2584,
+      "ci_lo": 0.2349,
+      "ci_hi": 0.2814,
+      "T": 0.3824
+    },
+    "lc_classifier_1.1.13": {
+      "n": 225,
+      "ece": 0.2595,
+      "ci_lo": 0.2,
+      "ci_hi": 0.3169,
+      "T": 0.3256
+    }
+  }
+}

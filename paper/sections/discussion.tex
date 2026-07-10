@@ -26,24 +26,29 @@ exercise but a resource allocation problem.
 \subsection{Why Random Forest Suppresses Confidence}
 \label{sec:discussion:rf}
 
-The underconfidence we observe is mechanistically expected for 
-Random Forest classifiers in class-imbalanced settings. RF 
-probability estimates are computed as the fraction of trees 
-voting for each class. In a forest trained on an imbalanced 
-dataset — SNIa comprises 47\% of our sample — the decision 
-boundaries are dominated by the majority class, and minority 
-class probabilities are systematically suppressed \citep{Niculescu-Mizil2005}. 
-This suppression is strongest for classes the classifier 
-discriminates most reliably, because reliable discrimination 
-concentrates vote fractions near the boundary between correct 
-and incorrect, rather than near 1.0.
+The underconfidence we observe is consistent with a known property
+of Random Forest classifiers: probability estimates computed as
+fractions of tree votes are compressed away from the extremes,
+particularly under class imbalance
+\citep{Niculescu-Mizil2005, Zadrozny2002}. One component of this
+picture is directly demonstrated in our sample
+(Section~\ref{sec:results:alerce_perclass}): the classifier's output
+range is observably truncated — no object in 1,576 receives top-1
+confidence above $0.88$, and among correctly classified SNIa the
+maximum is $0.72$ against an achieved accuracy of $0.83$. Whatever
+its ultimate cause in ALeRCE's training configuration (which we
+cannot inspect), this compression mechanically guarantees a
+confidence deficit for any class classified more accurately than the
+output ceiling.
 
-This explains the inverse relationship we observe between accuracy 
-and ECE across classes. SNIa and SNIbc are classified with 
-accuracies above 0.83, yet their ECEs exceed 0.36. SNII, 
-classified at only 0.495 accuracy, has ECE of 0.103. The 
-classifier is most miscalibrated precisely where it has 
-the most genuine discriminative signal.
+This accounts for the inverse relationship between accuracy and the
+true-class-conditioned confidence deficit (definition 1 of
+Section~\ref{sec:methods:perclass}): SNIa and SNIbc are classified
+with accuracies above 0.83 — beyond the reachable confidence range —
+while SNII, at 0.495 accuracy, sits comfortably within it. We
+emphasise that this inversion is specific to the class-conditional
+view; under the standard one-vs-rest definition, miscalibration is
+more uniform across classes (Table~\ref{tab:perclassece}).
 
 The practical implication is that RF-based astronomical classifiers 
 should not be used for confidence-based deferral decisions without 
@@ -54,12 +59,15 @@ is high.
 \subsection{Temperature Scaling: Efficacy and Limits}
 \label{sec:discussion:tempscaling}
 
-Temperature scaling with $T = 0.359$ reduces ALeRCE's ECE from 
-$0.259$ to $0.031$ — an 88\% improvement with a single scalar 
-parameter requiring no model retraining. This result is 
-encouraging for operational deployment: existing broker 
-infrastructure could be augmented with a post-hoc calibration 
-layer at negligible computational cost.
+Held-out temperature scaling ($T = 0.361 \pm 0.011$ across CV folds)
+reduces ALeRCE's ECE from $0.259$ to $0.015$ on held-out folds — a
+94\% improvement with a single scalar parameter requiring no model
+retraining, confirmed at $0.024$ on an independent 60/40 split. This
+result is encouraging for operational deployment: existing broker
+infrastructure could be augmented with a post-hoc calibration layer
+at negligible computational cost, and the close agreement between
+held-out and oracle ($0.031$) fits indicates the correction is
+stable rather than overfit.
 
 However, the per-class analysis reveals an important limitation. 
 Global temperature scaling worsens SNII calibration from $0.099$ 
@@ -67,44 +75,64 @@ to $0.189$, because SNII was already well-calibrated before
 scaling. A single $T$ cannot simultaneously optimise calibration 
 for classes with heterogeneous miscalibration structure. 
 
-Two approaches could address this. First, class-specific 
-temperature parameters — fitting a separate $T_k$ for each 
-class $k$ — would allow independent correction of each 
-class's calibration curve. Second, more expressive post-hoc 
-methods such as isotonic regression \citep{Zadrozny2002} or 
-matrix scaling \citep{Kull2019} could model class interactions 
-that scalar temperature cannot capture. We leave systematic 
-comparison of these methods to future work, noting that the 
-simple temperature scaling result already achieves practically 
+Two approaches could address this. First, class-specific
+temperature parameters — fitting a separate $T_k$ for each
+class $k$ — would allow independent correction of each
+class's calibration curve. Second, more expressive post-hoc
+methods such as isotonic regression \citep{Zadrozny2002} or
+matrix scaling \citep{Kull2019} could model class interactions
+that scalar temperature cannot capture. We leave systematic
+comparison of these methods to future work, noting that the
+simple temperature scaling result already achieves practically
 useful calibration for the majority of classes.
 
-\subsection{Fink's Structural Miscalibration}
+We caution that this class-level picture is most secure for
+SNIa and SNIbc ($n \geq 204$, relative CI width $\lesssim 25\%$).
+SLSN's pre-scaling ECE alone carries a 95\% CI half as wide as
+its point estimate ($n = 55$; Table~\ref{tab:perclassece}), so its
+specific pre/post-scaling trajectory should be read as directionally
+suggestive rather than a precise per-class calibration measurement.
+A larger SLSN sample would be needed before treating it as equally
+established as the SNIa/SNIbc/SNII pattern.
+
+\subsection{Fink: Ranking Failure, Not Merely Miscalibration}
 \label{sec:discussion:fink}
 
-The failure of temperature scaling for Fink's RF classifier — 
-evidenced by the optimiser hitting the upper bound at $T \approx 10$ 
-— indicates a qualitatively different problem from ALeRCE's 
-underconfidence. When no finite temperature produces a well-calibrated 
-output, the score distribution lacks the monotonic relationship 
-between predicted probability and empirical accuracy that 
-temperature scaling requires.
+The Fink results are a qualitatively different problem from
+ALeRCE's underconfidence, and the ranking metrics of
+Section~\ref{sec:results:fink} let us state it precisely. With
+$\mathrm{ROC\mbox{-}AUC} = 0.502$ (RF) and $0.525$ (SNN) on this
+sample, the scores carry essentially no information about which
+objects are SNIa. This reframes the temperature-scaling failure: the
+optimiser hitting its bound is a symptom, not the disease. Because
+monotone recalibration preserves ranking, \emph{no} output-side
+correction — temperature, Platt, isotonic, beta — can convert an
+uninformative score into a useful posterior. Our isotonic experiment
+makes the point concretely: it achieves $\mathrm{ECE} \approx 0.01$
+by collapsing predictions toward the base rate, a ``calibrated''
+output with no per-object content. Any calibration audit that
+reported ECE alone would mistake this for success.
 
-Inspection of the score distribution confirms this: 
-\texttt{rf\_snia\_vs\_nonia} assigns scores below $0.05$ to 
-over 90\% of objects, including the majority of true SNIa. 
-The classifier is not underconfident in the same sense as 
-ALeRCE — it is effectively non-discriminative for SNIa 
-identification on this dataset. This may reflect a domain 
-shift between Fink's training data and the BTS sample, or 
-a fundamental limitation of the binary RF formulation for 
-this classification problem.
+Why the scores are uninformative here remains open. Candidate
+explanations are domain shift between Fink's training distribution
+and the BTS sample, evaluation at alert epochs unlike those the
+models were tuned for, or limitations of the binary formulations
+themselves. The early-phase proxy subsets
+(Table~\ref{tab:finkextras}) disfavour — but, given the roughness of
+the \texttt{ndethist} proxy, do not exclude — the phase-mismatch
+explanation for the RF. A definitive attribution would require
+rescoring archival alerts at controlled phases, which we leave to
+future work. We stress the scope of the claim accordingly: these
+scores are unsuitable as general-purpose SNIa posteriors \emph{on a
+BTS-like bright sample queried at the most recent alert}; we make no
+claim about their performance in Fink's internal early-alert
+filtering context.
 
-SuperNNova retains weak discriminative structure — its 
-reliability curve rises slightly with confidence — but 
-insufficient for effective calibration. The deep learning 
-architecture of SuperNNova provides some advantage over 
-the RF approach, consistent with broader trends in the 
-literature \citep{Moller2019, Villar2019}.
+SuperNNova's marginally higher AUC ($0.525$) is consistent with the
+weak rise of its reliability curve, but the difference from chance
+is too small to support the architectural conclusions
+\citep{Moller2019, Villar2019} we might otherwise be tempted to
+draw.
 
 \subsection{Implications for Deferral-Aware Classification}
 \label{sec:discussion:deferral}
@@ -119,43 +147,77 @@ genuinely reflects the difficulty of the classification, not
 when a well-discriminating classifier mechanically suppresses 
 its own signal.
 
-Our results suggest that ALeRCE, post-calibration, provides 
-confidence estimates of sufficient quality to support deferral 
-decisions ($\mathrm{ECE} = 0.031$). Fink's classifiers, in 
-their current form, do not. This finding directly informs 
-broker selection for downstream deferral framework development.
+Our results suggest that ALeRCE, post-calibration, is a promising
+starting point for deferral-aware frameworks
+($\mathrm{ECE} = 0.015$ under held-out temperature scaling), pending
+validation on fainter, LSST-like samples. Fink's binary scores, in
+their current form and on this sample, are not. This finding
+directly informs broker selection for downstream deferral framework
+development.
 
-The TDE taxonomy gap identified in Section~\ref{sec:results:tde} 
-represents a separate but related challenge. Deferral frameworks 
-require that all scientifically relevant classes appear in the 
-classifier's output space. A broker that cannot classify TDE 
-by design will never defer TDE candidates for spectroscopic 
-follow-up — it will instead misclassify them as the nearest 
-available class with high confidence, producing exactly the 
-silent failure mode that deferral is designed to prevent.
+The taxonomy gap identified in Section~\ref{sec:results:tde}
+represents a separate but related challenge. Deferral frameworks
+require that all scientifically relevant classes appear in the
+classifier's output space, or that objects outside it be caught by a
+novelty channel. A deployed classifier without a TDE class will not
+flag TDE candidates as uncertain on the basis of its probability
+vector alone — it will instead assign them to the nearest available
+class, often with moderate-to-high confidence, producing the silent
+failure mode that deferral is designed to prevent. The recently
+developed TDE-aware extension \citep{Pavez-Herrera2025} addresses the
+taxonomy side of this for TDEs specifically; the general lesson — that
+a fixed-taxonomy classifier needs either complete coverage or explicit
+out-of-distribution detection before it can support follow-up
+allocation — is what carries forward to the deferral framework.
 
 \subsection{Limitations}
 \label{sec:discussion:limitations}
 
-Several limitations of this study should be acknowledged. 
-First, we evaluate calibration on a single broker snapshot; 
-ALeRCE and Fink update their classifiers periodically, and 
-our results reflect classifier versions active during our 
-data collection period. Second, the BTS magnitude limit 
-restricts our sample to bright, low-redshift transients; 
-calibration properties may differ for fainter populations 
-that will dominate LSST alert streams. Third, our temperature 
-scaling analysis is conducted on the evaluation set itself, 
-providing an optimistic estimate of post-hoc calibration 
-performance; deployment would require fitting $T$ on a 
-held-out validation set.
+Several limitations of this study should be acknowledged.
+First, we evaluate calibration on a single broker snapshot;
+ALeRCE and Fink update their classifiers periodically, and our
+ALeRCE sample spans two distinct production classifier versions
+active during our data collection period
+(Section~\ref{sec:results:version}). We tested rather than assumed
+that pooling these versions is valid: ECE and the fitted temperature
+agree closely between them (Table~\ref{tab:version}), so this
+limitation does not appear to affect our conclusions for ALeRCE.
+We did not perform the equivalent check for Fink, and the underlying
+model could in principle have changed during our collection window;
+this remains an open caveat for the Fink results specifically.
+Second, the BTS magnitude limit
+restricts our sample to bright, low-redshift transients;
+calibration properties may differ for fainter populations
+that will dominate LSST alert streams. Third, while our primary
+temperature-scaling results now use held-out evaluation (5-fold CV
+and an independent 60/40 split;
+Section~\ref{sec:results:tempscaling}), deployment would still
+require refitting $T$ on data from the operating classifier version
+and monitoring for drift as models are updated.
 
-Finally, we note that ECE as defined in 
-Equation~\ref{eq:ece} is sensitive to bin width and the 
-distribution of samples across bins \citep{Nixon2019}. 
-Our bootstrap confidence intervals partially address this 
-by quantifying sampling uncertainty, but do not capture 
-binning sensitivity. Adaptive binning methods \citep{Roelofs2022} 
-may provide more robust ECE estimates for highly imbalanced 
-confidence distributions such as those observed for Fink's 
-RF classifier.
+The second point deserves emphasis because it directly bears on
+this paper's own motivation: our LSST-oriented recommendations
+in Sections~\ref{sec:discussion:underconfidence},
+\ref{sec:discussion:deferral}, and the Conclusions are grounded in
+a bright, spectroscopically-confirmed sample ($m < 18.5$), while
+LSST's alert stream will be dominated by fainter, noisier, more
+ambiguous detections outside the regime we test. As
+Section~\ref{sec:data:groundtruth} states, our results are an
+upper bound on broker calibration performance. Every claim in this
+paper about LSST-era deployment is therefore an extrapolation
+from the bright regime, not a direct measurement of the faint
+regime it is meant to inform; validating that the same qualitative
+patterns (confidence-compressed underconfidence for ALeRCE, absent
+ranking signal for the Fink binary scores) persist near the survey's
+magnitude limit is a necessary next step before any of the
+recommendations here should be treated as LSST-ready.
+
+Finally, ECE as defined in Equation~\ref{eq:ece} is known to be
+sensitive to bin width and the distribution of samples across bins
+\citep{Nixon2019}, which matters most for highly skewed confidence
+distributions such as Fink RF's (Section~\ref{sec:results:binning}).
+We directly tested this rather than leaving it as a caveat: recomputing
+every headline ECE with equal-mass (adaptive) bins \citep{Roelofs2022}
+changes the point estimate by at most $1.0\%$ (Table~\ref{tab:binning}),
+with substantially overlapping bootstrap CIs. Bin construction is
+therefore not driving any conclusion in this paper.

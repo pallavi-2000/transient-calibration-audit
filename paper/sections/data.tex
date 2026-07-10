@@ -12,16 +12,20 @@ classifications as ground truth labels throughout this work.
 \subsection{Sample Construction}
 \label{sec:data:sample}
 
-We queried the ALeRCE broker API \citep{Forster2021} for classification 
-probabilities corresponding to all BTS objects with confirmed 
-spectroscopic types on 22 February 2026. ALeRCE's light curve classifier 
-\citep{Sanchez-Saez2021} outputs probabilities across 15 classes derived 
-from features of the ZTF alert photometric time series. For each object 
-we retrieved the most recent classification available at query time, 
-corresponding to classifier versions \texttt{24.4.1}--\texttt{27.5.7a32.dev1} 
-active in the production pipeline. We provide the full list of ZTF object 
-identifiers and retrieved probability vectors as a machine-readable 
-supplement to this paper.
+We queried the ALeRCE broker API \citep{Forster2021} for classification
+probabilities corresponding to all BTS objects with confirmed
+spectroscopic types on 22 February 2026. ALeRCE's light curve classifier
+\citep{Sanchez-Saez2021} outputs probabilities across 15 classes derived
+from features of the ZTF alert photometric time series. For each object
+we retrieved the most recent classification available at query time.
+Our initial collection did not record the \texttt{classifier\_version}
+tag returned alongside each probability vector; we later re-queried the
+API specifically to recover it (Section~\ref{sec:results:version}) and
+found two distinct versions active across our collection window,
+\texttt{hierarchical\_rf\_1.1.0} and \texttt{lc\_classifier\_1.1.13}, for
+1,601 of 1,606 objects (5 API failures on re-query). We provide the full
+list of ZTF object identifiers, retrieved probability vectors, and
+recovered version tags as a machine-readable supplement to this paper.
 
 We map the 11 BTS spectroscopic types to the 5 ALeRCE transient classes 
 most relevant to extragalactic time-domain science: Type Ia supernovae 

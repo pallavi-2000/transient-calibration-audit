@@ -4,7 +4,7 @@
 
 > *Are the probability outputs of broker classifiers trustworthy enough to drive follow-up decisions?*
 
-This repository contains the full analysis pipeline, data, and manuscript for the first systematic calibration study of three production transient classification systems: **ALeRCE** (Automatic Learning for the Rapid Classification of Events), **Fink**, and **NEEDLE** (Novel Efficient Detection of Extragalactic Events with Light-curve and Environment). All three are deployed in production and routinely used to prioritise spectroscopic and photometric follow-up of ZTF alerts.
+This repository contains the full analysis pipeline, data, and manuscript for a systematic calibration study (to our knowledge, the first against independent spectroscopic ground truth) of three production transient classification systems: **ALeRCE** (Automatic Learning for the Rapid Classification of Events), **Fink**, and **NEEDLE** (Novel Efficient Detection of Extragalactic Events with Light-curve and Environment). All three are deployed in production and routinely used to prioritise spectroscopic and photometric follow-up of ZTF alerts.
 
 ---
 
@@ -13,20 +13,55 @@ This repository contains the full analysis pipeline, data, and manuscript for th
 | Classifier | N | ECE (raw) | Direction | T (optimal) | ECE (post-calib) |
 |---|---|---|---|---|---|
 | **ALeRCE** | 1,576 | 0.259 [0.237, 0.280] | Underconfident | 0.36 ± 0.01 | 0.015 |
-| **Fink (RF)** | 1,368 | 0.464 [0.437, 0.490] | Severely underconfident | ≫10 (bound) | 0.353 |
+| **Fink (RF)**¹ | 1,368 | 0.464 [0.437, 0.490] | Severely underconfident | ≫10 (bound) | 0.353 |
 | **Fink (SNN)** | 1,368 | 0.304 [0.278, 0.332] | Underconfident | ≫10 (bound) | 0.229 |
 | **NEEDLE-TH** | 429 | **0.050** | Class-asymmetric | — | — |
 
 **ECE** = Expected Calibration Error (lower is better; 0 = perfectly calibrated).
 All CIs are 95% bootstrap intervals. Post-calibration uses 5-fold CV temperature scaling.
 
+¹ `rf_snia_vs_nonia` is documented by Fink as targeting *rising*, early-phase
+SN Ia candidates, not general-purpose posteriors — it's evaluated here
+against the full BTS sample (which includes late-phase discoveries outside
+its intended regime), so its ECE reflects both miscalibration and a
+task/target mismatch. Don't read it as a straight apples-to-apples
+comparison against ALeRCE LC or Fink SNN.
+
 ### NEEDLE per-class temperatures (vector scaling)
 
 | Class | T (mean ± std) | Interpretation |
 |---|---|---|
-| SN | 1.58 ± 0.06 | Overconfident — soften |
-| SLSN-I | **1.88 ± 0.10** | Severely overconfident — inverse-freq weighting artefact |
-| TDE | **0.43 ± 0.03** | Underconfident — model is conservative on the hardest class |
+| SN | 1.58 ± 0.10 | Overconfident — soften |
+| SLSN-I | **1.88 ± 0.29** | Severely overconfident — inverse-freq weighting artefact |
+| TDE | **0.42 ± 0.04** | Underconfident — model is conservative on the hardest class |
+
+Folds are grouped by ZTF object ID (`GroupKFold`), not by row. NEEDLE-TH is a
+5-model ensemble evaluated on 429 pooled predictions covering only 278 unique
+objects — 151 rows are repeat appearances of an object held out by more than
+one ensemble member. A naive row-wise split could put one appearance of an
+object in the fitting fold and another appearance of the *same* object in the
+"held-out" fold, leaking its label across the split. `GroupKFold` keeps every
+appearance of an object in one fold; the wider fold-to-fold spread above
+(e.g. SLSN-I std more than doubled vs. a row-wise split) reflects genuine
+sampling uncertainty that the earlier, leakier CV was masking. The point
+estimates themselves barely moved — the qualitative finding (global scaling
+fails; SLSN-I overconfident / TDE underconfident) is robust to the fix.
+
+### ALeRCE version-stability check
+
+The ALeRCE sample was collected by querying each object's most recent
+classification at query time, which spans whatever classifier version was
+live in production. Re-querying the API for the `classifier_version` tag
+(`src/collect_alerce_versions.py`, `data/raw/alerce_versions.csv`, 1,601/1,606
+objects recovered) found two distinct versions in the collection window —
+`hierarchical_rf_1.1.0` (n=1,346) and a newer `lc_classifier_1.1.13` (n=225).
+Stratifying 15-class top-1 ECE by version (`src/alerce_version_check.py`)
+gives nearly identical values (0.258 [0.235, 0.281] vs. 0.260 [0.200, 0.317])
+with fitted temperatures in the same sharpening regime (0.38 vs. 0.33) —
+pooling across versions does not appear to distort the headline
+ECE=0.259/T≈0.36 result. Caveats: version tags come from a later re-query
+(current metadata may not match the originally retrieved vectors), and the
+equivalent check has not been done for Fink.
 
 ---
 
@@ -40,7 +75,7 @@ A well-calibrated classifier satisfies: among all events assigned probability *p
 
 - **ALeRCE** (Carrasco-Davis et al. 2021) is strongly underconfident (ECE = 0.259), with mean confidence 45% against 71% accuracy. A single temperature parameter T = 0.36 reduces ECE by 94% to 0.015, indicating the underlying discriminative model is sound but systematically hedges its predictions — consistent with the inverse-frequency class weighting used during training.
 
-- **Fink** (Möller et al. 2021) is more severely miscalibrated: the Random Forest classifier reaches ECE = 0.464 and the SuperNNova deep learning model ECE = 0.304. Crucially, temperature scaling hits the numerical upper bound (T → ∞) for both, indicating the miscalibration is not a simple scale issue but reflects limited discriminative power, particularly for rare classes.
+- **Fink** (Möller et al. 2021) is more severely miscalibrated: the Random Forest classifier reaches ECE = 0.464 and the SuperNNova model ECE = 0.304. More fundamentally, **both scores carry no measurable ranking signal on this sample** (ROC-AUC = 0.502 and 0.525) — since monotone recalibration preserves ranking, no post-hoc correction (temperature, Platt, isotonic, beta) can make them informative posteriors. CV isotonic regression *does* reach ECE ≈ 0.01, but only by collapsing to the base rate — calibrated and useless, a caution against reading ECE alone. Early-phase proxy subsets (ndethist ≤ 5/3) do not rescue the RF, weakening the "evaluated outside its regime" explanation.
 
 - **NEEDLE** (Sheng et al. 2024, MNRAS 531, 2474) appears the best-calibrated of the three (ECE = 0.050), but its residual miscalibration is *class-asymmetric* in a way that resists a global scalar correction. SLSN-I — the rarest class and the one most aggressively upweighted by inverse-frequency training — is badly overconfident (T_SLSNI ≈ 1.88), while TDE is underconfident (T_TDE ≈ 0.43). This asymmetry is a direct, quantifiable consequence of class-imbalance handling via frequency weighting.
 

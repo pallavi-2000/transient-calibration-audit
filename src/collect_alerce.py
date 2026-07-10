@@ -150,6 +150,11 @@ def collect_predictions(sample_df: pd.DataFrame) -> pd.DataFrame:
                     'spectroscopic_type': spec_type,
                     'redshift':          row.get('redshift', None),
                     'peakmag':           row.get('peakmag', None),
+                    # ALeRCE's lc_classifier is versioned and updated in production
+                    # (see collect_alerce_versions.py) — captured here so future
+                    # analyses can check calibration stability across versions
+                    # without a second round of API calls.
+                    'classifier_version': lc['classifier_version'].iloc[0],
                 }
                 for _, prob_row in lc.iterrows():
                     result[prob_row['class_name']] = prob_row['probability']

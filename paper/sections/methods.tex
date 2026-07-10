@@ -25,16 +25,75 @@ where $B_m$ is the set of samples whose top-1 confidence falls in bin
 $m$, $n$ is the total number of samples, $\mathrm{acc}(B_m)$ is the 
 fraction of correct predictions in bin $m$, and $\mathrm{conf}(B_m)$ 
 is the mean confidence in bin $m$. We use $M = 10$ bins throughout. 
-A perfectly calibrated classifier has $\mathrm{ECE} = 0$; values above 
-0.05 indicate practically significant miscalibration 
-\citep{Guo2017}.
+A perfectly calibrated classifier has $\mathrm{ECE} = 0$; following
+common practice we use 0.05 as a practical reference level for
+consequential miscalibration \citep{Guo2017}, while noting this is a
+convention, not a formal significance boundary.
 
-For ALeRCE's 15-class classifier, we compute ECE using the top-1 
-predicted class and its associated probability across all 15 output 
-classes. For Fink's binary classifiers, which output a scalar 
-$P(\mathrm{SNIa})$, we apply a binary variant of 
-Equation~\ref{eq:ece} where $\mathrm{acc}(B_m)$ is the observed 
+For ALeRCE's 15-class classifier, we compute ECE using the top-1
+predicted class and its associated probability across all 15 output
+classes. For Fink's binary classifiers, which output a scalar
+$P(\mathrm{SNIa})$, we apply a binary variant of
+Equation~\ref{eq:ece} where $\mathrm{acc}(B_m)$ is the observed
 SNIa fraction within bin $m$.
+
+\subsubsection{Per-class calibration: three definitions}
+\label{sec:methods:perclass}
+
+``Per-class calibration'' is ambiguous in the multiclass setting, and
+the choice of definition materially affects conclusions
+(Section~\ref{sec:results:alerce_perclass}). We therefore compute and
+report three distinct quantities explicitly:
+
+\begin{enumerate}
+\item \textbf{True-class-conditioned top-label ECE}: for class $k$,
+Equation~\ref{eq:ece} restricted to objects whose \emph{spectroscopic}
+label is $k$. This measures a class-conditional confidence deficit —
+how appropriately the classifier weights objects that truly are class
+$k$ — which is the operationally relevant quantity when asking whether
+genuine members of a class will clear a confidence-based follow-up
+threshold. It is \emph{not} calibration in the standard conditional
+sense.
+\item \textbf{Predicted-class-stratified top-label ECE}:
+Equation~\ref{eq:ece} restricted to objects whose \emph{predicted}
+top-1 class is $k$. This asks whether confidence matches precision
+within each predicted-class stream.
+\item \textbf{One-vs-rest classwise ECE}: over \emph{all} objects,
+binning the class-$k$ probability $p_k$ against the empirical
+frequency of true class $k$ — the standard classwise calibration
+condition $P(y = k \mid \hat{p}_k = p) = p$.
+\end{enumerate}
+
+\subsubsection{Ranking metrics}
+\label{sec:methods:ranking}
+
+ECE alone cannot distinguish a classifier that ranks objects usefully
+but reports distorted probabilities (repairable post hoc) from one
+with no discriminative signal (not repairable by any monotone
+transformation, since monotone recalibration preserves ranking). For
+the binary Fink classifiers we therefore also report ROC--AUC and
+average precision (PR--AUC), alongside Brier score. A score with
+$\mathrm{AUC} \approx 0.5$ can always be made to \emph{appear}
+calibrated — a constant prediction at the base rate has
+$\mathrm{ECE} \approx 0$ — while carrying no information; reporting
+ECE together with ranking metrics guards against this failure mode.
+
+\subsubsection{Robustness to bin construction}
+\label{sec:methods:ace}
+
+Equation~\ref{eq:ece}'s equal-width bins are known to be sensitive
+to how probability mass is distributed across the confidence range
+\citep{Nixon2019, Roelofs2022}: a classifier whose scores concentrate
+near one end of $[0,1]$ — Fink's \texttt{rf\_snia\_vs\_nonia} has mean
+score $0.011$, putting roughly 90\% of objects in the first of 10
+bins — leaves the remaining bins populated by very few points, so the
+resulting ECE can be more sensitive to noise or bin placement than a
+well-populated case. As a robustness check, we additionally compute
+each headline ECE using equal-\textit{mass} (adaptive) bins, i.e.
+quantile bins of the confidence/score distribution that guarantee
+$\approx n/10$ samples per bin regardless of skew. If equal-width and
+equal-mass binning agree, the reported miscalibration is a property
+of the classifier and not an artefact of bin construction.
 
 \subsection{Uncertainty Quantification via Bootstrap}
 \label{sec:methods:bootstrap}
@@ -88,13 +147,24 @@ temperature scaling:
 where $\sigma$ is the sigmoid function and $\mathrm{logit}(p) = 
 \log(p / (1-p))$.
 
-We note that temperature scaling is applied here to the evaluation 
-set itself, which provides an optimistic upper bound on the 
-improvement achievable in deployment. In practice, $T$ should be 
-fitted on a held-out validation set. Our purpose is to demonstrate 
-the \textit{potential} for post-hoc calibration to recover well-calibrated 
-probabilities from the existing classifier outputs, not to propose 
-a production calibration pipeline.
+Fitting $T$ on the same data used to evaluate it yields an optimistic
+estimate. Our primary results therefore use held-out evaluation
+throughout: 5-fold stratified cross-validation ($T$ fitted on four
+folds by NLL minimisation, ECE evaluated on the held-out fold, pooled
+across folds), corroborated by an independent 60/40
+calibration/test split. We additionally report the same-set fit as an
+explicit \emph{oracle upper bound}, labelled as such, for comparison
+with the held-out numbers.
+
+For the Fink classifiers we also fit isotonic regression
+\citep{Zadrozny2002} under the same 5-fold cross-validation — a
+substantially more flexible monotone calibrator than scalar
+temperature — so that failure of temperature scaling alone is not
+over-interpreted as failure of all post-hoc methods. Isotonic results
+must be read jointly with the ranking metrics of
+Section~\ref{sec:methods:ranking}: a calibrator applied to an
+uninformative score can achieve low ECE by collapsing predictions
+toward the base rate.
 
 \subsection{Probability Renormalisation}
 \label{sec:methods:renorm}

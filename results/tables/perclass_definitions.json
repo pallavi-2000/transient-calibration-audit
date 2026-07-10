@@ -1,0 +1,86 @@
+{
+  "SNIa": {
+    "true_class_conditioned": {
+      "n": 757,
+      "ece": 0.3757,
+      "ci_lo": 0.3523,
+      "ci_hi": 0.4011
+    },
+    "predicted_class_stratified": {
+      "n": 740,
+      "ece": 0.3915,
+      "ci_lo": 0.3672,
+      "ci_hi": 0.415
+    },
+    "one_vs_rest": {
+      "n": 1576,
+      "ece": 0.2043,
+      "ci_lo": 0.1871,
+      "ci_hi": 0.2237
+    },
+    "accuracy": 0.8309
+  },
+  "SNII": {
+    "true_class_conditioned": {
+      "n": 560,
+      "ece": 0.099,
+      "ci_lo": 0.0664,
+      "ci_hi": 0.141
+    },
+    "predicted_class_stratified": {
+      "n": 315,
+      "ece": 0.4612,
+      "ci_lo": 0.4253,
+      "ci_hi": 0.4948
+    },
+    "one_vs_rest": {
+      "n": 1576,
+      "ece": 0.1429,
+      "ci_lo": 0.129,
+      "ci_hi": 0.1638
+    },
+    "accuracy": 0.4946
+  },
+  "SNIbc": {
+    "true_class_conditioned": {
+      "n": 204,
+      "ece": 0.3604,
+      "ci_lo": 0.3154,
+      "ci_hi": 0.405
+    },
+    "predicted_class_stratified": {
+      "n": 343,
+      "ece": 0.0801,
+      "ci_lo": 0.0525,
+      "ci_hi": 0.1326
+    },
+    "one_vs_rest": {
+      "n": 1576,
+      "ece": 0.1575,
+      "ci_lo": 0.1456,
+      "ci_hi": 0.1708
+    },
+    "accuracy": 0.8284
+  },
+  "SLSN": {
+    "true_class_conditioned": {
+      "n": 55,
+      "ece": 0.225,
+      "ci_lo": 0.1806,
+      "ci_hi": 0.3189
+    },
+    "predicted_class_stratified": {
+      "n": 149,
+      "ece": 0.284,
+      "ci_lo": 0.2453,
+      "ci_hi": 0.3416
+    },
+    "one_vs_rest": {
+      "n": 1576,
+      "ece": 0.1339,
+      "ci_lo": 0.1261,
+      "ci_hi": 0.142
+    },
+    "accuracy": 0.7818
+  }
+}

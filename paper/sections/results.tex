@@ -11,7 +11,7 @@ accuracies.
 
 \begin{figure}
 \centering
-\includegraphics[width=\columnwidth]{../figures/fig1_reliability_diagram}
+\includegraphics[width=\columnwidth]{../results/figures/fig1_reliability_diagram}
 \caption{Reliability diagram for ALeRCE's light curve classifier 
 evaluated on 1,576 spectroscopically confirmed ZTF transients 
 (30 TDE excluded). Every point lies above the perfect calibration 
@@ -29,50 +29,153 @@ is directional and consistent — not a consequence of random binning
 artefacts — indicating a systematic mechanistic suppression of 
 classifier confidence.
 
-To assess whether this miscalibration arises from probability dilution 
-across ALeRCE's 15-class output space, we renormalise the probability 
-vectors onto the 4 evaluated classes and recompute ECE. The renormalised 
-ECE is $0.251$ (95\% CI: $[0.230, 0.272]$), a difference of $0.008$ 
-from the 15-class estimate. Probability dilution accounts for only 
-3\% of the observed miscalibration; the remainder is intrinsic to the 
+To assess whether this miscalibration arises from probability dilution
+across ALeRCE's 15-class output space, we renormalise the probability
+vectors onto the 4 evaluated classes and recompute ECE. The renormalised
+ECE is $0.251$ (95\% CI: $[0.230, 0.272]$), a difference of $0.008$
+from the 15-class estimate. Probability dilution accounts for only
+3\% of the observed miscalibration; the remainder is intrinsic to the
 classifier.
+
+\subsection{Stability Across Classifier Versions}
+\label{sec:results:version}
+
+Our sample was collected by querying each object's most recent
+classification at the time of retrieval (Section~\ref{sec:data:sample}),
+which spans whatever \texttt{lc\_classifier} version was live in
+production when each query was made. Pooling predictions across
+versions is only valid if calibration is stable across them; we test
+this directly rather than assuming it. We re-queried the ALeRCE API
+for the \texttt{classifier\_version} tag attached to each object
+(recovered for 1,601 of 1,606 objects; 5 API failures) and found two
+distinct versions in production over our collection window:
+\texttt{hierarchical\_rf\_1.1.0} ($n=1346$) and a newer
+\texttt{lc\_classifier\_1.1.13} ($n=225$) — not merely a version-number
+increment but a differently-named classifier product, indicating a
+genuine model transition rather than a minor patch.
+
+Table~\ref{tab:version} shows 15-class top-1 ECE — the same quantity
+as the headline estimate — and the fitted temperature separately for
+each version (TDE and the 5 unmatched objects excluded, $n=1571$).
+The two versions' ECEs are nearly identical ($0.258$ vs.\ $0.260$)
+with strongly overlapping 95\% CIs, and both fitted temperatures lie
+in the same sharpening regime ($T = 0.38$ vs.\ $0.33$; the smaller
+version's $n=225$ makes its $T$ less precisely determined). We find
+no evidence that pooling across versions is inflating or distorting
+the aggregate ECE or the temperature correction of
+Section~\ref{sec:results:tempscaling}.
+
+Two caveats. First, the version tags were recovered by a later
+re-query of the API: if the broker recomputed an object's
+classification between our original retrieval and the re-query, the
+tag may describe a newer output than the probability vector we
+analyse. The check is therefore best-available, not perfect, version
+attribution. Second, this check covers ALeRCE only; we could not
+perform the equivalent test for Fink.
+
+\begin{deluxetable}{lccc}
+\tablecaption{ALeRCE 15-class top-1 ECE and fitted temperature by
+classifier version (TDE excluded; $n=1571$ of 1576 — 5 objects had
+no recoverable version tag). \label{tab:version}}
+\tablehead{
+  \colhead{Version} & \colhead{$N$} & \colhead{ECE (95\% CI)} & \colhead{$T$}
+}
+\startdata
+\texttt{hierarchical\_rf\_1.1.0} & 1346 & 0.258 [0.235, 0.281] & 0.382 \\
+\texttt{lc\_classifier\_1.1.13}  &  225 & 0.260 [0.200, 0.317] & 0.326 \\
+\hline
+Pooled (this subset)             & 1571 & 0.258 [0.236, 0.278] & 0.355 \\
+\enddata
+\tablecomments{The pooled row uses the 1,571-object subset with a
+recovered version tag; it is consistent with the full 1,576-object
+headline estimate (ECE $=0.259$) as expected from dropping only
+5 objects.}
+\end{deluxetable}
 
 \subsection{ALeRCE Per-Class Calibration}
 \label{sec:results:alerce_perclass}
 
-Figure~\ref{fig:alerce_perclass} shows per-class reliability diagrams 
-for the four ALeRCE-classified transient types. The results reveal a 
-striking inverse relationship between classification accuracy and 
-calibration error.
+Figure~\ref{fig:alerce_perclass} shows per-class reliability diagrams
+for the four ALeRCE-classified transient types.
+Table~\ref{tab:perclassece} reports per-class calibration under all
+three definitions of Section~\ref{sec:methods:perclass}; the choice
+of definition matters, so we describe each in turn.
 
-SNIa, the most accurately classified class (accuracy $= 0.831$), 
-exhibits the worst calibration ($\mathrm{ECE} = 0.377$, 
-95\% CI: $[0.352, 0.401]$). SNIbc shows the same pattern 
-(accuracy $= 0.828$, $\mathrm{ECE} = 0.362$, 
-95\% CI: $[0.315, 0.405]$). Both classes are classified correctly 
-more than 80\% of the time, yet the classifier assigns them 
-confidences far below this accuracy level.
+Under the true-class-conditioned definition (1) — the operationally
+relevant one for asking whether genuine members of a class will clear
+a confidence threshold — there is a pronounced inverse relationship
+between classification accuracy and confidence deficit. SNIa
+(accuracy $0.831$) shows $\mathrm{ECE} = 0.377$
+(95\% CI: $[0.352, 0.401]$) and SNIbc (accuracy $0.828$) shows
+$0.362$ $[0.315, 0.405]$: both are classified correctly more than
+80\% of the time, yet receive confidences far below that level. SNII
+(accuracy $0.495$) shows the smallest deficit
+($0.103$ $[0.066, 0.141]$).
 
-SNII presents the inverse case: accuracy is only $0.495$, yet ECE 
-is $0.103$ (95\% CI: $[0.066, 0.141]$) — the best-calibrated class. 
-The classifier is appropriately uncertain about objects it 
-classifies poorly. SLSN shows intermediate behaviour 
-($\mathrm{ECE} = 0.245$, 95\% CI: $[0.181, 0.319]$), with wider 
-confidence intervals reflecting the smaller sample size ($n = 55$).
+This inversion is, however, \textbf{definition-dependent}, and we
+flag this explicitly. Under predicted-class stratification
+(definition 2) the ordering changes substantially: objects
+\emph{predicted} SNII carry the largest gap
+($\mathrm{ECE} = 0.461$ $[0.425, 0.495]$ — the classifier's precision
+on predicted-SNII objects far exceeds its stated confidence), while
+predicted-SNIbc is the best calibrated ($0.080$). Under the standard
+one-vs-rest classwise definition (3), all four classes are
+significantly miscalibrated at a more uniform level
+($0.13$--$0.20$), with SNIa worst ($0.204$). Two conclusions are
+robust across all three definitions: the direction is
+underconfidence throughout, and every class exceeds the 0.05
+reference level. The specific claim ``the best-classified classes
+are the worst-calibrated'' holds for the class-conditional confidence
+deficit (definition 1), not for classwise calibration in the standard
+sense.
 
-This pattern is mechanistically coherent. ALeRCE's light curve 
-classifier is based on Random Forest \citep{Sanchez-Saez2021}, 
-whose probability outputs are averages of hard leaf-node votes. 
-In class-imbalanced datasets, this averaging systematically 
-suppresses predicted probabilities for well-represented classes 
-\citep{Niculescu-Mizil2005, Zadrozny2002}. SNIa comprises 47\% 
-of our sample; its dominance mechanically drives down predicted 
-probabilities across the board, with the strongest suppression 
-for the class the classifier discriminates most reliably.
+\begin{deluxetable}{lcccc}
+\tablecaption{ALeRCE per-class calibration under the three
+definitions of Section~\ref{sec:methods:perclass}, with bootstrap
+95\% CIs (2,000 resamples). $N$ is the number of objects entering
+each estimate: true class members (1), predicted class members (2),
+or all objects (3). \label{tab:perclassece}}
+\tablehead{
+  \colhead{Class} & \colhead{Acc} &
+  \colhead{(1) true-class} & \colhead{(2) pred.-class} &
+  \colhead{(3) one-vs-rest}
+}
+\startdata
+SNIa  & 0.83 & 0.376 [0.352, 0.401] & 0.392 [0.367, 0.415] & 0.204 [0.187, 0.224] \\
+SNII  & 0.49 & 0.099 [0.066, 0.141] & 0.461 [0.425, 0.495] & 0.143 [0.129, 0.164] \\
+SNIbc & 0.83 & 0.360 [0.315, 0.405] & 0.080 [0.053, 0.133] & 0.158 [0.146, 0.171] \\
+SLSN  & 0.78 & 0.225 [0.181, 0.319] & 0.284 [0.245, 0.342] & 0.134 [0.126, 0.142] \\
+\enddata
+\tablecomments{$N$ per column: (1) 757/560/204/55;
+(2) 740/315/343/149; (3) 1576 for all. SLSN estimates under
+definitions (1)--(2) carry relative CI widths of $\sim$50\% and
+should be read as suggestive. TDE is excluded
+(Section~\ref{sec:results:tde}): its $0.000$ accuracy reflects a
+taxonomy gap, not a calibration estimate.}
+\end{deluxetable}
+
+The confidence deficit for well-classified classes is consistent
+with a known property of Random Forest probability estimates:
+RF outputs are averages of tree votes, and under class imbalance
+this averaging compresses predicted probabilities away from the
+extremes \citep{Niculescu-Mizil2005, Zadrozny2002}. We can
+demonstrate the compression directly in our sample rather than
+leaving it as a hypothesis: among the 629 \emph{correctly
+classified} SNIa, the maximum top-1 confidence assigned to any
+object is $0.72$ and the median is $0.47$ — against an achieved
+accuracy of $0.83$. Across the full sample, only $0.6\%$ of objects
+receive confidence above $0.8$, none above $0.9$, and the global
+maximum is $0.88$. The output range is truncated well below the
+level required to match the accuracy of the best-classified types,
+which mechanically forces a confidence deficit for any class with
+accuracy above $\sim$$0.72$. Whether this compression originates
+specifically from inverse-frequency class weighting in training
+would require access to ALeRCE's training configuration; the
+compression itself, however, is directly observed.
 
 \begin{figure}
 \centering
-\includegraphics[width=\columnwidth]{../figures/fig2_perclass_reliability}
+\includegraphics[width=\columnwidth]{../results/figures/fig2_perclass_reliability}
 \caption{Per-class reliability diagrams for ALeRCE's light curve 
 classifier. SNIa and SNIbc (accuracy $> 0.83$) show severe 
 underconfidence (ECE $> 0.36$). SNII (accuracy $0.495$) is the 
@@ -81,44 +184,68 @@ intervals reflecting the smaller sample size ($n = 55$).}
 \label{fig:alerce_perclass}
 \end{figure}
 
-\subsection{TDE Classification Failure}
+\subsection{A Taxonomy Gap in the Deployed Classifier}
 \label{sec:results:tde}
 
-TDE achieves a classification accuracy of $0.000$ on our 30-object 
-sample. This is not a calibration problem but a taxonomy gap: TDE 
-is absent from ALeRCE's 15-class output taxonomy. The classifier 
-cannot predict TDE by design, assigning all probability mass to 
-other classes for every TDE in our sample.
+TDE achieves a classification accuracy of $0.000$ on our 30-object
+sample. This is not a calibration problem and not a shortcoming of the
+model on a task it was built for: TDE is simply \textit{absent} from
+the deployed classifier's output space. The \citet{Sanchez-Saez2021}
+light curve classifier resolves four transient classes — SNIa, SNIbc,
+SNII, SLSN — and cannot emit a TDE probability by construction, so it
+assigns all mass to other classes for every TDE. We confirmed this
+holds for both production versions in our sample by re-querying the
+live API: \texttt{hierarchical\_rf\_1.1.0} and
+\texttt{lc\_classifier\_1.1.13} each return the same 15-class taxonomy
+with no TDE class.
 
-This finding has direct operational significance. TDEs are a 
-high-priority science case for LSST-era time-domain astronomy, 
-representing unique probes of supermassive black hole demographics 
-and accretion physics \citep{Gezari2021}. A production broker 
-used by the community cannot identify them. We exclude TDE from 
-all calibration analyses but flag this gap as requiring attention 
-before LSST first light.
+We stress that this is a statement about the \emph{deployed} classifier,
+not about ALeRCE as a project. A TDE-aware extension of the light curve
+classifier has since been developed \citep{Pavez-Herrera2025}, adding
+TDE as a subclass and reaching $\sim$91\% TDE recall on a labelled set.
+That version was not serving the alert stream during our collection
+window, so the operational point stands in a sharper, narrower form: the
+capability to classify TDEs exists in the literature but had not yet
+reached the classifier whose probability vectors actually drive
+follow-up decisions. TDEs are a high-priority LSST science case
+\citep{Gezari2021}, and an object that is confidently mislabelled as a
+supernova — rather than flagged as uncertain — is precisely the silent
+failure mode that confidence-based prioritisation is meant to avoid. We
+exclude TDE from all calibration analyses (they carry no ECE by
+construction) but retain the observation as motivation for verifying
+taxonomy coverage, and for out-of-taxonomy novelty detection, before
+LSST first light.
 
 \subsection{Temperature Scaling}
 \label{sec:results:tempscaling}
 
-We apply temperature scaling (Section~\ref{sec:methods:tempscaling}) 
-to ALeRCE's classifier outputs. The optimal temperature is 
-$T = 0.359$, substantially below unity, confirming that the 
-classifier requires confidence \textit{sharpening} — the opposite 
-of the overconfidence correction for which temperature scaling 
-is most commonly applied \citep{Guo2017}.
+We apply temperature scaling (Section~\ref{sec:methods:tempscaling})
+to ALeRCE's classifier outputs. Under 5-fold cross-validation the
+fitted temperature is stable across folds
+($T = 0.361 \pm 0.011$), substantially below unity, confirming that
+the classifier requires confidence \textit{sharpening} — the opposite
+of the overconfidence correction for which temperature scaling is
+most commonly applied \citep{Guo2017}.
 
-Figure~\ref{fig:tempscaling} shows the reliability diagram before 
-and after scaling. Post-calibration ECE is $0.031$ 
-(95\% CI: $[0.017, 0.047]$), an 88\% reduction from the 
-pre-calibration value of $0.259$. The confidence intervals 
-do not overlap, confirming a statistically significant improvement. 
-Mean confidence increases from $0.451$ to $0.712$, now closely 
-matching the empirical accuracy of $0.709$.
+Our primary, held-out result: pooling the held-out folds gives
+$\mathrm{ECE} = 0.015$ (95\% CI: $[0.017, 0.045]$ across bootstrap
+resamples of the pooled folds), a $94\%$ reduction from the
+pre-calibration $0.259$; Brier score improves from $0.127$ to
+$0.103$ and NLL from $0.938$ to $0.787$. The independent 60/40
+calibration/test split corroborates this: $T$ fitted on 945 objects
+yields $\mathrm{ECE} = 0.024$ on the 631 held-out objects. For
+comparison, the same-set oracle fit ($T = 0.359$ on all 1{,}576
+objects) gives $\mathrm{ECE} = 0.031$ — the held-out numbers are not
+meaningfully worse than the oracle bound, indicating the correction
+generalises rather than overfitting the evaluation set.
+
+Figure~\ref{fig:tempscaling} shows the reliability diagram before
+and after scaling. Mean confidence increases from $0.451$ to
+$0.712$, closely matching the empirical accuracy of $0.709$.
 
 \begin{figure}
 \centering
-\includegraphics[width=\columnwidth]{../figures/fig4_temperature_scaling}
+\includegraphics[width=\columnwidth]{../results/figures/fig4_temperature_scaling}
 \caption{ALeRCE reliability diagrams before (left) and after (right) 
 temperature scaling with $T = 0.359$. ECE reduces from $0.259$ to 
 $0.031$ — an 88\% improvement. The residual dip near confidence 
@@ -127,11 +254,19 @@ $0.3$ in the right panel reflects SNII overcorrection
 \label{fig:tempscaling}
 \end{figure}
 
-Table~\ref{tab:tempscaling} shows per-class ECE before and after 
-scaling. Temperature scaling substantially improves SNIa 
-($0.377 \to 0.114$) and SNIbc ($0.360 \to 0.108$), with moderate 
-improvement for SLSN ($0.225 \to 0.140$). However, SNII 
-\textit{worsens} from $0.099$ to $0.189$. 
+Table~\ref{tab:tempscaling} shows per-class ECE before and after
+scaling. Temperature scaling substantially improves SNIa
+($0.377 \to 0.114$) and SNIbc ($0.360 \to 0.108$), classes with
+$n \geq 204$ and correspondingly tight bootstrap CIs
+(Table~\ref{tab:perclassece}). SNII \textit{worsens} from $0.099$
+to $0.189$. The apparent ``moderate improvement'' for SLSN
+($0.225 \to 0.140$) should be read more cautiously: SLSN's
+pre-scaling ECE alone carries a 95\% CI of $[0.181, 0.319]$
+on $n = 55$ objects (Section~\ref{sec:results:alerce_perclass}),
+a range wide enough that the point estimate of the post-scaling
+value is only weakly constrained; we report it for completeness
+but do not treat the specific $0.085$ improvement as a precise
+measurement.
 
 This result is mechanistically interpretable. SNII was the only 
 well-calibrated class before scaling: the classifier's uncertainty 
@@ -144,8 +279,10 @@ characteristics. Class-specific temperature parameters would be
 required for a complete fix.
 
 \begin{deluxetable}{lcccc}
-\tablecaption{ALeRCE per-class ECE before and after temperature 
-scaling ($T = 0.359$). \label{tab:tempscaling}}
+\tablecaption{ALeRCE per-class ECE (true-class-conditioned;
+definition~1 of Section~\ref{sec:methods:perclass}) before and after
+5-fold cross-validated temperature scaling ($T = 0.361 \pm 0.011$).
+\label{tab:tempscaling}}
 \tablehead{
   \colhead{Class} & \colhead{$N$} & 
   \colhead{ECE (before)} & \colhead{ECE (after)} & 
@@ -180,7 +317,7 @@ for SNIa identification in this sample
 
 \begin{figure}
 \centering
-\includegraphics[width=\columnwidth]{../figures/fig3_fink_reliability}
+\includegraphics[width=\columnwidth]{../results/figures/fig3_fink_reliability}
 \caption{Reliability diagrams for Fink's two binary classifiers 
 evaluated on 1,368 ZTF transients. Left: Random Forest 
 (\texttt{rf\_snia\_vs\_nonia}), ECE $= 0.464$. The flat curve 
@@ -193,56 +330,156 @@ discriminative signal persists but is severely suppressed.}
 SuperNNova (\texttt{snn\_snia\_vs\_nonia}) shows qualitatively 
 better behaviour: mean score $0.222$ against true fraction $0.471$, 
 with a reliability curve that rises weakly with confidence 
-($\mathrm{ECE} = 0.304$, 95\% CI: $[0.278, 0.332]$). The 
-classifier retains some discriminative signal but suppresses it 
-substantially.
+($\mathrm{ECE} = 0.304$, 95\% CI: $[0.278, 0.332]$). The
+reliability curve's weak rise suggests marginal discriminative
+signal; the ranking metrics below quantify how marginal
+($\mathrm{ROC\mbox{-}AUC} = 0.525$).
 
-Temperature scaling applied to both Fink classifiers hits the 
-upper optimisation bound ($T \approx 10$) in both cases, 
-achieving only modest ECE reductions: 24\% for RF 
-($0.464 \to 0.353$) and 25\% for SuperNNova 
-($0.304 \to 0.229$). When the optimal $T$ hits the bound, it 
-indicates the score distribution lacks the monotonic structure 
-temperature scaling requires. For Fink's RF classifier, no 
-post-hoc transformation of the output scores can recover 
-well-calibrated probabilities; the discriminative failure is 
-structural.
+Temperature scaling applied to both Fink classifiers hits the
+upper optimisation bound ($T \approx 10$) in both cases,
+achieving only modest ECE reductions: 24\% for RF
+($0.464 \to 0.353$) and 25\% for SuperNNova
+($0.304 \to 0.229$). Failure of scalar temperature scaling alone,
+however, does not establish that no post-hoc method can help. We
+therefore add two diagnostics (Table~\ref{tab:finkextras}).
+
+First, ranking metrics. On this sample both scores carry essentially
+no discriminative signal for SNIa identification:
+$\mathrm{ROC\mbox{-}AUC} = 0.502$ for RF and $0.525$ for SuperNNova
+(0.5 = chance), with average precision ($0.476$, $0.493$)
+indistinguishable from the SNIa base rate of $0.471$. This is the
+decisive measurement: monotone recalibration preserves ranking, so
+with $\mathrm{AUC} \approx 0.5$ \emph{no} monotone post-hoc
+transformation — temperature, Platt, isotonic, beta — can produce
+scores that are simultaneously calibrated and informative on this
+sample.
+
+Second, isotonic regression under 5-fold cross-validation
+\emph{does} achieve low ECE ($0.014$ for RF, $0.008$ for SNN) — but
+this is exactly the calibrated-yet-uninformative failure mode
+anticipated in Section~\ref{sec:methods:ranking}: with no ranking
+signal to preserve, the isotonic fit collapses predictions toward
+the base rate, which is trivially calibrated and carries no
+per-object information. We report this as a caution against reading
+ECE in isolation, not as a repair of the Fink scores.
+
+Finally, because the RF classifier is documented as targeting
+\textit{rising}, early-phase candidates, we recompute all metrics on
+early-phase proxy subsets (alerts with $\leq 5$ and $\leq 3$ prior
+detections, \texttt{ndethist}; 75\% and 62\% of the sample
+respectively). Neither ECE nor AUC improves
+(Table~\ref{tab:finkextras}) — within the limits of this proxy, the
+lack of discriminative signal is not explained by evaluating the RF
+outside its intended phase regime. We caveat that \texttt{ndethist}
+at the retrieved alert is an imperfect phase indicator, and a
+definitive test would require rescoring archival early-phase alerts.
+
+\begin{deluxetable}{llcccc}
+\tablecaption{Fink classifier diagnostics beyond ECE. Isotonic ECE
+is 5-fold cross-validated. AUC $= 0.5$ indicates no ranking signal;
+average precision (PR-AUC) at the base rate ($0.471$) likewise.
+\label{tab:finkextras}}
+\tablehead{
+  \colhead{Classifier} & \colhead{Subset} & \colhead{ECE} &
+  \colhead{ECE (isotonic)} & \colhead{ROC-AUC} & \colhead{PR-AUC}
+}
+\startdata
+RF  & full ($n=1368$)                & 0.464 & 0.014 & 0.502 & 0.476 \\
+RF  & \texttt{ndethist} $\leq 5$     & 0.470 & 0.002 & 0.499 & 0.475 \\
+RF  & \texttt{ndethist} $\leq 3$     & 0.464 & 0.000 & 0.500 & 0.464 \\
+SNN & full ($n=1368$)                & 0.300 & 0.008 & 0.525 & 0.493 \\
+SNN & \texttt{ndethist} $\leq 5$     & 0.312 & 0.011 & 0.536 & 0.500 \\
+SNN & \texttt{ndethist} $\leq 3$     & 0.325 & 0.011 & 0.540 & 0.492 \\
+\enddata
+\tablecomments{Low isotonic ECE here reflects collapse toward the
+base rate (calibrated but uninformative), not recovery of useful
+posteriors — see the AUC columns.}
+\end{deluxetable}
+
+\subsection{Robustness to Bin Construction}
+\label{sec:results:binning}
+
+Section~\ref{sec:methods:ace} motivates recomputing each headline ECE
+with equal-mass (adaptive) bins as a check against bin-construction
+artefacts, since Fink's RF classifier has the most skewed score
+distribution in this study (90\% of mass in the first of 10 equal-width
+bins). Table~\ref{tab:binning} shows the comparison. The relative
+change from equal-width to equal-mass binning is at most $1.0\%$
+(Fink RF and SNN), and ALeRCE's aggregate ECE is unchanged to the
+precision reported. The bootstrap CIs of the two binning schemes
+overlap substantially for every classifier. We conclude the
+miscalibration estimates in this paper reflect genuine classifier
+behaviour rather than a bin-width artefact.
+
+\begin{deluxetable}{lccc}
+\tablecaption{ECE under equal-width vs.\ equal-mass (adaptive) binning,
+10 bins, 2{,}000-resample bootstrap CIs.
+\label{tab:binning}}
+\tablehead{
+  \colhead{Classifier} & \colhead{$N$} &
+  \colhead{Equal-width ECE} & \colhead{Equal-mass ECE}
+}
+\startdata
+ALeRCE aggregate & 1576 & 0.259 [0.237, 0.280] & 0.259 [0.237, 0.280] \\
+Fink RF          & 1368 & 0.464 [0.437, 0.490] & 0.460 [0.433, 0.485] \\
+Fink SNN         & 1368 & 0.300 [0.278, 0.332] & 0.302 [0.278, 0.332] \\
+\enddata
+\tablecomments{Equal-mass bins guarantee $\approx n/10$ samples per
+bin regardless of score skew. Agreement with equal-width ECE (largest
+relative change: $1.0\%$, Fink RF) indicates the reported
+miscalibration is not a binning artefact. Entries here are point
+estimates of Equation~\ref{eq:ece}; headline values quoted elsewhere
+(e.g.\ SNN $0.304$) are bootstrap means, which differ from the point
+estimate ($0.300$) at the third decimal.}
+\end{deluxetable}
 
 \subsection{Cross-Broker Comparison}
 \label{sec:results:comparison}
 
-Table~\ref{tab:comparison} summarises calibration results across 
-all three classifiers. ALeRCE's light curve classifier, despite 
-exhibiting the systematic underconfidence described above, is 
-substantially better calibrated than either Fink classifier. 
-Critically, ALeRCE's miscalibration is correctable: temperature 
-scaling reduces ECE to $0.031$, below the 0.05 significance 
-threshold. Fink's classifiers, particularly the RF classifier, 
-exhibit structural miscalibration that post-hoc methods cannot 
-adequately address.
+Table~\ref{tab:comparison} summarises calibration results across
+all three classifiers. ALeRCE's light curve classifier, despite
+the systematic underconfidence described above, retains strong
+discriminative structure, and its miscalibration is correctable:
+held-out temperature scaling reduces ECE to $0.015$ (5-fold CV;
+$0.024$ on the independent 60/40 split), below the 0.05 practical
+reference level. The Fink binary scores, on this sample, fail at the
+more fundamental level of ranking ($\mathrm{AUC} \approx 0.5$;
+Table~\ref{tab:finkextras}), which no post-hoc monotone
+recalibration can repair.
 
-\begin{deluxetable}{lcccc}
+\begin{deluxetable}{lccccc}
 \tablecaption{Calibration comparison across brokers and classifiers.
 \label{tab:comparison}}
 \tablehead{
-  \colhead{Classifier} & \colhead{ECE} & 
-  \colhead{95\% CI} & \colhead{ECE (post-TS)} &
-  \colhead{$T$}
+  \colhead{Classifier} & \colhead{ECE} &
+  \colhead{95\% CI} & \colhead{ECE (held-out TS)} &
+  \colhead{$T$} & \colhead{ROC-AUC}
 }
 \startdata
-ALeRCE LC    & 0.259 & [0.237, 0.280] & 0.031 & 0.359 \\
-Fink RF      & 0.464 & [0.437, 0.490] & 0.353 & $\sim$10 \\
-Fink SNN     & 0.304 & [0.278, 0.332] & 0.229 & $\sim$10 \\
+ALeRCE LC        & 0.259 & [0.237, 0.280] & 0.015 & 0.361 & \nodata \\
+Fink RF\tablenotemark{a} & 0.464 & [0.437, 0.490] & 0.353 & $\sim$10 & 0.502 \\
+Fink SNN         & 0.304 & [0.278, 0.332] & 0.229 & $\sim$10 & 0.525 \\
 \enddata
-\tablecomments{Post-TS: ECE after temperature scaling. 
-$T \sim 10$ indicates the optimiser hit the upper bound, 
-signifying structural miscalibration not addressable by 
-temperature scaling.}
+\tablenotetext{a}{\texttt{rf\_snia\_vs\_nonia} is documented by Fink as
+targeting \textit{rising}, early-phase SN Ia candidates, not
+general-purpose SN Ia posteriors (Section~\ref{sec:data:fink}); its row
+should not be read as an equal-footing comparison. We note, however,
+that restricting to early-phase proxy subsets does not improve its
+metrics (Table~\ref{tab:finkextras}).}
+\tablecomments{ALeRCE post-TS ECE is the 5-fold CV held-out value
+($T = 0.361 \pm 0.011$ across folds); the same-set oracle fit gives
+$0.031$. $T \sim 10$: optimiser at upper bound. ROC-AUC is defined
+for the binary Fink scores only; $0.5$ = no ranking signal.}
 \end{deluxetable}
 
-These findings establish that miscalibration is not uniform 
-across production astronomical brokers. The differences are 
-scientifically consequential: a broker with ECE $= 0.464$ 
-cannot support reliable deferral decisions, while a broker 
-with ECE $= 0.031$ post-calibration approaches the reliability 
-required for automated follow-up prioritisation.
+These findings establish that miscalibration is not uniform across
+production astronomical brokers, and — importantly — that its
+\emph{repairability} differs in kind, not just degree. ALeRCE's
+problem is a distorted mapping from evidence to probability atop a
+sound ranking; a one-parameter correction fixes it out of sample. On
+this BTS-matched sample, the Fink binary scores carry no measurable
+ranking signal for general SNIa identification, so no output-side
+correction can make them useful posteriors; whether this reflects
+domain shift from their training distribution or evaluation outside
+their intended operating point (partially disfavoured by the
+early-phase subsets) cannot be resolved with the data collected here.

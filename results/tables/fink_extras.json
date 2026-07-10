@@ -1,0 +1,78 @@
+{
+  "rf": {
+    "full": {
+      "n": 1368,
+      "snia_fraction": 0.4708,
+      "ece": 0.4643,
+      "brier": 0.4642,
+      "roc_auc": 0.5021,
+      "pr_auc": 0.4758,
+      "isotonic_cv": {
+        "ece": 0.0136,
+        "brier": 0.2499
+      }
+    },
+    "ndethist_le5": {
+      "n": 1028,
+      "snia_fraction": 0.4728,
+      "ece": 0.4701,
+      "brier": 0.4702,
+      "roc_auc": 0.4991,
+      "pr_auc": 0.4748,
+      "isotonic_cv": {
+        "ece": 0.0018,
+        "brier": 0.2494
+      }
+    },
+    "ndethist_le3": {
+      "n": 849,
+      "snia_fraction": 0.4641,
+      "ece": 0.4641,
+      "brier": 0.4641,
+      "roc_auc": 0.5,
+      "pr_auc": 0.4641,
+      "isotonic_cv": {
+        "ece": 0.0,
+        "brier": 0.2487
+      }
+    }
+  },
+  "snn": {
+    "full": {
+      "n": 1368,
+      "snia_fraction": 0.4708,
+      "ece": 0.2995,
+      "brier": 0.3758,
+      "roc_auc": 0.5246,
+      "pr_auc": 0.4934,
+      "isotonic_cv": {
+        "ece": 0.0083,
+        "brier": 0.2495
+      }
+    },
+    "ndethist_le5": {
+      "n": 1028,
+      "snia_fraction": 0.4728,
+      "ece": 0.3118,
+      "brier": 0.381,
+      "roc_auc": 0.5363,
+      "pr_auc": 0.4998,
+      "isotonic_cv": {
+        "ece": 0.0108,
+        "brier": 0.2492
+      }
+    },
+    "ndethist_le3": {
+      "n": 849,
+      "snia_fraction": 0.4641,
+      "ece": 0.3252,
+      "brier": 0.3857,
+      "roc_auc": 0.5399,
+      "pr_auc": 0.492,
+      "isotonic_cv": {
+        "ece": 0.011,
+        "brier": 0.2493
+      }
+    }
+  }
+}

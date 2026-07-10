@@ -1,13 +1,13 @@
 \subsection{Astronomical Alert Brokers}
 \label{sec:related:brokers}
 
-The ZTF alert stream has prompted the development of several 
-automated classification brokers. ALeRCE \citep{Forster2021} 
-operates a two-stage pipeline: a stamp classifier for early 
-real/bogus filtering and a light curve classifier 
-\citep{Sanchez-Saez2021} for multi-class transient 
-classification using Random Forest on extracted photometric 
-features. Fink \citep{Moller2021} provides a modular 
+The ZTF alert stream has prompted the development of several
+automated classification brokers. ALeRCE \citep{Forster2021}
+operates a two-stage pipeline: a stamp classifier for early
+real/bogus filtering and a light curve classifier
+\citep{Sanchez-Saez2021, Pavez-Herrera2025} for multi-class
+transient classification using Random Forest on extracted
+photometric features. Fink \citep{Moller2021} provides a modular 
 science portal with multiple classifiers operating 
 independently, including the SuperNNova-based binary 
 classifier \citep{Moller2019} and a Random Forest 
@@ -33,16 +33,22 @@ distribution shift \citep{Ovadia2019}, for binary
 classifiers \citep{Kull2017}, and in the context of 
 selective prediction \citep{Geifman2017}.
 
-Calibration of Random Forest classifiers is less studied 
-but well understood at a mechanistic level. 
-\citet{Niculescu-Mizil2005} demonstrated that RF produces 
-systematically distorted probability estimates — 
-underconfident for well-discriminated classes and poorly 
-calibrated near class boundaries — and that Platt scaling 
-and isotonic regression provide effective corrections. 
-\citet{Zadrozny2002} introduced isotonic regression as 
-a nonparametric post-hoc calibration method applicable 
-to any classifier.
+Calibration of Random Forest classifiers is less studied
+but well understood at a mechanistic level.
+\citet{Niculescu-Mizil2005} demonstrated that RF produces
+systematically distorted probability estimates —
+underconfident for well-discriminated classes and poorly
+calibrated near class boundaries — and that Platt scaling
+\citep{Platt1999} and isotonic regression provide effective
+corrections. \citet{Zadrozny2002} introduced isotonic
+regression as a nonparametric post-hoc calibration method
+applicable to any classifier; \citet{Kull2017} proposed beta
+calibration for binary scores, and \citet{Kull2019} extended
+matrix/Dirichlet scaling to the multiclass setting. The
+sensitivity of ECE itself to bin construction is analysed by
+\citet{Nixon2019} and \citet{Roelofs2022}, motivating the
+adaptive-binning robustness checks we perform in
+Section~\ref{sec:results:binning}.
 
 In astronomy, calibration has been studied in the context 
 of photometric redshift estimation \citep{Bordoloi2010, 

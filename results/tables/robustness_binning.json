@@ -1,0 +1,41 @@
+{
+  "alerce_aggregate": {
+    "n": 1576,
+    "equal_width": {
+      "point": 0.2587,
+      "ci_lo": 0.2374,
+      "ci_hi": 0.2801
+    },
+    "equal_mass": {
+      "point": 0.2587,
+      "ci_lo": 0.2373,
+      "ci_hi": 0.28
+    }
+  },
+  "fink_rf": {
+    "n": 1368,
+    "equal_width": {
+      "point": 0.4643,
+      "ci_lo": 0.4372,
+      "ci_hi": 0.49
+    },
+    "equal_mass": {
+      "point": 0.4598,
+      "ci_lo": 0.4327,
+      "ci_hi": 0.4851
+    }
+  },
+  "fink_snn": {
+    "n": 1368,
+    "equal_width": {
+      "point": 0.2995,
+      "ci_lo": 0.2775,
+      "ci_hi": 0.3315
+    },
+    "equal_mass": {
+      "point": 0.3024,
+      "ci_lo": 0.2777,
+      "ci_hi": 0.3317
+    }
+  }
+}

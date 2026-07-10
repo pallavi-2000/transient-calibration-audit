@@ -77,6 +77,100 @@ def compute_ece(
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# 1b. BINNED CALIBRATION ERROR (equal-width or equal-mass/adaptive)
+# ─────────────────────────────────────────────────────────────────────────────
+
+def compute_binned_ce(
+    values: np.ndarray,
+    targets: np.ndarray,
+    n_bins: int = 10,
+    adaptive: bool = False
+) -> float:
+    """
+    Generalised binned calibration error over (value, target) pairs, where
+    `value` is a predicted probability (top-1 confidence, or a binary
+    P(class) score) and `target` is the corresponding 0/1 outcome
+    (correct/incorrect, or true class indicator).
+
+    Standard ECE (Eq. in Guo et al. 2017) bins by equal-width intervals of
+    `value`. This is known to be sensitive to how mass is distributed across
+    bins: a classifier whose scores are concentrated near 0 (e.g. Fink's
+    rf_snia_vs_nonia, mean score 0.011) puts almost all samples in the first
+    bin, so the other 9 bins are estimated from very few points and the
+    metric can be noisy or misleading (Nixon et al. 2019; Roelofs et al. 2022).
+
+    Setting adaptive=True instead bins by equal *mass* (quantiles of
+    `value`), guaranteeing every bin has ~n/n_bins samples regardless of
+    how skewed the score distribution is. This is the Adaptive Calibration
+    Error (ACE) construction. Comparing ECE vs ACE for the same data is a
+    standard robustness check: if they tell the same qualitative story,
+    the bin-width choice isn't driving the conclusion.
+
+    Parameters
+    ----------
+    values : np.ndarray, shape (N,)
+        Predicted probabilities in [0, 1].
+    targets : np.ndarray, shape (N,)
+        Binary outcomes (0/1) aligned with `values`.
+    n_bins : int
+        Number of bins.
+    adaptive : bool
+        If True, use equal-mass (quantile) bins instead of equal-width bins.
+
+    Returns
+    -------
+    ce : float
+        Binned calibration error. Lower is better; 0 is perfect.
+    """
+    values = np.asarray(values, dtype=float)
+    targets = np.asarray(targets, dtype=float)
+    n = len(values)
+
+    if adaptive:
+        order = np.argsort(values)
+        edges = np.linspace(0, n, n_bins + 1).astype(int)
+        bin_indices = [order[edges[b]:edges[b + 1]] for b in range(n_bins)]
+    else:
+        bin_ids = np.minimum((values * n_bins).astype(int), n_bins - 1)
+        bin_indices = [np.where(bin_ids == b)[0] for b in range(n_bins)]
+
+    ce = 0.0
+    for idx in bin_indices:
+        if len(idx) == 0:
+            continue
+        bin_val = values[idx].mean()
+        bin_tar = targets[idx].mean()
+        ce += (len(idx) / n) * abs(bin_val - bin_tar)
+
+    return float(ce)
+
+
+def bootstrap_binned_ce(
+    values: np.ndarray,
+    targets: np.ndarray,
+    n_bins: int = 10,
+    adaptive: bool = False,
+    n_bootstrap: int = 2000,
+    seed: int = 42
+) -> Tuple[float, float, float]:
+    """Bootstrap 95% CI for compute_binned_ce, same resampling scheme as bootstrap_ece."""
+    rng = np.random.default_rng(seed)
+    n = len(values)
+    samples = np.empty(n_bootstrap)
+
+    for i in range(n_bootstrap):
+        idx = rng.choice(n, n, replace=True)
+        samples[i] = compute_binned_ce(values[idx], targets[idx], n_bins, adaptive)
+
+    ci_lo, ci_hi = np.percentile(samples, [2.5, 97.5])
+    return (
+        round(float(np.mean(samples)), 4),
+        round(float(ci_lo), 4),
+        round(float(ci_hi), 4),
+    )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # 2. BOOTSTRAP CONFIDENCE INTERVALS
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -214,6 +308,21 @@ if __name__ == "__main__":
     row_sums = y_5class.sum(axis=1)
     assert np.allclose(row_sums, 1.0), "Rows must sum to 1.0 after renormalization"
     print(f"  All rows sum to 1.0: YES")
+    print("  PASSED\n")
+
+    # ── Test 5: adaptive (equal-mass) binning ────────────────────────────────
+    # A degenerate case: 90% of mass crammed near 0, like Fink's RF classifier.
+    # Equal-width binning starves 9 of 10 bins; equal-mass binning shouldn't.
+    skewed_vals = np.concatenate([
+        rng.uniform(0, 0.05, int(N * 0.9)),
+        rng.uniform(0.05, 1.0, int(N * 0.1)),
+    ])
+    skewed_targets = (rng.uniform(0, 1, len(skewed_vals)) < skewed_vals).astype(float)
+    ce_width = compute_binned_ce(skewed_vals, skewed_targets, n_bins=10, adaptive=False)
+    ce_mass  = compute_binned_ce(skewed_vals, skewed_targets, n_bins=10, adaptive=True)
+    print(f"Test 5 — adaptive vs equal-width binning on a skewed distribution")
+    print(f"  Equal-width CE = {ce_width:.4f}   Equal-mass (ACE) = {ce_mass:.4f}")
+    assert ce_width >= 0.0 and ce_mass >= 0.0, "Binned CE must be non-negative"
     print("  PASSED\n")
 
     print("=" * 50)

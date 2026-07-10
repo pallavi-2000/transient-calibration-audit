@@ -18,52 +18,55 @@
 The Vera C.\ Rubin Observatory's Legacy Survey of Space and Time will 
 generate $\sim$$10^7$ transient alerts per night against a global 
 spectroscopic follow-up capacity of $\sim$$10^5$ observations per year. 
-Automated alert brokers address this mismatch by outputting class 
-probability vectors, which astronomers use to prioritise follow-up 
-observations. These probabilities are implicitly treated as reliable 
-confidence estimates, yet no published work has evaluated the 
-calibration of production transient classifiers against independent 
-spectroscopic ground truth.
+Automated alert brokers address this mismatch by outputting class
+probability vectors, which astronomers use to prioritise follow-up
+observations. These probabilities are implicitly treated as reliable
+confidence estimates, yet to our knowledge no published work has
+evaluated the calibration of production transient classifiers against
+independent spectroscopic ground truth.
 
-We present the first systematic calibration audit of production 
-astronomical transient classifiers, evaluating ALeRCE's light curve 
-classifier and two Fink classifiers — a Random Forest and SuperNNova 
-binary discriminator — on 1,606 spectroscopically confirmed objects 
-from the ZTF Bright Transient Survey. We compute Expected Calibration 
-Error (ECE) with bootstrap confidence intervals and visualise 
-miscalibration via reliability diagrams.
+We present a systematic calibration audit of production
+astronomical transient classifiers, evaluating ALeRCE's light curve
+classifier and two Fink classifiers — a Random Forest and SuperNNova
+binary discriminator — on 1,606 spectroscopically confirmed objects
+from the ZTF Bright Transient Survey. We compute Expected Calibration
+Error (ECE) with bootstrap confidence intervals, report per-class
+calibration under three explicit definitions, and pair ECE with
+ranking metrics to distinguish repairable miscalibration from
+uninformative scores.
 
-ALeRCE's classifier exhibits systematic underconfidence 
-($\mathrm{ECE} = 0.259$; 95\% CI: $[0.237, 0.280]$), with predicted 
-probabilities consistently below empirical accuracies across all 
-confidence bins. Miscalibration follows an inverse relationship with 
-classification accuracy: SNIa and SNIbc, classified with accuracies 
-above 0.83, exhibit the worst calibration (ECE $> 0.36$), while SNII, 
-classified at 0.495 accuracy, is the best-calibrated class 
-(ECE $= 0.103$). This pattern is mechanistically explained by Random 
-Forest probability suppression under class imbalance. TDE achieves 
-classification accuracy of 0.000 due to a taxonomy gap in ALeRCE's 
-output space — a finding with direct operational consequences for 
-LSST-era science. Temperature scaling with a single scalar parameter 
-($T = 0.359$) reduces ALeRCE's aggregate ECE by 88\% to $0.031$, 
-requiring no model retraining.
+ALeRCE's classifier exhibits systematic underconfidence
+($\mathrm{ECE} = 0.259$; 95\% CI: $[0.237, 0.280]$), with predicted
+probabilities consistently below empirical accuracies across all
+confidence bins. We trace this to directly observable confidence
+compression: no object receives top-1 confidence above 0.88, and
+among correctly classified SNIa the maximum is 0.72 against 0.83
+accuracy. The compression produces a pronounced class-conditional
+confidence deficit for the best-classified types (SNIa, SNIbc), while
+under the standard one-vs-rest definition miscalibration is more
+uniform across classes. TDE achieves classification accuracy of 0.000
+because TDE is absent from the light curve classifier's output
+taxonomy. Temperature scaling fitted and evaluated with held-out
+validation ($T = 0.361 \pm 0.011$, 5-fold cross-validation) reduces
+aggregate ECE by 94\% to $0.015$, requiring no model retraining.
 
-Fink's classifiers exhibit structural miscalibration 
-($\mathrm{ECE} = 0.464$ for RF, $0.304$ for SuperNNova) that 
-post-hoc calibration methods cannot adequately address; temperature 
-scaling optimisation hits the upper bound for both, indicating 
-non-monotonic score distributions incompatible with standard 
-calibration techniques.
+The Fink binary scores are severely miscalibrated on this sample
+($\mathrm{ECE} = 0.464$ for RF, $0.304$ for SuperNNova) and, more
+fundamentally, carry no measurable ranking signal for SNIa
+identification (ROC-AUC of 0.502 and 0.525): no monotone post-hoc
+correction can recover informative posteriors, and restricting the RF
+to early-phase proxy subsets does not improve it.
 
-These results demonstrate that miscalibration is systematic, 
-broker-dependent, and consequential for confidence-based 
-follow-up prioritisation. Post-hoc calibration can recover 
-reliable probabilities for ALeRCE but not for Fink's current 
-classifiers. We argue that calibration metrics should be 
-reported alongside accuracy for all production astronomical 
-classifiers, and that the calibrated ALeRCE outputs provide 
-a suitable foundation for deferral-aware classification 
-frameworks targeting LSST-era spectroscopic resource allocation.
+These results demonstrate that miscalibration is systematic,
+broker-dependent, and consequential for confidence-based follow-up
+prioritisation. In this bright spectroscopic sample, ALeRCE's
+probabilities are reliably correctable post hoc, while Fink's
+available binary scores are unsuitable as general-purpose SNIa
+posteriors. We argue that calibration metrics should be reported
+alongside accuracy — and alongside ranking metrics — for production
+astronomical classifiers, and that calibrated ALeRCE outputs are a
+promising starting point for deferral-aware classification
+frameworks, pending validation on fainter LSST-like samples.
 \end{abstract}
 
 \keywords{astronomical databases --- surveys --- supernovae: general --- methods: statistical}
@@ -91,46 +94,51 @@ Implicit in this usage is an assumption that the probabilities
 are meaningful confidence estimates — that a classifier outputting 
 $P(\mathrm{SNIa}) = 0.9$ is correct approximately 90\% of the time.
 
-This assumption has never been tested. No published work evaluates 
-the calibration of production transient classifiers using 
-independent spectroscopic ground truth. Reliability diagrams and 
-Expected Calibration Error \citep[ECE;][]{Naeini2015} — standard 
-diagnostic tools in machine learning — are absent from the 
-astronomical broker literature. If production classifiers are 
-systematically miscalibrated, the confidence-based prioritisation 
-decisions made by astronomers and automated systems are built on 
-unreliable foundations.
+To our knowledge, this assumption has not been tested: we are not
+aware of published work evaluating the calibration of production
+transient classifiers using independent spectroscopic ground truth
+(Section~\ref{sec:related}). Reliability diagrams and Expected
+Calibration Error \citep[ECE;][]{Naeini2015} — standard diagnostic
+tools in machine learning — are largely absent from the astronomical
+broker literature. If production classifiers are systematically
+miscalibrated, the confidence-based prioritisation decisions made by
+astronomers and automated systems are built on unreliable
+foundations.
 
-In this paper we conduct the first systematic calibration audit 
-of production transient classifiers, evaluating ALeRCE's light 
-curve classifier and two Fink classifiers on 1,606 
-spectroscopically confirmed objects from the ZTF Bright Transient 
-Survey \citep{Fremling2020, Perley2020}. Our principal findings are:
+In this paper we conduct a systematic calibration audit of
+production transient classifiers, evaluating ALeRCE's light curve
+classifier and two Fink classifiers on 1,606 spectroscopically
+confirmed objects from the ZTF Bright Transient Survey
+\citep{Fremling2020, Perley2020}. Our principal findings are:
 
 \begin{enumerate}
-\item ALeRCE's classifier exhibits systematic underconfidence 
-($\mathrm{ECE} = 0.259$), not the overconfidence typical of 
-deep learning models. Predicted probabilities are consistently 
-lower than empirical accuracies across all confidence bins.
+\item ALeRCE's classifier exhibits systematic underconfidence
+($\mathrm{ECE} = 0.259$), not the overconfidence typical of
+deep learning models, and we directly observe its cause: the
+classifier's confidence range is compressed (global maximum $0.88$;
+maximum $0.72$ among correctly classified SNIa).
 
-\item The miscalibration follows an inverse relationship with 
-accuracy: the best-classified types (SNIa, SNIbc; accuracy $>0.83$) 
-are the most severely underconfident (ECE $>0.36$), while the 
-worst-classified type (SNII; accuracy $0.495$) is the 
-best-calibrated (ECE $0.103$).
+\item The compression produces an inverse relationship between
+accuracy and the \emph{class-conditional confidence deficit}: true
+members of the best-classified types (SNIa, SNIbc; accuracy
+$>0.83$) receive confidences far below their achieved accuracy.
+Under the standard one-vs-rest classwise definition, miscalibration
+is more uniform across classes; we report both explicitly.
 
-\item Temperature scaling with a single scalar parameter 
-($T = 0.359$) reduces ALeRCE's ECE by 88\%, to $0.031$ — 
-below the threshold for practically significant miscalibration, 
-with no model retraining required.
+\item Temperature scaling with a single scalar parameter, fitted
+and evaluated on held-out data ($T = 0.361 \pm 0.011$, 5-fold CV),
+reduces ALeRCE's ECE by 94\% to $0.015$, with no model retraining
+required.
 
-\item TDE, a high-priority LSST science target, achieves 
-classification accuracy of $0.000$ on ALeRCE because TDE 
-is absent from ALeRCE's output taxonomy.
+\item TDE, a high-priority LSST science target, achieves
+classification accuracy of $0.000$ because TDE is absent from the
+light curve classifier's output taxonomy.
 
-\item Fink's classifiers exhibit structural miscalibration 
-($\mathrm{ECE} = 0.464$ for RF, $0.304$ for SuperNNova) 
-that post-hoc calibration methods cannot adequately address.
+\item Fink's binary SNIa scores are not only severely miscalibrated
+on this sample ($\mathrm{ECE} = 0.464$ for RF, $0.304$ for
+SuperNNova) but carry no measurable ranking signal
+(ROC-AUC $\approx 0.5$), so no monotone post-hoc method can recover
+informative posteriors from them.
 \end{enumerate}
 
 These findings have immediate implications for spectroscopic 
@@ -146,7 +154,7 @@ Section~\ref{sec:discussion} discusses implications and limitations.
 
 \section{Related Work}
 \label{sec:related}
-% Written after results
+\input{sections/related}
 
 \section{Data}
 \label{sec:data}
@@ -166,40 +174,62 @@ Section~\ref{sec:discussion} discusses implications and limitations.
 
 \section{Conclusions}
 \label{sec:conclusions}
-We have presented the first systematic calibration audit of production 
-astronomical transient classifiers, evaluating ALeRCE's light curve 
-classifier and two Fink classifiers against 1,606 spectroscopically 
-confirmed ZTF transients from the Bright Transient Survey. Our results 
-demonstrate that miscalibration is systematic, broker-dependent, and 
+We have presented a systematic calibration audit of production
+astronomical transient classifiers, evaluating ALeRCE's light curve
+classifier and two Fink classifiers against 1,606 spectroscopically
+confirmed ZTF transients from the Bright Transient Survey. Our results
+demonstrate that, in this bright spectroscopic sample, broker
+probability outputs are not automatically reliable confidence
+estimates: miscalibration is systematic, broker-dependent, and
 consequential for confidence-based follow-up prioritisation.
 
-ALeRCE's classifier exhibits systematic underconfidence driven by 
-Random Forest probability suppression under class imbalance 
-($\mathrm{ECE} = 0.259$). This miscalibration is correctable: 
-temperature scaling with $T = 0.359$ reduces ECE by 88\% to $0.031$, 
-requiring no model retraining. The correction is not uniform across 
-classes — SNII, the only well-calibrated class before scaling, 
-worsens under a global temperature parameter — motivating class-aware 
-calibration schemes for future work. TDE classification fails entirely 
-due to a taxonomy gap in ALeRCE's output space, an operational problem 
-requiring resolution before LSST first light. Fink's classifiers exhibit 
-structural miscalibration that post-hoc methods cannot adequately address, 
-with temperature scaling optimisation hitting the upper bound for both 
-classifiers.
+ALeRCE's classifier exhibits systematic underconfidence
+($\mathrm{ECE} = 0.259$) with a directly observed cause — its
+confidence range is compressed well below the accuracy of its
+best-classified types — consistent with Random Forest vote-averaging
+under class imbalance. This miscalibration is correctable out of
+sample: temperature scaling fitted under held-out validation
+($T = 0.361 \pm 0.011$) reduces ECE by 94\% to $0.015$, requiring no
+model retraining. The correction is not uniform across classes —
+SNII, well-calibrated in the class-conditional sense before scaling,
+worsens under a global temperature — motivating class-aware
+calibration schemes for future work. TDE is absent from the
+\emph{deployed} light curve classifier's output taxonomy (a TDE-aware
+version exists but was not serving the stream; \citealt{Pavez-Herrera2025}),
+an operational coverage gap worth verifying before LSST first light.
+On this sample, Fink's binary SNIa scores fail at the
+level of ranking ($\mathrm{ROC\mbox{-}AUC} \approx 0.5$) rather than
+calibration alone; no monotone post-hoc correction can render them
+informative, and phase-restricted proxy subsets do not change this
+picture.
 
-These findings establish three priorities for LSST-era broker 
-development. First, calibration metrics — ECE, reliability diagrams, 
-and per-class confidence intervals — should be reported alongside 
-accuracy for all production classifiers as standard practice. Second, 
-post-hoc calibration layers should be integrated into broker pipelines; 
-the negligible computational cost of temperature scaling is justified 
-by the substantial improvement in probability reliability. Third, 
-taxonomy completeness must be verified against LSST science priorities 
-before deployment. The calibrated ALeRCE outputs demonstrated here 
-provide a suitable empirical foundation for the deferral-aware 
-classification framework we develop in subsequent work, where reliable 
-confidence estimates are prerequisite to learning when to involve 
-human astronomers in follow-up decisions.
+These findings suggest three priorities for LSST-era broker
+development. First, calibration metrics — ECE, reliability diagrams,
+and per-class confidence intervals — should be reported alongside
+accuracy \emph{and ranking metrics} for production classifiers as
+standard practice; our Fink isotonic experiment shows that ECE alone
+can be trivially satisfied by an uninformative score. Second,
+post-hoc calibration layers should be integrated into broker
+pipelines where the underlying ranking supports them; the negligible
+computational cost of temperature scaling is justified by the
+substantial improvement in probability reliability. Third, taxonomy
+completeness must be verified against LSST science priorities before
+deployment. The calibrated ALeRCE outputs demonstrated here are a
+promising starting point for the deferral-aware classification
+framework we develop in subsequent work — pending validation on
+held-out calibration splits from the operating classifier version
+and on fainter, LSST-like samples — where reliable confidence
+estimates are prerequisite to learning when to involve human
+astronomers in follow-up decisions.
+
+We flag one caveat that qualifies all three priorities: they are
+derived from a bright, spectroscopically-confirmed sample
+($m < 18.5$), an upper bound on broker performance
+(Section~\ref{sec:data:groundtruth}), while LSST's alert stream will
+be dominated by fainter, higher-redshift, noisier detections we do
+not test here. These priorities should be understood as hypotheses
+motivated by the bright regime, to be confirmed on fainter
+populations before they inform LSST-era broker design decisions.
 
 \bibliography{references}
 \bibliographystyle{aasjournal}
