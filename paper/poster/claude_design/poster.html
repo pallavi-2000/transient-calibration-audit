@@ -1,0 +1,518 @@
+<!-- @dsCard group="Poster" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Calibration of Production Transient Alert Brokers — A1 poster</title>
+<style>
+  @page { size: 841mm 594mm; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --navy: #042C53;
+    --navy-mid: #0C447C;
+    --teal: #0F6E56;
+    --teal-bright: #1D9E75;
+    --teal-50: #E1F5EE;
+    --coral: #993C1D;
+    --coral-bright: #D85A30;
+    --coral-50: #FAECE7;
+    --ink: #2C2C2A;
+    --muted: #5F5E5A;
+    --line: #D3D1C7;
+    --panel: #FFFFFF;
+    --page: #F6F5F0;
+  }
+  body {
+    width: 841mm; height: 594mm;
+    background: var(--page);
+    font-family: "Aptos", "Segoe UI", -apple-system, "Helvetica Neue", Arial, sans-serif;
+    color: var(--ink);
+    padding: 10mm 13mm;
+    display: flex; flex-direction: column; gap: 4mm;
+    font-size: 17pt; line-height: 1.28;
+    overflow: hidden;
+  }
+
+  /* ───── header ───── */
+  .masthead { display: flex; gap: 10mm; align-items: center; flex-shrink: 0; }
+  .masthead .titleblock { flex: 1; }
+  h1.title {
+    font-size: 54pt; font-weight: 700; color: var(--navy);
+    line-height: 1.04; letter-spacing: -0.5pt;
+  }
+  h1.title .lsst { color: var(--teal); }
+  .subtitle { font-size: 22pt; font-style: italic; color: var(--navy-mid); margin-top: 1.6mm; }
+  .authors { font-size: 22pt; color: var(--ink); margin-top: 1.6mm; font-weight: 600; }
+  .authors span { font-weight: 400; color: var(--muted); font-size: 17pt; }
+  .qrblock { text-align: center; flex-shrink: 0; }
+  .qrbox {
+    width: 30mm; height: 30mm; border: 1mm solid var(--navy);
+    border-radius: 2mm; display: flex; align-items: center; justify-content: center;
+    font-size: 13pt; color: var(--muted); background: #fff; margin: 0 auto;
+  }
+  .qrblock p { font-size: 12.5pt; color: var(--muted); margin-top: 1.5mm; }
+
+  /* ───── layout ───── */
+  .maingrid { display: grid; grid-template-columns: 26.5fr 30fr 43.5fr; gap: 5mm; flex: 1; min-height: 0; }
+  .col { display: flex; flex-direction: column; gap: 4mm; min-height: 0; }
+  .panel { background: var(--panel); border: 0.5mm solid var(--line); border-radius: 3mm; padding: 4mm 5mm; }
+  h2.sec { font-size: 23pt; font-weight: 700; color: var(--navy); margin-bottom: 2.5mm; display: flex; align-items: center; gap: 3mm; }
+  h2.sec .n {
+    background: var(--navy); color: #fff; font-size: 15pt;
+    width: 8mm; height: 8mm; border-radius: 2mm;
+    display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  h3.sub { font-size: 16.5pt; font-weight: 700; color: var(--teal); margin: 2.5mm 0 1.4mm; }
+  p.body, li.body { font-size: 16pt; }
+  .capt { font-size: 13.5pt; color: var(--muted); line-height: 1.26; }
+  ul.tight { padding-left: 6.5mm; }
+  ul.tight li { margin-bottom: 1mm; font-size: 15pt; }
+
+  /* ───── widgets ───── */
+  .qbox {
+    background: var(--teal-50); border-left: 2mm solid var(--teal);
+    padding: 3mm 4mm; font-size: 18pt; font-weight: 600; color: var(--teal);
+    border-radius: 0 2mm 2mm 0; margin-bottom: 2.5mm; line-height: 1.2;
+  }
+  .warnbox {
+    background: var(--coral-50); border-left: 2mm solid var(--coral-bright);
+    padding: 2.5mm 3.5mm; font-size: 13.5pt; color: var(--coral);
+    border-radius: 0 2mm 2mm 0; margin-top: 2mm;
+  }
+  .pipeline { display: flex; flex-wrap: wrap; align-items: center; gap: 1.4mm; margin: 2mm 0; }
+  .chip {
+    background: #EDF3F9; border: 0.4mm solid #B5D4F4; color: var(--navy-mid);
+    font-size: 12.5pt; padding: 1.4mm 2.6mm; border-radius: 5mm; white-space: nowrap;
+  }
+  .chip.t { background: var(--teal-50); border-color: #9FE1CB; color: var(--teal); }
+  .arrow { color: var(--muted); font-size: 13pt; }
+  .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5mm; margin: 2mm 0; }
+  .duo .cell { border-radius: 2mm; padding: 2.5mm 3.5mm; font-size: 13.5pt; }
+  .duo .under { background: var(--coral-50); border: 0.4mm solid var(--coral-bright); }
+  .duo .over  { background: #FAEEDA; border: 0.4mm solid #BA7517; color: #633806; }
+  .duo strong { display: block; font-size: 14pt; margin-bottom: 1mm; }
+  .under strong { color: var(--coral); }
+  .statement {
+    font-size: 17pt; font-weight: 700; color: var(--navy);
+    border-top: 0.5mm solid var(--line); padding-top: 2.5mm; margin-top: 2.5mm;
+  }
+
+  .numcards { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2.5mm; margin: 2.5mm 0; }
+  .numcard { background: var(--teal-50); border-radius: 2mm; padding: 2.5mm; text-align: center; }
+  .numcard.warn { background: var(--coral-50); }
+  .numcard .big { font-size: 31pt; font-weight: 700; color: var(--teal); line-height: 1; }
+  .numcard.warn .big { color: var(--coral-bright); }
+  .numcard .lbl { font-size: 11.5pt; color: var(--muted); margin-top: 1.2mm; line-height: 1.16; }
+
+  .eq {
+    font-family: "STIX Two Math", "Cambria Math", Georgia, serif;
+    background: #F6F5F0; border: 0.4mm dashed var(--line); border-radius: 2mm;
+    padding: 1.8mm 3.5mm; font-size: 15.5pt; text-align: center; margin: 1.8mm 0;
+    color: var(--navy);
+  }
+  .eq small { font-size: 11.5pt; color: var(--muted); font-family: inherit; }
+
+  .steps { display: flex; flex-direction: column; gap: 1.7mm; }
+  .step { display: flex; gap: 2.6mm; align-items: flex-start; }
+  .step .sn {
+    background: var(--teal); color: #fff; font-size: 12.5pt; font-weight: 700;
+    width: 6.8mm; height: 6.8mm; border-radius: 50%; flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center; margin-top: 0.7mm;
+  }
+  .step .st { font-size: 14.5pt; }
+  .step .st b { color: var(--navy); }
+
+  .rescards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2.5mm; }
+  .rescard {
+    background: var(--panel); border: 0.5mm solid var(--line); border-top: 2mm solid var(--teal);
+    border-radius: 2mm; padding: 2.5mm 3.5mm;
+  }
+  .rescard h4 { font-size: 12pt; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.3pt; }
+  .rescard .huge { font-size: 31pt; font-weight: 700; color: var(--navy); line-height: 1.05; margin: 1mm 0; }
+  .rescard .huge .to { color: var(--teal-bright); }
+  .rescard .note { font-size: 11.5pt; color: var(--muted); line-height: 1.2; }
+
+  table.mini { border-collapse: collapse; width: 100%; font-size: 12.5pt; margin-top: 1.4mm; }
+  table.mini th { text-align: left; color: var(--navy); border-bottom: 0.5mm solid var(--navy); padding: 0.8mm 1.6mm; font-size: 11.5pt; }
+  table.mini td { padding: 0.9mm 1.6mm; border-bottom: 0.3mm solid var(--line); }
+  table.mini tr.hl td { background: var(--teal-50); font-weight: 700; }
+
+  .figimg { width: 100%; border: 0.4mm solid var(--line); border-radius: 2mm; background: #fff; }
+  svg text { font-family: "Aptos", "Segoe UI", Arial, sans-serif; }
+
+  .bottomband { display: grid; grid-template-columns: 38fr 35fr 27fr; gap: 5mm; flex-shrink: 0; }
+  .takeaway {
+    background: var(--navy); color: #fff; border-radius: 2.5mm;
+    padding: 3mm 4mm; font-size: 15pt; line-height: 1.28; margin-top: 2mm;
+  }
+  .takeaway b { color: #9FE1CB; }
+  .finalmsg { font-size: 17pt; font-weight: 700; color: var(--navy); margin-top: 2mm; text-align: center; }
+
+  .refs { font-size: 12pt; color: var(--ink); }
+  .refs p { margin-bottom: 1.4mm; line-height: 1.2; }
+  .refs i { color: var(--muted); }
+
+  .footer {
+    flex-shrink: 0; border-top: 0.6mm solid var(--navy);
+    padding-top: 1.8mm; font-size: 12pt; color: var(--muted);
+    display: flex; gap: 8mm; align-items: center;
+  }
+  .footer .lim { flex: 1; }
+  .footer code { font-family: "Consolas", monospace; font-size: 11pt; color: var(--navy-mid); background: #EDF3F9; padding: 0.4mm 1.6mm; border-radius: 1.2mm; }
+
+  .split2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5mm; }
+  .relbox { border-radius: 2mm; padding: 2.2mm 3.2mm; font-size: 12.5pt; }
+  .relbox.hi { background: var(--teal-50); border: 0.4mm solid var(--teal-bright); }
+  .relbox.lo { background: var(--coral-50); border: 0.4mm solid var(--coral-bright); }
+  .relbox b { display: block; font-size: 13.5pt; margin-bottom: 1mm; }
+  .relbox.hi b { color: var(--teal); }
+  .relbox.lo b { color: var(--coral); }
+  .relbox ul { padding-left: 5mm; }
+  .relbox li { margin-bottom: 0.5mm; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════ MASTHEAD ═══════════ -->
+<div class="masthead">
+  <div class="titleblock">
+    <h1 class="title">Calibration of Production Transient Alert Brokers:<br>
+    <span class="lsst">Preparing Decision Infrastructure for LSST</span></h1>
+    <div class="subtitle">Can broker confidence scores be trusted for automated follow-up decisions?</div>
+    <div class="authors">Pallavi Sati &nbsp;<span>Independent Researcher &nbsp;·&nbsp; pallavisati23@gmail.com</span></div>
+  </div>
+  <div class="qrblock">
+    <div class="qrbox">QR&nbsp;code</div>
+    <p>Code, tables &amp; figures<br>branch <b>alerce-selective-deferral</b></p>
+  </div>
+</div>
+
+<!-- ═══════════ MAIN 3-COLUMN GRID ═══════════ -->
+<div class="maingrid">
+
+  <!-- ─────────── LEFT ─────────── -->
+  <div class="col">
+    <div class="panel">
+      <h2 class="sec"><span class="n">1</span>Motivation</h2>
+      <div class="qbox">“When a broker reports 80% confidence, is it actually correct 80% of the time?”</div>
+      <div class="pipeline">
+        <span class="chip">Millions of alerts</span><span class="arrow">→</span>
+        <span class="chip">Broker class probabilities</span><span class="arrow">→</span>
+        <span class="chip">Gates &amp; rankings</span><span class="arrow">→</span>
+        <span class="chip">Follow-up decisions</span><span class="arrow">→</span>
+        <span class="chip t">Limited telescope resources</span>
+      </div>
+      <ul class="tight">
+        <li>Rubin/LSST alert volumes cannot be inspected manually; broker probabilities feed rankings, automated filters, human review and follow-up requests.</li>
+        <li>A classifier may rank the correct class first while reporting unreliable confidence values.</li>
+        <li>Miscalibration either rejects useful candidates or auto-accepts unreliable labels.</li>
+      </ul>
+      <div class="duo">
+        <div class="cell under"><strong>Underconfidence</strong>Correct classifications score too low → useful objects fail fixed probability gates.</div>
+        <div class="cell over"><strong>Overconfidence</strong>Incorrect classifications score too high → unreliable labels trusted automatically.</div>
+      </div>
+      <div class="statement">A functioning classifier is not automatically functioning decision infrastructure.</div>
+    </div>
+
+    <div class="panel" style="flex:1;">
+      <h2 class="sec"><span class="n">2</span>Dataset &amp; ground truth</h2>
+      <p class="body">Spectroscopically confirmed ZTF Bright Transient Survey objects, cross-matched with the latest available 15-class ALeRCE light-curve probability vectors.</p>
+      <div class="numcards">
+        <div class="numcard"><div class="big">1,606</div><div class="lbl">valid cross-matched objects</div></div>
+        <div class="numcard"><div class="big">1,576</div><div class="lbl">true class exists in deployed ALeRCE taxonomy</div></div>
+        <div class="numcard warn"><div class="big">30</div><div class="lbl">TDEs — taxonomy-gap stress test</div></div>
+      </div>
+
+      <svg viewBox="0 0 640 200" style="width:100%;">
+        <defs><pattern id="hatch" width="8" height="8" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+          <rect width="8" height="8" fill="#FAECE7"/><line x1="0" y1="0" x2="0" y2="8" stroke="#D85A30" stroke-width="2.5"/>
+        </pattern></defs>
+        <g font-size="19" fill="#2C2C2A">
+          <text x="98" y="25" text-anchor="end" font-weight="600">SNIa</text>
+          <rect x="106" y="9" width="470" height="23" rx="3" fill="#1D9E75"/><text x="584" y="27" font-size="18">757</text>
+          <text x="98" y="62" text-anchor="end" font-weight="600">SNII</text>
+          <rect x="106" y="46" width="348" height="23" rx="3" fill="#1D9E75"/><text x="462" y="64" font-size="18">560</text>
+          <text x="98" y="99" text-anchor="end" font-weight="600">SNIbc</text>
+          <rect x="106" y="83" width="127" height="23" rx="3" fill="#1D9E75"/><text x="241" y="101" font-size="18">204</text>
+          <text x="98" y="136" text-anchor="end" font-weight="600">SLSN</text>
+          <rect x="106" y="120" width="34" height="23" rx="3" fill="#1D9E75"/><text x="148" y="138" font-size="18">55</text>
+          <text x="98" y="173" text-anchor="end" font-weight="600" fill="#993C1D">TDE</text>
+          <rect x="106" y="157" width="19" height="23" rx="3" fill="url(#hatch)" stroke="#D85A30" stroke-width="2"/><text x="133" y="175" font-size="17" fill="#993C1D">30 — excluded from in-taxonomy analysis</text>
+        </g>
+      </svg>
+
+      <ul class="tight" style="margin-top:1.5mm;">
+        <li>BTS spectroscopy = ground truth; ALeRCE = 15-class probability vector.</li>
+        <li>SNIa, SNII, SNIbc, SLSN exist in the deployed taxonomy; <b style="color:var(--coral);">TDE does not</b> — the 30 TDEs test whether the pipeline flags an <i>unrepresentable</i> object as unreliable.</li>
+      </ul>
+
+      <h3 class="sub">Per-class top-1 accuracy</h3>
+      <svg viewBox="0 0 640 146" style="width:100%;">
+        <g font-size="19" fill="#2C2C2A">
+          <text x="98" y="23" text-anchor="end" font-weight="600">SNIa</text>
+          <rect x="106" y="7" width="416" height="22" rx="3" fill="#0C447C"/><text x="530" y="25" font-size="18">83.1%</text>
+          <text x="98" y="57" text-anchor="end" font-weight="600">SNII</text>
+          <rect x="106" y="41" width="248" height="22" rx="3" fill="#D85A30"/><text x="362" y="59" font-size="18">49.5%</text>
+          <text x="98" y="91" text-anchor="end" font-weight="600">SNIbc</text>
+          <rect x="106" y="75" width="414" height="22" rx="3" fill="#0C447C"/><text x="528" y="93" font-size="18">82.8%</text>
+          <text x="98" y="125" text-anchor="end" font-weight="600">SLSN</text>
+          <rect x="106" y="109" width="391" height="22" rx="3" fill="#0C447C"/><text x="505" y="127" font-size="18">78.2%</text>
+        </g>
+      </svg>
+      <p class="capt">Overall accuracy 70.9%, but performance differs strongly by class — SNII is the main classification bottleneck.</p>
+    </div>
+  </div>
+
+  <!-- ─────────── CENTRE ─────────── -->
+  <div class="col">
+    <div class="panel">
+      <h2 class="sec"><span class="n">3</span>Calibration-aware selective-classification pipeline</h2>
+      <div class="steps">
+        <div class="step"><span class="sn">1</span><div class="st"><b>Compare labels.</b> ALeRCE top-ranked class vs independent spectroscopic label.</div></div>
+        <div class="step"><span class="sn">2</span><div class="st"><b>Define correctness.</b> Correct = 1 if top-1 class matches spectroscopy, else 0.</div></div>
+        <div class="step"><span class="sn">3</span><div class="st"><b>Audit calibration.</b> Predictions near confidence 0.7 should be correct ≈ 70% of the time.</div></div>
+      </div>
+      <div class="eq">ECE = Σ<sub>b</sub> (n<sub>b</sub>/N) · | acc(b) − conf(b) |</div>
+      <div class="steps">
+        <div class="step"><span class="sn">4</span><div class="st"><b>Recalibrate.</b> Held-out temperature scaling repairs the probability scale — <i>it never changes the top-ranked class.</i></div></div>
+      </div>
+      <div class="eq">p̃ = softmax( log p / T )</div>
+      <div class="steps">
+        <div class="step"><span class="sn">5</span><div class="st"><b>Uncertainty features.</b> Top-1, top-2, margin, normalised entropy, transient-branch mass, conditional transient confidence, non-transient competition.</div></div>
+        <div class="step"><span class="sn">6</span><div class="st"><b>Train the checker.</b> Logistic regression estimating <b>P(top-1 is correct)</b>: <b>learned_shape</b> (shape features) and <b>learned_full</b> (all 15 calibrated probabilities + shape).</div></div>
+        <div class="step"><span class="sn">7</span><div class="st"><b>Accept or defer.</b> High score → auto-accept label. Low score → defer for more detections, another broker, human review, or justified spectroscopy.</div></div>
+      </div>
+      <div class="eq">Chow’s rule:&nbsp; defer ⇔ P̂(error) &gt; c<sub>defer</sub> &nbsp;<small>(Chow 1970)</small></div>
+      <div class="warnbox" style="background:var(--teal-50); border-color:var(--teal); color:var(--teal); margin-top:1.5mm;"><b>“Defer” does not automatically mean spectroscopy.</b></div>
+      <p class="capt" style="margin-top:2.5mm;"><b style="color:var(--navy);">Evaluation:</b> five-fold out-of-fold (train 80% / test unseen 20%) · paired stratified bootstrap · ROC-AUC · AURC &amp; risk–coverage · fixed-threshold operating points · TDE stress test. <i>Post-hoc selective classification — not a jointly trained learning-to-defer system, not a deployed real-time LSST pipeline.</i></p>
+    </div>
+
+    <div class="panel" style="flex:1;">
+      <h2 class="sec"><span class="n">4</span>Calibration and error detection are different</h2>
+      <div style="display:flex; gap:5mm; align-items:center;">
+        <svg viewBox="0 0 230 230" style="width:40mm; flex-shrink:0;">
+          <g>
+          <circle cx="15" cy="15" r="8" fill="#1D9E75"/><circle cx="37" cy="15" r="8" fill="#1D9E75"/><circle cx="59" cy="15" r="8" fill="#D85A30"/><circle cx="81" cy="15" r="8" fill="#1D9E75"/><circle cx="103" cy="15" r="8" fill="#1D9E75"/><circle cx="125" cy="15" r="8" fill="#1D9E75"/><circle cx="147" cy="15" r="8" fill="#1D9E75"/><circle cx="169" cy="15" r="8" fill="#D85A30"/><circle cx="191" cy="15" r="8" fill="#1D9E75"/><circle cx="213" cy="15" r="8" fill="#1D9E75"/>
+          <circle cx="15" cy="37" r="8" fill="#1D9E75"/><circle cx="37" cy="37" r="8" fill="#D85A30"/><circle cx="59" cy="37" r="8" fill="#1D9E75"/><circle cx="81" cy="37" r="8" fill="#1D9E75"/><circle cx="103" cy="37" r="8" fill="#1D9E75"/><circle cx="125" cy="37" r="8" fill="#D85A30"/><circle cx="147" cy="37" r="8" fill="#1D9E75"/><circle cx="169" cy="37" r="8" fill="#1D9E75"/><circle cx="191" cy="37" r="8" fill="#1D9E75"/><circle cx="213" cy="37" r="8" fill="#1D9E75"/>
+          <circle cx="15" cy="59" r="8" fill="#1D9E75"/><circle cx="37" cy="59" r="8" fill="#1D9E75"/><circle cx="59" cy="59" r="8" fill="#1D9E75"/><circle cx="81" cy="59" r="8" fill="#D85A30"/><circle cx="103" cy="59" r="8" fill="#1D9E75"/><circle cx="125" cy="59" r="8" fill="#1D9E75"/><circle cx="147" cy="59" r="8" fill="#1D9E75"/><circle cx="169" cy="59" r="8" fill="#1D9E75"/><circle cx="191" cy="59" r="8" fill="#D85A30"/><circle cx="213" cy="59" r="8" fill="#1D9E75"/>
+          <circle cx="15" cy="81" r="8" fill="#D85A30"/><circle cx="37" cy="81" r="8" fill="#1D9E75"/><circle cx="59" cy="81" r="8" fill="#1D9E75"/><circle cx="81" cy="81" r="8" fill="#1D9E75"/><circle cx="103" cy="81" r="8" fill="#1D9E75"/><circle cx="125" cy="81" r="8" fill="#1D9E75"/><circle cx="147" cy="81" r="8" fill="#D85A30"/><circle cx="169" cy="81" r="8" fill="#1D9E75"/><circle cx="191" cy="81" r="8" fill="#1D9E75"/><circle cx="213" cy="81" r="8" fill="#1D9E75"/>
+          <circle cx="15" cy="103" r="8" fill="#1D9E75"/><circle cx="37" cy="103" r="8" fill="#1D9E75"/><circle cx="59" cy="103" r="8" fill="#D85A30"/><circle cx="81" cy="103" r="8" fill="#1D9E75"/><circle cx="103" cy="103" r="8" fill="#1D9E75"/><circle cx="125" cy="103" r="8" fill="#1D9E75"/><circle cx="147" cy="103" r="8" fill="#1D9E75"/><circle cx="169" cy="103" r="8" fill="#1D9E75"/><circle cx="191" cy="103" r="8" fill="#1D9E75"/><circle cx="213" cy="103" r="8" fill="#D85A30"/>
+          <circle cx="15" cy="125" r="8" fill="#1D9E75"/><circle cx="37" cy="125" r="8" fill="#D85A30"/><circle cx="59" cy="125" r="8" fill="#1D9E75"/><circle cx="81" cy="125" r="8" fill="#1D9E75"/><circle cx="103" cy="125" r="8" fill="#D85A30"/><circle cx="125" cy="125" r="8" fill="#1D9E75"/><circle cx="147" cy="125" r="8" fill="#1D9E75"/><circle cx="169" cy="125" r="8" fill="#1D9E75"/><circle cx="191" cy="125" r="8" fill="#1D9E75"/><circle cx="213" cy="125" r="8" fill="#1D9E75"/>
+          <circle cx="15" cy="147" r="8" fill="#1D9E75"/><circle cx="37" cy="147" r="8" fill="#1D9E75"/><circle cx="59" cy="147" r="8" fill="#1D9E75"/><circle cx="81" cy="147" r="8" fill="#1D9E75"/><circle cx="103" cy="147" r="8" fill="#1D9E75"/><circle cx="125" cy="147" r="8" fill="#D85A30"/><circle cx="147" cy="147" r="8" fill="#1D9E75"/><circle cx="169" cy="147" r="8" fill="#D85A30"/><circle cx="191" cy="147" r="8" fill="#1D9E75"/><circle cx="213" cy="147" r="8" fill="#1D9E75"/>
+          <circle cx="15" cy="169" r="8" fill="#1D9E75"/><circle cx="37" cy="169" r="8" fill="#1D9E75"/><circle cx="59" cy="169" r="8" fill="#D85A30"/><circle cx="81" cy="169" r="8" fill="#1D9E75"/><circle cx="103" cy="169" r="8" fill="#1D9E75"/><circle cx="125" cy="169" r="8" fill="#1D9E75"/><circle cx="147" cy="169" r="8" fill="#1D9E75"/><circle cx="169" cy="169" r="8" fill="#1D9E75"/><circle cx="191" cy="169" r="8" fill="#1D9E75"/><circle cx="213" cy="169" r="8" fill="#1D9E75"/>
+          <circle cx="15" cy="191" r="8" fill="#D85A30"/><circle cx="37" cy="191" r="8" fill="#1D9E75"/><circle cx="59" cy="191" r="8" fill="#1D9E75"/><circle cx="81" cy="191" r="8" fill="#1D9E75"/><circle cx="103" cy="191" r="8" fill="#1D9E75"/><circle cx="125" cy="191" r="8" fill="#1D9E75"/><circle cx="147" cy="191" r="8" fill="#1D9E75"/><circle cx="169" cy="191" r="8" fill="#1D9E75"/><circle cx="191" cy="191" r="8" fill="#D85A30"/><circle cx="213" cy="191" r="8" fill="#1D9E75"/>
+          <circle cx="15" cy="213" r="8" fill="#1D9E75"/><circle cx="37" cy="213" r="8" fill="#1D9E75"/><circle cx="59" cy="213" r="8" fill="#1D9E75"/><circle cx="81" cy="213" r="8" fill="#D85A30"/><circle cx="103" cy="213" r="8" fill="#1D9E75"/><circle cx="125" cy="213" r="8" fill="#1D9E75"/><circle cx="147" cy="213" r="8" fill="#D85A30"/><circle cx="169" cy="213" r="8" fill="#1D9E75"/><circle cx="191" cy="213" r="8" fill="#1D9E75"/><circle cx="213" cy="213" r="8" fill="#1D9E75"/>
+          </g>
+        </svg>
+        <div>
+          <p class="body"><b>100 predictions at confidence 0.8 → 80 correct, 20 incorrect.</b></p>
+          <p class="capt" style="margin-top:1.5mm;">A group may be perfectly calibrated even when the score cannot identify <i>which individual predictions</i> are wrong.</p>
+        </div>
+      </div>
+
+      <h3 class="sub">Same top confidence, different structure</h3>
+      <div class="duo" style="margin:1.5mm 0;">
+        <div class="cell" style="background:#EDF3F9; border:0.4mm solid #B5D4F4;">
+          <strong style="color:var(--navy-mid);">Object A — clean</strong>
+          SNIa 0.70 · SNII 0.10 · SNIbc 0.08 · others 0.12
+        </div>
+        <div class="cell" style="background:var(--coral-50); border:0.4mm solid var(--coral-bright);">
+          <strong style="color:var(--coral);">Object B — contested</strong>
+          SNIa 0.70 · <b>SNII 0.28</b> · others 0.02
+        </div>
+      </div>
+      <p class="capt">Identical top confidence, but Object B has a strong competing class. The checker uses the complete probability pattern.</p>
+      <div class="pipeline" style="margin-top:2mm;">
+        <span class="chip">ALeRCE: “What class is this?”</span>
+        <span class="arrow">vs</span>
+        <span class="chip t">Checker: “Should this classification be trusted automatically?”</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────── RIGHT: RESULTS ─────────── -->
+  <div class="col">
+    <div class="panel" style="flex:1; border-top: 2.5mm solid var(--teal);">
+      <h2 class="sec"><span class="n">5</span>Results</h2>
+
+      <div class="rescards">
+        <div class="rescard">
+          <h4>Aggregate calibration</h4>
+          <div class="huge">0.259 <span class="to">→ 0.015</span></div>
+          <div class="note">ECE — aggregate reliability strongly improved after held-out temperature scaling.</div>
+        </div>
+        <div class="rescard">
+          <h4>Checker ranking quality</h4>
+          <div class="huge">0.836</div>
+          <div class="note">ROC-AUC (correct vs incorrect). Class-rate control 0.752 · raw confidence 0.689.</div>
+        </div>
+        <div class="rescard">
+          <h4>Checker vs class control</h4>
+          <div class="huge">+0.083</div>
+          <div class="note">ΔROC-AUC, paired bootstrap 95% CI [0.057, 0.107] — object-level signal beyond class identity.</div>
+        </div>
+        <div class="rescard">
+          <h4>At 80% auto-accept coverage</h4>
+          <div class="huge">81.0% <span class="to">· 47.8%</span></div>
+          <div class="note">Accepted accuracy · errors captured in the deferred 20%.</div>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 55fr 45fr; gap:5mm; margin-top:3.5mm;">
+        <div>
+          <h3 class="sub" style="margin-top:0;">Risk–coverage: the checker gives the lowest risk</h3>
+          <img class="figimg" src="assets/poster_risk_coverage.png" alt="Risk-coverage curves" style="width:93%; display:block; margin:0 auto;">
+          <table class="mini">
+            <tr><th>Policy @ 80% coverage</th><th>Accepted acc.</th><th>Errors captured</th></tr>
+            <tr><td>Raw confidence</td><td>76.2%</td><td>34.5%</td></tr>
+            <tr><td>Predicted-class control</td><td>79.9%</td><td>44.5%</td></tr>
+            <tr class="hl"><td>learned_full (checker)</td><td>81.0%</td><td>47.8%</td></tr>
+          </table>
+          <p class="capt">Lowest selective risk across the operational coverage range — AURC 0.115 (checker) vs 0.173 (raw confidence).</p>
+        </div>
+
+        <div>
+          <h3 class="sub" style="margin-top:0;">Correctness ranking (ROC-AUC)</h3>
+          <svg viewBox="0 0 620 232" style="width:100%;">
+            <g font-size="18" fill="#2C2C2A">
+              <text x="196" y="26" text-anchor="end" font-weight="700" fill="#085041">learned_full</text>
+              <rect x="204" y="10" width="368" height="24" rx="3" fill="#1D9E75"/><text x="530" y="28" fill="#fff" font-weight="700">0.836</text>
+              <text x="196" y="63" text-anchor="end">class-rate control</text>
+              <rect x="204" y="47" width="237" height="24" rx="3" fill="#0C447C"/><text x="447" y="65">0.752</text>
+              <text x="196" y="100" text-anchor="end">learned_shape</text>
+              <rect x="204" y="84" width="218" height="24" rx="3" fill="#85B7EB"/><text x="428" y="102">0.740</text>
+              <text x="196" y="137" text-anchor="end">raw margin</text>
+              <rect x="204" y="121" width="185" height="24" rx="3" fill="#85B7EB"/><text x="395" y="139">0.719</text>
+              <text x="196" y="174" text-anchor="end">calibrated confidence</text>
+              <rect x="204" y="158" width="169" height="24" rx="3" fill="#B4B2A9"/><text x="379" y="176">0.708</text>
+              <text x="196" y="211" text-anchor="end">raw confidence</text>
+              <rect x="204" y="195" width="139" height="24" rx="3" fill="#B4B2A9"/><text x="349" y="213">0.689</text>
+              <line x1="204" y1="6" x2="204" y2="224" stroke="#5F5E5A" stroke-width="1.5"/>
+              <text x="204" y="231" font-size="13" fill="#5F5E5A">0.60 →</text>
+            </g>
+          </svg>
+          <p class="capt">The shape-only model does not clearly beat the class-rate control — the full 15-class probability vector supplies the additional signal.</p>
+
+          <h3 class="sub">Calibration changes threshold meaning</h3>
+          <svg viewBox="0 0 620 138" style="width:100%;">
+            <g font-size="18" fill="#2C2C2A">
+              <text x="10" y="22" font-weight="600">Raw p ≥ 0.8</text>
+              <rect x="180" y="6" width="9" height="24" rx="2" fill="#993C1D"/>
+              <text x="198" y="24"><tspan font-weight="700">9</tspan> accepted · 0.6% cov. · 100% acc. (only nine objects)</text>
+              <text x="10" y="70" font-weight="600">Calibrated p ≥ 0.8</text>
+              <rect x="180" y="54" width="395" height="24" rx="2" fill="#1D9E75"/>
+              <text x="196" y="72" fill="#fff" font-weight="700">395 accepted · 25.1% cov. · 88.4% accuracy</text>
+              <text x="10" y="118" font-size="19" font-weight="700" fill="#085041">≈ 44-fold larger acceptance set at the same numerical gate</text>
+            </g>
+          </svg>
+          <p class="capt">Calibration mainly repairs the numerical probability scale — it does not create new correct classifications or substantially reorder objects.</p>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5mm; margin-top:3mm;">
+        <div>
+          <h3 class="sub" style="margin-top:0;">Class-wise ECE: one global correction is not enough</h3>
+          <svg viewBox="0 0 620 200" style="width:100%;">
+            <g font-size="17" fill="#2C2C2A">
+              <text x="92" y="29" text-anchor="end" font-weight="600">SNIa</text>
+              <rect x="100" y="10" width="451" height="14" rx="2" fill="#B4B2A9"/><text x="558" y="22" font-size="14">0.376</text>
+              <rect x="100" y="27" width="137" height="14" rx="2" fill="#1D9E75"/><text x="243" y="39" font-size="14">0.114</text>
+              <text x="92" y="77" text-anchor="end" font-weight="600">SNIbc</text>
+              <rect x="100" y="58" width="432" height="14" rx="2" fill="#B4B2A9"/><text x="539" y="70" font-size="14">0.360</text>
+              <rect x="100" y="75" width="130" height="14" rx="2" fill="#1D9E75"/><text x="236" y="87" font-size="14">0.108</text>
+              <text x="92" y="125" text-anchor="end" font-weight="600">SLSN</text>
+              <rect x="100" y="106" width="270" height="14" rx="2" fill="#B4B2A9"/><text x="377" y="118" font-size="14">0.225</text>
+              <rect x="100" y="123" width="168" height="14" rx="2" fill="#1D9E75"/><text x="274" y="135" font-size="14">0.140</text>
+              <text x="92" y="173" text-anchor="end" font-weight="600">SNII</text>
+              <rect x="100" y="154" width="119" height="14" rx="2" fill="#B4B2A9"/><text x="225" y="166" font-size="14">0.099</text>
+              <rect x="100" y="171" width="226" height="14" rx="2" fill="#D85A30"/><text x="332" y="183" font-size="14" fill="#993C1D" font-weight="700">0.189 — worsened</text>
+              <rect x="450" y="103" width="13" height="9" fill="#B4B2A9"/><text x="468" y="111" font-size="13">before</text>
+              <rect x="450" y="118" width="13" height="9" fill="#1D9E75"/><text x="468" y="126" font-size="13">after global T</text>
+            </g>
+          </svg>
+          <p class="capt">SNIa/SNIbc: accurate but strongly underconfident — repaired. SNII: calibration <b style="color:var(--coral);">worsened</b> by the global correction. SLSN: only 55 objects. Class-dependent miscalibration remains.</p>
+        </div>
+
+        <div>
+          <h3 class="sub" style="margin-top:0;">Missing classes need a separate novelty channel</h3>
+          <svg viewBox="0 0 620 148" style="width:100%;">
+            <g font-size="17" fill="#2C2C2A">
+              <text x="168" y="23" text-anchor="end">Raw entropy</text>
+              <rect x="176" y="7" width="266" height="21" rx="2" fill="#7F77DD"/><text x="450" y="23">19/30 — 63%</text>
+              <text x="168" y="58" text-anchor="end">learned_full</text>
+              <rect x="176" y="42" width="210" height="21" rx="2" fill="#7F77DD"/><text x="394" y="58">15/30 — 50%</text>
+              <text x="168" y="93" text-anchor="end">Raw confidence</text>
+              <rect x="176" y="77" width="182" height="21" rx="2" fill="#7F77DD"/><text x="366" y="93">13/30 — 43%</text>
+              <text x="168" y="128" text-anchor="end">Calibrated conf.</text>
+              <rect x="176" y="112" width="154" height="21" rx="2" fill="#7F77DD"/><text x="338" y="128">11/30 — 37%</text>
+            </g>
+          </svg>
+          <p class="capt">TDEs deferred at the 80%-coverage cutoff. <b>None of the confidence-based policies reliably detected the taxonomy gap</b> (n = 30; intervals overlap).</p>
+          <div class="warnbox">The policy that works best for ordinary in-taxonomy errors is not necessarily the best novelty detector.</div>
+          <div class="pipeline" style="margin-top:2mm;">
+            <span class="chip t">Known-class channel: calibrated probability + checker</span>
+            <span class="chip" style="background:var(--coral-50); border-color:var(--coral-bright); color:var(--coral);">Novelty channel: explicit OOD / anomaly detector</span>
+          </div>
+          <p class="capt" style="margin-top:2mm;"><b>Simple cost model</b> (deferral cost 0.20, unit error cost): learned_full <b>0.142</b>/object · class control 0.161 · calibrated conf. 0.179 · raw 0.199 · defer-all 0.200. Generic costs — not a class-weighted telescope utility model.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ BOTTOM BAND ═══════════ -->
+<div class="bottomband">
+  <div class="panel">
+    <h2 class="sec"><span class="n">6</span>What would this change in a real pipeline?</h2>
+    <div class="pipeline">
+      <span class="chip">ALeRCE probabilities</span><span class="arrow">→</span>
+      <span class="chip">Calibration layer</span><span class="arrow">→</span>
+      <span class="chip t">Reliability checker</span><span class="arrow">→</span>
+      <span class="chip">Ranked decision queue</span>
+    </div>
+    <div class="split2" style="margin-top:1.5mm;">
+      <div class="relbox hi"><b>High reliability</b>
+        <ul><li>Auto-accept broker label</li><li>Routine photometric monitoring</li><li>No unnecessary manual review</li></ul>
+      </div>
+      <div class="relbox lo"><b>Low reliability</b>
+        <ul><li>Wait for more detections / second broker</li><li>Human review, host-galaxy context</li><li>Spectroscopy only when scientifically valuable</li></ul>
+      </div>
+    </div>
+    <p class="body" style="margin-top:1.8mm; font-size:14.5pt;"><b>For the same review budget, the checker concentrates far more errors into the deferred queue than raw confidence.</b></p>
+    <p class="capt">Historical alert-stream replay is required to establish real-time telescope-level benefit. Next: reconstruct probabilities after 2, 5, 10 detections · fixed nightly budget · errors found per 100 reviewed · rare-transient recovery · later observing season.</p>
+  </div>
+
+  <div class="panel">
+    <h2 class="sec"><span class="n">7</span>Conclusions</h2>
+    <ul class="tight" style="font-size:14pt; list-style:none; padding-left:0;">
+      <li><b>1.</b> ALeRCE frequently ranks the correct class first, but its confidence values are systematically too low.</li>
+      <li><b>2.</b> Calibration repairs the interpretation of numerical probability gates without changing the top-ranked class.</li>
+      <li><b>3.</b> A post-hoc checker using the complete 15-class probability vector identifies unreliable predictions better than raw confidence or predicted-class identity alone.</li>
+      <li><b>4.</b> Confidence-based selective classification cannot replace explicit novelty detection when the true class is absent from the taxonomy.</li>
+    </ul>
+    <div class="takeaway"><b>Calibrated probabilities</b> decide how much to trust a prediction. A <b>reliability checker</b> decides which predictions to trust. A <b>novelty detector</b> is still needed for classes the broker cannot represent.</div>
+    <div class="finalmsg">A functioning alert classifier is not automatically functioning decision infrastructure.</div>
+  </div>
+
+  <div class="panel">
+    <h2 class="sec" style="font-size:21pt;">Main references</h2>
+    <div class="refs">
+      <p>Sánchez-Sáez et al. 2021, <i>The ALeRCE light curve classifier</i>, AJ.</p>
+      <p>Guo et al. 2017, <i>On calibration of modern neural networks</i>, ICML.</p>
+      <p>Chow 1970, <i>On optimum recognition error and reject tradeoff</i>, IEEE Trans. IT.</p>
+      <p>El-Yaniv &amp; Wiener 2010, <i>Foundations of noise-free selective classification</i>, JMLR.</p>
+      <p>Geifman &amp; El-Yaniv 2017, <i>Selective classification for deep neural networks</i>, NeurIPS.</p>
+      <p>Hendrycks &amp; Gimpel 2017, <i>A baseline for detecting misclassified and OOD examples</i>, ICLR.</p>
+      <p>Ivezić et al. 2019, <i>LSST: from science drivers to reference design</i>, ApJ.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ FOOTER ═══════════ -->
+<div class="footer">
+  <div class="lim">Results are conditioned on a deliberately constructed sample of bright, spectroscopically confirmed BTS transients using the latest available ALeRCE light-curve probabilities. This is a retrospective post-hoc selective-classification prototype — not an early-alert or deployed LSST-stream evaluation.</div>
+  <div>github.com/pallavi-2000/transient-calibration-audit · branch <code>alerce-selective-deferral</code></div>
+</div>
+
+</body>
+</html>
