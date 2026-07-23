@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Poster talk script — Pallavi Sati</title>
+<style>
+  @page { size: A4 portrait; margin: 16mm 15mm 14mm 15mm; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --navy: #042C53; --navy-mid: #0C447C; --teal: #0F6E56; --teal-br: #1D9E75;
+    --teal-50: #E1F5EE; --coral: #993C1D; --coral-50: #FAECE7;
+    --ink: #2C2C2A; --muted: #5F5E5A; --line: #D3D1C7;
+  }
+  body {
+    font-family: "Aptos", "Segoe UI", -apple-system, "Helvetica Neue", Arial, sans-serif;
+    color: var(--ink); font-size: 11.4pt; line-height: 1.5;
+  }
+  header { border-bottom: 2.4pt solid var(--navy); padding-bottom: 7pt; margin-bottom: 13pt; }
+  header h1 { font-size: 17pt; color: var(--navy); font-weight: 700; line-height: 1.2; }
+  header .sub { font-size: 11pt; color: var(--muted); margin-top: 4pt; }
+  header .meta {
+    margin-top: 7pt; font-size: 10pt; color: var(--teal);
+    background: var(--teal-50); display: inline-block; padding: 3pt 8pt; border-radius: 3pt;
+  }
+
+  .beat { margin-bottom: 11pt; page-break-inside: avoid; }
+  .beat h2 {
+    font-size: 10.5pt; color: var(--navy-mid); font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.4pt; margin-bottom: 3.5pt;
+  }
+  .beat h2 .num {
+    background: var(--navy); color: #fff; border-radius: 2.5pt;
+    padding: 0.5pt 5pt; margin-right: 5pt; font-size: 9.5pt;
+  }
+  .beat p { margin-bottom: 5pt; }
+  .beat p:last-child { margin-bottom: 0; }
+  b, strong { color: var(--navy); }
+  .big { color: var(--teal); font-weight: 700; }
+
+  .glossary {
+    background: #F6F5F0; border-left: 3pt solid var(--teal);
+    padding: 8pt 11pt; margin: 12pt 0; page-break-inside: avoid;
+  }
+  .glossary h3 { font-size: 11pt; color: var(--teal); margin-bottom: 5pt; }
+  .glossary dl { font-size: 10.2pt; line-height: 1.42; }
+  .glossary dt { font-weight: 700; color: var(--navy); margin-top: 4pt; }
+  .glossary dd { margin-left: 0; color: var(--ink); }
+
+  .cuts {
+    background: var(--coral-50); border-left: 3pt solid var(--coral);
+    padding: 8pt 11pt; margin: 12pt 0; font-size: 10.2pt; page-break-inside: avoid;
+  }
+  .cuts h3 { font-size: 11pt; color: var(--coral); margin-bottom: 4pt; }
+  .cuts ul { margin-left: 13pt; }
+  .cuts li { margin-bottom: 2.5pt; }
+
+  .qa { margin-top: 12pt; page-break-inside: avoid; }
+  .qa h3 { font-size: 12pt; color: var(--navy); border-bottom: 1pt solid var(--line); padding-bottom: 3pt; margin-bottom: 6pt; }
+  .qa .item { margin-bottom: 7pt; font-size: 10.4pt; }
+  .qa .q { font-weight: 700; color: var(--navy-mid); font-style: italic; }
+  .qa .a { margin-top: 1.5pt; }
+
+  .note { font-size: 9.8pt; color: var(--muted); font-style: italic; margin-top: 3pt; }
+  .pagebreak { page-break-before: always; }
+  footer { margin-top: 14pt; border-top: 1pt solid var(--line); padding-top: 5pt; font-size: 9pt; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Calibration of Production Transient Alert Brokers:<br>Preparing Decision Infrastructure for LSST</h1>
+  <div class="sub">Poster talk script · Pallavi Sati · NAM</div>
+  <div class="meta">Full version 670 spoken words ≈ 4:45 at 140 wpm · trimmed ≈ 3:15 · minimal ≈ 2:20 (see page 2)</div>
+</header>
+
+<div class="beat">
+  <h2><span class="num">1</span>Who I am, and what this is</h2>
+  <p>Hi, I'm Pallavi Sati. I'm a student, and this is independent work — no privileged access to these classifiers or their training data, only their public outputs cross-matched with public spectroscopic labels. That constrained the study, but it also defines it: <b>an external audit</b>, of the kind anyone outside a collaboration can run.</p>
+  <p>Rubin may produce ten million alerts a night, while spectroscopy stays extremely limited. Broker probabilities already rank and filter candidates — so before relying on them for automated decisions, we should ask whether they mean what they claim. <b>This poster is a diagnostic of that question, not a solution to it.</b></p>
+</div>
+
+<div class="beat">
+  <h2><span class="num">2</span>Data and ground truth</h2>
+  <p>I test that against independent spectroscopic classifications from the ZTF Bright Transient Survey — a large, systematically selected sample of bright transients. The spectroscopic class is my reference label, and neither system trained on it. The audit covers <b>1,576 ALeRCE objects</b> — ALeRCE being a production alert broker — and <b>278 from NEEDLE</b>, a specialist rare-transient classifier with three classes.</p>
+</div>
+
+<div class="beat">
+  <h2><span class="num">3</span>Does it classify well? — the premise</h2>
+  <p>First, the premise. ALeRCE classifies SN Ia and SN Ibc at about <b>83%</b>, but SN II is a clear weakness at <b>49.5%</b>. The ranking is still informative: for SN Ia versus the rest, <b>ROC-AUC is 0.92</b>. The ordering carries real information.</p>
+</div>
+
+<div class="beat">
+  <h2><span class="num">4</span>Calibration</h2>
+  <p>The numbers attached to that ordering are another matter. Calibration asks whether a stated confidence matches how often the classifier is right. ALeRCE's average gap is <b>0.26</b> — in one reliability bin, objects near <b>54%</b> confidence were correct about <b>83%</b> of the time. It is systematically underconfident.</p>
+</div>
+
+<div class="beat">
+  <h2><span class="num">5</span>Temperature scaling</h2>
+  <p>Temperature scaling corrects that: it rescales the probabilities with one fitted parameter, and being monotonic it never changes which class comes top. Held out, calibration error falls from <b>0.259 to 0.015</b> — repairing what the number means without altering a single prediction. At a fixed 0.8 threshold, accepted objects rise from <span class="big">nine to 395</span>, at about 88% purity.</p>
+</div>
+
+<div class="beat">
+  <h2><span class="num">6</span>But the correction is not uniform</h2>
+  <p>It improves SN Ia and SN Ibc while making SN II worse. And NEEDLE is overconfident in aggregate, its classes needing corrections in different directions — one global fix serves neither system fully.</p>
+</div>
+
+<div class="beat">
+  <h2><span class="num">7</span>The decision layer — what the terms mean</h2>
+  <p>That brings me to the decision layer, and the terms matter here.</p>
+  <p>The setting is <b>selective classification</b>: instead of forcing a label onto everything, the system may abstain on what it is least sure of. <b>Coverage</b> is the fraction accepted automatically; <b>selective risk</b> is the error rate among only those accepted. As coverage falls, selective risk should fall too — the risk–coverage curve on the poster is that trade-off in one line.</p>
+  <p>Abstained objects are <b>deferred</b> — which means more photometry, a second opinion, or human review, not automatically a spectrum.</p>
+</div>
+
+<div class="beat">
+  <h2><span class="num">8</span>The checker</h2>
+  <p>To defer, you need something to rank by. The obvious candidate is the classifier's own confidence — but that is exactly what I have shown is unreliable. So I train a <b>checker</b>: a small second model estimating the risk that ALeRCE's top prediction is wrong, from the shape of the whole fifteen-class vector.</p>
+  <p>It reaches <b>ROC-AUC 0.836</b>, against 0.689 for raw confidence and <b>0.752 for a control knowing only the predicted class</b> — that control matters, or the checker might just be relearning that SN II is hard. It clears it by <b>0.083</b>, interval excluding zero.</p>
+  <p>Defer the riskiest 20% and <span class="big">47.8% of all errors</span> land there; random deferral would give 20%.</p>
+</div>
+
+<div class="beat">
+  <h2><span class="num">9</span>Limitations</h2>
+  <p>The scope is limited: retrospective, a deliberately constructed sample of bright transients on mature light curves — not stream prevalence, and not early-alert performance. Rare classes are thin: 55 SLSN, 21 TDE.</p>
+</div>
+
+<div class="beat">
+  <h2><span class="num">10</span>What's next — learning to defer</h2>
+  <p>So the checker gives me one tested ingredient — an <b>error-risk score</b>. It ranks which predictions look least trustworthy. It does not say where a spectrum is most worth spending.</p>
+  <p>That is the gap the next stage fills: a <b>budget-aware deferral layer</b>. The idea, <b>learning to defer</b>, is that a system learns when to hand off rather than answer. Selection would weight error risk by <b>scientific value</b>, <b>observability</b> and <b>exposure cost</b>, choosing the best targets within a night's budget. <b>Proposed, not tested.</b></p>
+</div>
+
+<div class="beat">
+  <h2><span class="num">11</span>Close</h2>
+  <p>So: calibration repairs the probability scale; the checker ranks which predictions appear least trustworthy; and science-aware allocation of telescope time remains to be built.</p>
+</div>
+
+<div class="pagebreak"></div>
+
+<div class="glossary">
+  <h3>Decision-framework vocabulary — quick reference</h3>
+  <dl>
+    <dt>Calibration</dt>
+    <dd>Whether a stated confidence matches the observed frequency of being correct. Distinct from accuracy (is the top class right?) and from discrimination (does the score rank correct above incorrect?).</dd>
+
+    <dt>Expected calibration error (ECE)</dt>
+    <dd>The average gap between stated confidence and observed accuracy, computed over confidence bins. Zero is perfect. ALeRCE: 0.259 raw, 0.015 after scaling.</dd>
+
+    <dt>Temperature scaling</dt>
+    <dd>A one-parameter post-hoc correction. Take logs of the probabilities, divide by a fitted T, renormalise with a softmax. T &lt; 1 sharpens, T &gt; 1 flattens. Monotonic, so the predicted class never changes.</dd>
+
+    <dt>Selective classification</dt>
+    <dd>Allowing the system to abstain rather than forcing a label onto every object.</dd>
+
+    <dt>Coverage</dt>
+    <dd>The fraction of objects accepted automatically. Its complement is the deferral rate.</dd>
+
+    <dt>Selective risk</dt>
+    <dd>The error rate among the accepted objects only — not over the whole sample.</dd>
+
+    <dt>Risk–coverage curve</dt>
+    <dd>Selective risk plotted against coverage: the whole accept/defer trade-off in one line. Lower is better.</dd>
+
+    <dt>Error capture</dt>
+    <dd>Of all the classifier's errors, the fraction that ends up in the deferred queue. Random deferral of 20% captures 20%; the checker captures 47.8%.</dd>
+
+    <dt>Checker (error-risk score)</dt>
+    <dd>A second, small model estimating the probability that the main classifier's top prediction is wrong. Validated by ranking (ROC-AUC 0.836) and calibrated in its own right (binary ECE 0.019).</dd>
+
+    <dt>Predicted-class-rate control</dt>
+    <dd>A baseline that scores an object using only its predicted class's historical accuracy. It tests whether the checker learns object-level difficulty or merely which classes are hard.</dd>
+
+    <dt>Deferral</dt>
+    <dd>Routing an object for further evidence — more photometry, a second system, human review. Not automatically spectroscopy.</dd>
+
+    <dt>Learning to defer</dt>
+    <dd>A framework in which a system learns when to hand off to a human or instrument instead of predicting. Proposed here, not implemented.</dd>
+
+    <dt>Budget-aware allocation</dt>
+    <dd>Selecting the target set that maximises expected scientific return — error risk × value × observability — subject to total exposure cost staying within the observing budget.</dd>
+  </dl>
+</div>
+
+<div class="cuts">
+  <h3>Timing and cuts</h3>
+  <p><b>Full script = 670 spoken words ≈ 4:45.</b> Per-beat counts: §1&nbsp;102 · §2&nbsp;57 · §3&nbsp;41 · §4&nbsp;46 · §5&nbsp;57 · §6&nbsp;32 · §7&nbsp;89 · §8&nbsp;110 · §9&nbsp;31 · §10&nbsp;81 · §11&nbsp;24.</p>
+  <ul>
+    <li><b>Trimmed, ≈ 3:15</b> — drop §3, §6 and §9 entirely (104 words); shorten §1 to "Hi, I'm Pallavi Sati — a student, and this is independent work using only public broker outputs and public spectroscopic labels, so this is an external audit" plus the Rubin paragraph (saves ~30); cut §7's third paragraph and §10's first (saves ~50); drop §8's middle paragraph if still long.</li>
+    <li><b>Minimal, ≈ 2:20</b> — keep only §1 (short form), §2, §4, §5, §8 and §11. That is the shortest version that still states the premise, the calibration result, the threshold consequence and the checker.</li>
+    <li><b>Never cut:</b> the 54%/83% example; the nine-to-395 figure; the 0.752 control; "proposed, not tested."</li>
+  </ul>
+</div>
+
+<div class="qa">
+  <h3>If they ask</h3>
+  <div class="item">
+    <div class="q">Isn't the checker just relearning that SN II is hard?</div>
+    <div class="a">That is what the class-only control at 0.752 is for. The checker clears it by 0.083 with a bootstrap interval excluding zero, so there is object-level signal beyond class identity. The shape-only variant does <i>not</i> clear the control — the signal lives in the full fifteen-class vector.</div>
+  </div>
+  <div class="item">
+    <div class="q">Is the risk score itself calibrated, or only well-ordered?</div>
+    <div class="a">Both. Out-of-fold, its own binary ECE is 0.019 and Brier score 0.144.</div>
+  </div>
+  <div class="item">
+    <div class="q">Why not just lower the threshold instead of calibrating?</div>
+    <div class="a">You cannot choose a defensible threshold without an audit like this one, and raw scales are not comparable across systems — ALeRCE fitting T = 0.36 while NEEDLE fits 1.55 is exactly that problem.</div>
+  </div>
+  <div class="item">
+    <div class="q">How much of the deferral gain is real?</div>
+    <div class="a">Modest but genuine: 47.8% of errors captured against 20% for random deferral, with a perfect oracle capped near 69% at that coverage — so just over halfway from random to ideal.</div>
+  </div>
+  <div class="item">
+    <div class="q">Does calibration make the classifier more accurate?</div>
+    <div class="a">No. Temperature scaling is monotonic — not one predicted class changes. It repairs what the number means, which changes <i>which objects clear a fixed gate</i>, not whether they were classified correctly.</div>
+  </div>
+  <div class="item">
+    <div class="q">Why is NEEDLE in a poster about brokers?</div>
+    <div class="a">NEEDLE is not a broker — it is a specialist rare-transient classifier. It is included as a contrasting deployed system: it fails in the opposite direction to ALeRCE, which is what shows that a single global correction cannot be assumed to work.</div>
+  </div>
+</div>
+
+<footer>
+  Every figure quoted is reproducible from <b>results/tables/</b> in github.com/pallavi-2000/transient-calibration-audit, branch <b>alerce-selective-deferral</b>.
+</footer>
+
+</body>
+</html>
