@@ -1,16 +1,19 @@
 """Poster figures for the A1 NAM poster (paper/poster/claude_design).
 
-Generates large-font, print-ready figures from the audited results:
-  1. Multi-broker ECE before/after global temperature scaling, with the
-     fitted temperature and its direction (under- vs overconfident).
-  2. Discrimination-calibration map: each audited score placed by its
-     target-class ROC-AUC and its raw ECE, with the isotonic result for
-     Fink RF shown as a vertical move (ECE collapses, ranking unchanged).
-  3. Reliability diagram for ALeRCE, raw vs out-of-fold calibrated.
+Two audited systems:
+  * ALeRCE  — the production alert broker's 15-class light-curve classifier;
+  * NEEDLE  — a rare-transient classifier (not a broker), 3 classes.
 
-All values are read from results/tables/ rather than hard-coded, except
-the audited constants below that are reported in the corresponding
-result files (and cited in the poster caption).
+Figures generated:
+  1. Aggregate ECE before/after global temperature scaling, annotated with the
+     fitted temperature and its direction (under- vs overconfident).
+  2. NEEDLE per class: discrimination, and the per-class fitted temperature,
+     which points in opposite directions across its own classes.
+  3. ALeRCE reliability diagram, raw vs out-of-fold calibrated.
+
+Values come from results/tables/ and data/processed/ rather than being
+hard-coded, except the audited NEEDLE constants below, which are reported in
+results/tables/needle_*.txt and cited in the poster captions.
 """
 
 from __future__ import annotations
@@ -27,12 +30,12 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 TABLES = ROOT / "results" / "tables"
+DATA = ROOT / "data" / "processed"
 OUT = ROOT / "paper" / "poster" / "claude_design" / "assets"
 
 TEAL = "#1D9E75"
 TEAL_DK = "#0F6E56"
 NAVY = "#0C447C"
-NAVY_DK = "#042C53"
 CORAL = "#D85A30"
 CORAL_DK = "#993C1D"
 GRAY = "#B4B2A9"
@@ -42,7 +45,7 @@ plt.rcParams.update(
     {
         "font.size": 17,
         "axes.labelsize": 18,
-        "axes.titlesize": 19,
+        "axes.titlesize": 18,
         "xtick.labelsize": 16,
         "ytick.labelsize": 16,
         "legend.fontsize": 15,
@@ -51,200 +54,154 @@ plt.rcParams.update(
     }
 )
 
+# NEEDLE aggregate calibration, from results/tables/needle_*.txt.
+NEEDLE = {"ece_before": 0.0504, "ece_after": 0.1278, "T": 1.553}
+# NEEDLE per-class temperatures from the vector-scaling run.
+NEEDLE_T = {"SN": 1.5779, "SLSN-I": 1.8793, "TDE": 0.4249}
+# NEEDLE per-class ECE from the calibration study.
+NEEDLE_ECE = {"SN": 0.1532, "SLSN-I": 0.0858, "TDE": 0.0726}
+
 
 def _despine(ax):
     for s in ("top", "right"):
         ax.spines[s].set_visible(False)
 
 
-def broker_rows() -> list[dict]:
-    """Audited calibration summary per broker score."""
+def system_rows() -> list[dict]:
     cv = json.loads((TABLES / "temperature_scaling_cv.json").read_text())
-    fink_ts = json.loads((TABLES / "fink_temperature_scaling.json").read_text())
-
-    # NEEDLE values come from the study's text summary (5-model pooled run).
-    needle = {"ece_before": 0.0504, "ece_after": 0.1278, "T": 1.553}
-
     return [
         {
-            "label": "ALeRCE\n15-class",
+            "label": "ALeRCE\n15-class broker classifier",
             "before": cv["baseline"]["ece"],
             "after": cv["global_T"]["ece"],
             "T": cv["global_T"]["T_mean"],
-            "direction": "underconfident",
-            "auc": 0.9155,
-            "auc_note": "SNIa vs rest",
+            "direction": "underconfident  (T < 1)",
         },
         {
-            "label": "NEEDLE\n3-class",
-            "before": needle["ece_before"],
-            "after": needle["ece_after"],
-            "T": needle["T"],
-            "direction": "overconfident",
-            "auc": 0.9081,
-            "auc_note": "macro one-vs-rest",
-        },
-        {
-            "label": "Fink\nSuperNNova",
-            "before": fink_ts["snn"]["ece_before"],
-            "after": fink_ts["snn"]["ece_after"],
-            "T": fink_ts["snn"]["T_optimal"],
-            "direction": "no ranking signal",
-            "auc": 0.5246,
-            "auc_note": "SNIa vs rest",
-        },
-        {
-            "label": "Fink\nRandom Forest",
-            "before": fink_ts["rf"]["ece_before"],
-            "after": fink_ts["rf"]["ece_after"],
-            "T": fink_ts["rf"]["T_optimal"],
-            "direction": "no ranking signal",
-            "auc": 0.5021,
-            "auc_note": "SNIa vs rest",
+            "label": "NEEDLE\n3-class rare-transient classifier",
+            "before": NEEDLE["ece_before"],
+            "after": NEEDLE["ece_after"],
+            "T": NEEDLE["T"],
+            "direction": "overconfident  (T > 1)",
         },
     ]
 
 
-def fig_broker_ece(rows: list[dict]) -> None:
-    fig, ax = plt.subplots(figsize=(10.0, 4.7))
-    x = np.arange(len(rows))
-    w = 0.36
-    before = [r["before"] for r in rows]
-    after = [r["after"] for r in rows]
+def needle_per_class() -> pd.DataFrame:
+    """Object-level (deduplicated) NEEDLE performance per class."""
+    from sklearn.metrics import roc_auc_score
 
-    ax.bar(x - w / 2, before, w, color=GRAY, label="raw probabilities")
-    bars_after = ax.bar(x + w / 2, after, w, color=TEAL, label="after global temperature scaling")
+    z = np.load(DATA / "needle_predictions.npz", allow_pickle=True)
+    names = list(z["class_names"])
+    df = pd.DataFrame(z["probs"], columns=names)
+    df["y"] = z["labels"]
+    df["oid"] = z["ztf_ids"]
+    # One row per object: NEEDLE predictions are pooled over 5 models.
+    g = df.groupby("oid").agg({**{c: "mean" for c in names}, "y": "first"})
+    probs = g[names].to_numpy()
+    y = g["y"].to_numpy()
+    pred = probs.argmax(axis=1)
+
+    rows = []
+    for i, cls in enumerate(names):
+        m = y == i
+        rows.append(
+            {
+                "cls": cls,
+                "n": int(m.sum()),
+                "recall": float((pred[m] == i).mean()),
+                "auc": float(roc_auc_score((y == i).astype(int), probs[:, i])),
+                "ece": NEEDLE_ECE[cls],
+                "T": NEEDLE_T[cls],
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+def fig_system_ece(rows: list[dict]) -> None:
+    fig, ax = plt.subplots(figsize=(9.2, 3.2))
+    x = np.arange(len(rows))
+    w = 0.30
+    ax.bar(x - w / 2, [r["before"] for r in rows], w, color=GRAY, label="raw probabilities")
+    bars = ax.bar(x + w / 2, [r["after"] for r in rows], w, color=TEAL,
+                  label="after global temperature scaling")
 
     for i, r in enumerate(rows):
         worse = r["after"] > r["before"]
         if worse:
-            bars_after[i].set_color(CORAL)
-        elif r["T"] > 9:
-            # Fink: T pinned at the optimiser bound. The nominal ECE drop is not
-            # a usable gain because the underlying score carries no ranking, so
-            # hatch it rather than let it read as a success.
-            bars_after[i].set_color("white")
-            bars_after[i].set_edgecolor(GRAY)
-            bars_after[i].set_hatch("//")
-            bars_after[i].set_linewidth(1.6)
-
-    for i, r in enumerate(rows):
-        ax.text(i - w / 2, r["before"] + 0.012, f"{r['before']:.3f}", ha="center", fontsize=15)
-        worse = r["after"] > r["before"]
-        ax.text(
-            i + w / 2,
-            r["after"] + 0.012,
-            f"{r['after']:.3f}" + (" ✗" if worse else ""),
-            ha="center",
-            fontsize=15,
-            color=CORAL_DK if worse else (GRAY if r["T"] > 9 else TEAL_DK),
-            fontweight="bold" if worse else "normal",
-        )
-        tag = f"T = {r['T']:.2f}"
-        if r["T"] > 9:
-            tag += " (bound)"
-        ax.annotate(tag, (i, 0), xycoords=("data", "axes fraction"),
-                    textcoords="offset points", xytext=(0, -58),
-                    ha="center", fontsize=14, color=INK, annotation_clip=False)
-        ax.annotate(r["direction"], (i, 0), xycoords=("data", "axes fraction"),
-                    textcoords="offset points", xytext=(0, -78),
-                    ha="center", fontsize=13.5, color="#5F5E5A", style="italic",
+            bars[i].set_color(CORAL)
+        ax.text(i - w / 2, r["before"] + 0.010, f"{r['before']:.3f}", ha="center", fontsize=16)
+        ax.text(i + w / 2, r["after"] + 0.010, f"{r['after']:.3f}" + (" ✗" if worse else " ✓"),
+                ha="center", fontsize=16, fontweight="bold",
+                color=CORAL_DK if worse else TEAL_DK)
+        ax.annotate(f"T = {r['T']:.2f} — {r['direction']}", (i, 0),
+                    xycoords=("data", "axes fraction"), textcoords="offset points",
+                    xytext=(0, -60), ha="center", fontsize=14, color=INK,
                     annotation_clip=False)
 
     ax.set_xticks(x)
     ax.set_xticklabels([r["label"] for r in rows])
     ax.tick_params(axis="x", length=0, pad=9)
     ax.set_ylabel("Expected calibration error")
-    ax.set_ylim(0, 0.55)
+    ax.set_ylim(0, 0.32)
     ax.grid(axis="y", alpha=0.25)
     ax.set_axisbelow(True)
-    ax.legend(loc="upper left", framealpha=0.95)
+    ax.legend(loc="upper right", framealpha=0.95, fontsize=14)
     _despine(ax)
     fig.tight_layout()
-    fig.savefig(OUT / "fig_broker_ece.png", dpi=300, bbox_inches="tight")
+    fig.savefig(OUT / "fig_system_ece.png", dpi=300, bbox_inches="tight")
     plt.close(fig)
 
 
-def fig_discrimination_map(rows: list[dict]) -> None:
-    fink_extras = json.loads((TABLES / "fink_extras.json").read_text())
-    iso_ece = fink_extras["rf"]["full"]["isotonic_cv"]["ece"]
-    iso_auc = fink_extras["rf"]["full"]["roc_auc"]
+def fig_needle_per_class(pc: pd.DataFrame) -> None:
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11.6, 3.9))
+    order = ["TDE", "SLSN-I", "SN"]
+    pc = pc.set_index("cls").loc[order].reset_index()
+    y = np.arange(len(pc))
 
-    fig, ax = plt.subplots(figsize=(10.2, 6.6))
+    # Left: discrimination per class.
+    ax1.barh(y, pc["auc"], 0.6, color=[TEAL if a >= 0.9 else NAVY for a in pc["auc"]])
+    for i, r in pc.iterrows():
+        ax1.text(r["auc"] - 0.012, i, f"{r['auc']:.3f}", va="center", ha="right",
+                 color="white", fontweight="bold", fontsize=15)
+    ax1.set_yticks(y)
+    ax1.set_yticklabels([f"{r.cls}\nn = {r.n}" for r in pc.itertuples()])
+    ax1.set_xlim(0.5, 1.0)
+    ax1.set_ylim(-0.8, 2.9)
+    ax1.set_xlabel("ROC-AUC (one-vs-rest)")
+    ax1.set_title("Discrimination is strong,\nbest on the rarest class", fontsize=16)
+    ax1.grid(axis="x", alpha=0.25)
+    ax1.set_axisbelow(True)
+    _despine(ax1)
 
-    # Left band: without usable ranking, no monotonic recalibration can help.
-    ax.axvspan(0.44, 0.65, color=CORAL, alpha=0.07)
-    ax.text(
-        0.545, 0.625, "no usable ranking\ncalibration cannot help",
-        ha="center", va="top", fontsize=13.5, color=CORAL_DK, style="italic",
-    )
+    # Right: per-class fitted temperature, diverging about T = 1.
+    ax2.axvline(1.0, color=INK, lw=2.0)
+    for i, r in pc.iterrows():
+        over = r["T"] > 1.0
+        ax2.barh(i, r["T"] - 1.0, 0.6, left=1.0, color=CORAL if over else NAVY)
+        if over:
+            ax2.text(r["T"] + 0.06, i, f"T = {r['T']:.2f}", va="center", ha="left",
+                     fontsize=15, fontweight="bold", color=CORAL_DK)
+        else:
+            # Label inside the bar: outside-left would collide with the tick label.
+            ax2.text(r["T"] + 0.06, i, f"T = {r['T']:.2f}", va="center", ha="left",
+                     fontsize=15, fontweight="bold", color="white")
+    ax2.set_yticks(y)
+    ax2.set_yticklabels(pc["cls"])
+    ax2.set_xlim(0.0, 2.45)
+    ax2.set_ylim(-0.8, 2.9)
+    ax2.set_xlabel("Fitted per-class temperature")
+    ax2.set_title("…but the classes need corrections\nin opposite directions", fontsize=16)
+    ax2.text(1.72, 2.55, "overconfident", fontsize=14.5, color=CORAL_DK,
+             ha="center", style="italic")
+    ax2.text(0.55, -0.55, "underconfident", fontsize=14.5, color=NAVY,
+             ha="center", style="italic")
+    ax2.grid(axis="x", alpha=0.25)
+    ax2.set_axisbelow(True)
+    _despine(ax2)
 
-    styles = {
-        "ALeRCE\n15-class": (NAVY, "o"),
-        "NEEDLE\n3-class": (TEAL_DK, "s"),
-        "Fink\nSuperNNova": (CORAL, "^"),
-        "Fink\nRandom Forest": (CORAL_DK, "v"),
-    }
-    label_offsets = {
-        "Fink\nRandom Forest": (8, 20, "left"),
-        "Fink\nSuperNNova": (14, 2, "left"),
-        "ALeRCE\n15-class": (-10, 16, "right"),
-        "NEEDLE\n3-class": (-10, -12, "right"),
-    }
-    for r in rows:
-        c, m = styles[r["label"]]
-        ax.scatter(r["auc"], r["before"], s=260, color=c, marker=m, zorder=6,
-                   edgecolor="white", linewidth=1.5)
-        dx, dy, ha = label_offsets[r["label"]]
-        ax.annotate(
-            r["label"].replace("\n", " "), (r["auc"], r["before"]),
-            textcoords="offset points", xytext=(dx, dy), ha=ha,
-            fontsize=14.5, fontweight="bold", color=c,
-        )
-
-    # ALeRCE: temperature scaling drives ECE down; ranking is untouched.
-    al = rows[0]
-    ax_x = al["auc"] + 0.016
-    ax.annotate("", xy=(ax_x, al["after"]), xytext=(ax_x, al["before"]),
-                arrowprops=dict(arrowstyle="-|>", color=TEAL, lw=3.0))
-    ax.scatter([al["auc"]], [al["after"]], s=150, color=TEAL, marker="o", zorder=6,
-               edgecolor="white", linewidth=1.3)
-    ax.text(ax_x + 0.008, (al["before"] + al["after"]) / 2,
-            "T = 0.36\nrepaired\n→ 0.015", fontsize=13, color=TEAL_DK, va="center")
-
-    # NEEDLE: the same global correction moves it the wrong way.
-    nd = rows[1]
-    nd_x = nd["auc"] - 0.016
-    ax.annotate("", xy=(nd_x, nd["after"]), xytext=(nd_x, nd["before"]),
-                arrowprops=dict(arrowstyle="-|>", color=CORAL, lw=3.0))
-    ax.text(nd_x - 0.008, nd["after"] + 0.012,
-            "T = 1.55\nglobal scaling\nmakes it worse → 0.128",
-            fontsize=13, color=CORAL_DK, ha="right", va="bottom")
-
-    # Fink RF under isotonic regression: ECE collapses, ranking unchanged.
-    rf = rows[3]
-    ax.annotate("", xy=(iso_auc, iso_ece), xytext=(rf["auc"], rf["before"]),
-                arrowprops=dict(arrowstyle="-|>", color=CORAL_DK, lw=2.6,
-                                linestyle=(0, (5, 3))))
-    ax.scatter([iso_auc], [iso_ece], s=150, color=CORAL_DK, marker="v", zorder=6,
-               edgecolor="white", linewidth=1.3)
-    ax.annotate(
-        f"isotonic: ECE {rf['before']:.2f} → {iso_ece:.3f},\n"
-        "but ROC-AUC still 0.50\n“calibrated yet uninformative”",
-        (iso_auc, iso_ece), textcoords="offset points", xytext=(18, 14),
-        ha="left", fontsize=13.5, color=CORAL_DK, fontweight="bold",
-    )
-
-    ax.axvline(0.65, color="#5F5E5A", lw=1.1, linestyle=":")
-    ax.set_xlabel("Discrimination — ROC-AUC of the score for its target class")
-    ax.set_ylabel("Expected calibration error (raw)")
-    ax.set_xlim(0.44, 1.02)
-    ax.set_ylim(-0.03, 0.64)
-    ax.grid(alpha=0.2)
-    ax.set_axisbelow(True)
-    _despine(ax)
     fig.tight_layout()
-    fig.savefig(OUT / "fig_discrimination_map.png", dpi=300, bbox_inches="tight")
+    fig.savefig(OUT / "fig_needle_per_class.png", dpi=300, bbox_inches="tight")
     plt.close(fig)
 
 
@@ -257,24 +214,23 @@ def fig_reliability() -> None:
     def binned(conf, n_bins=10):
         edges = np.linspace(0, 1, n_bins + 1)
         idx = np.clip(np.digitize(conf, edges) - 1, 0, n_bins - 1)
-        xs, ys, ns = [], [], []
+        xs, ys = [], []
         for b in range(n_bins):
             m = idx == b
             if m.sum() >= 8:
                 xs.append(conf[m].mean())
                 ys.append(correct[m].mean())
-                ns.append(int(m.sum()))
-        return np.array(xs), np.array(ys), np.array(ns)
+        return np.array(xs), np.array(ys)
 
     fig, ax = plt.subplots(figsize=(8.8, 6.0))
     ax.plot([0, 1], [0, 1], "--", color=INK, lw=1.8, label="perfect calibration")
 
-    xr, yr, nr = binned(raw)
-    xc, yc, nc = binned(cal)
+    xr, yr = binned(raw)
+    xc, yc = binned(cal)
     ax.plot(xr, yr, "-o", color=CORAL, lw=3.0, ms=11, label="raw ALeRCE probabilities")
-    ax.plot(xc, yc, "-o", color=TEAL, lw=3.0, ms=11, label="after temperature scaling (out-of-fold)")
+    ax.plot(xc, yc, "-o", color=TEAL, lw=3.0, ms=11,
+            label="after temperature scaling (out-of-fold)")
 
-    # Highlight the underconfidence gap on the raw curve.
     for x, y in zip(xr, yr):
         ax.plot([x, x], [x, y], color=CORAL, alpha=0.28, lw=2.4)
     k = max(1, len(xr) // 3)
@@ -300,13 +256,13 @@ def fig_reliability() -> None:
 
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
-    rows = broker_rows()
-    fig_broker_ece(rows)
-    fig_discrimination_map(rows)
+    rows = system_rows()
+    pc = needle_per_class()
+    fig_system_ece(rows)
+    fig_needle_per_class(pc)
     fig_reliability()
-    print("Wrote:")
-    for name in ("fig_broker_ece", "fig_discrimination_map", "fig_reliability"):
-        print(" ", OUT / f"{name}.png")
+    print(pc.to_string(index=False))
+    print("\nWrote fig_system_ece / fig_needle_per_class / fig_reliability to", OUT)
 
 
 if __name__ == "__main__":
